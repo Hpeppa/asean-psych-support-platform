@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>术语管理 · 东盟灾害心理干预应急语言服务平台</title>
+<link rel="stylesheet" href="assets/kb.css">
+<style>
+  .term-primary{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
+  .term-primary .main{font-size:14.5px;font-weight:700;color:#0f172a;}
+  .term-primary .alt{font-size:11.5px;color:#94a3b8;}
+  .term-def{font-size:12.5px;color:#64748b;line-height:1.7;margin-top:4px;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+  .pager{display:flex;align-items:center;justify-content:center;gap:10px;padding:14px;border-top:1px solid var(--line);}
+  .pager span{font-size:12px;color:#64748b;}
+  .lang-grid{display:grid;grid-template-columns:1fr;gap:0;}
+  .note{font-size:11.5px;color:#94a3b8;margin-top:8px;}
+  .stats.metrics{grid-template-columns:repeat(3,1fr);}
+  .stats.metrics .stat::before{background:linear-gradient(90deg,#0d9488,#06b6d4);}
+  @media (max-width:960px){.stats.metrics{grid-template-columns:repeat(2,1fr);}}
+  @media (max-width:640px){.stats.metrics{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="page-head">
+    <div>
+      <h1 data-i18n="title">术语管理</h1>
+      <p data-i18n="desc">面向灾后心理干预的多语种术语库，覆盖心理急救、创伤干预、儿童与家庭、社区心理重建、救援人员关怀、评估与转介六大领域，每条术语含中、英、泰、越、马来五种译法及来源与审核状态；翻译模块会调用本库并高亮命中术语。</p>
+    </div>
+    <span class="demo-tag" data-i18n="demoTag">演示模拟数据</span>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-label" data-i18n="statTotal">术语总数</div>
+      <div class="stat-value" id="statTotal">—</div>
+      <div class="stat-sub" data-i18n="statTotalSub">五语种专业术语</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label" data-i18n="statDomains">领域数量</div>
+      <div class="stat-value" id="statDomains">—</div>
+      <div class="stat-sub" data-i18n="statDomainsSub">搜索协调 / 心理 / 医疗等</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label" data-i18n="statApproved">已审核</div>
+      <div class="stat-value" id="statApproved">—</div>
+      <div class="stat-sub" data-i18n="statApprovedSub">可作为翻译标准译法</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label" data-i18n="statPending">待审核</div>
+      <div class="stat-value" id="statPending">—</div>
+      <div class="stat-sub" data-i18n="statPendingSub">待专家复核的候选术语</div>
+    </div>
+  </div>
+
+  <div class="stats metrics">
+    <div class="stat">
+      <div class="stat-label" data-i18n="statCoverage">领域覆盖数</div>
+      <div class="stat-value" id="statCoverage">—</div>
+      <div class="stat-sub" data-i18n="statCoverageSub">已收录的领域类别数</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label" data-i18n="statApprovedRate">审核通过率</div>
+      <div class="stat-value" id="statApprovedRate">—</div>
+      <div class="stat-sub" data-i18n="statApprovedRateSub">已审核 / 全量术语</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label" data-i18n="statFiveLang">五语齐全率</div>
+      <div class="stat-value" id="statFiveLang">—</div>
+      <div class="stat-sub" data-i18n="statFiveLangSub">中英泰越马五语均已填写</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="toolbar">
+      <div class="search-box">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="searchInput" data-i18n-placeholder="searchPlaceholder" placeholder="检索术语（支持中/英/泰/越/马来）…">
+      </div>
+      <select class="select" id="langSelect"></select>
+      <select class="select" id="domainSelect"></select>
+      <select class="select" id="reviewSelect"></select>
+      <button class="btn btn-outline" id="btnExport" data-i18n="exportCsv">导出 CSV</button>
+      <span class="count-text" id="countText">—</span>
+    </div>
+    <div class="list" id="termList"></div>
+    <div class="pager">
+      <button class="btn btn-outline btn-sm" id="prevPage" data-i18n="prevPage">上一页</button>
+      <span id="pageInfo">—</span>
+      <button class="btn btn-outline btn-sm" id="nextPage" data-i18n="nextPage">下一页</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-mask" id="modalMask">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <h3 id="modalTitle">术语详情</h3>
+        <p id="modalSub"></p>
+      </div>
+      <button class="modal-close" id="modalClose" aria-label="close">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-foot">
+      <button class="btn btn-primary" id="modalOk" data-i18n="close">关闭</button>
+    </div>
+  </div>
+</div>
+
+<script src="assets/kb.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  var T = {
+    zh: {
+      docTitle: "术语管理 · 东盟灾害心理干预应急语言服务平台",
+      title: "术语管理",
+      desc: "面向灾后心理干预的多语种术语库，覆盖心理急救、创伤干预、儿童与家庭、社区心理重建、救援人员关怀、评估与转介六大领域，每条术语含中、英、泰、越、马来五种译法及来源与审核状态；翻译模块会调用本库并高亮命中术语。",
+      demoTag: "演示模拟数据",
+      statTotal: "术语总数",
+      statTotalSub: "五语种专业术语",
+      statDomains: "领域数量",
+      statDomainsSub: "搜索协调 / 心理 / 医疗等",
+      statApproved: "已审核",
+      statApprovedSub: "可作为翻译标准译法",
+      statPending: "待审核",
+      statPendingSub: "待专家复核的候选术语",
+      statCoverage: "领域覆盖数",
+      statCoverageSub: "已收录的领域类别数",
+      statApprovedRate: "审核通过率",
+      statApprovedRateSub: "已审核 / 全量术语",
+      statFiveLang: "五语齐全率",
+      statFiveLangSub: "中英泰越马五语均已填写",
+      exportCsv: "导出 CSV",
+      exportEmpty: "当前筛选没有可导出的术语",
+      exportDone: "已导出 {n} 条术语",
+      searchPlaceholder: "检索术语（支持中/英/泰/越/马来）…",
+      langAll: "全部语种",
+      langZh: "中文",
+      langEn: "英语",
+      langTh: "泰语",
+      langVi: "越南语",
+      langMs: "马来语",
+      domainAll: "全部领域",
+      reviewAll: "全部审核状态",
+      approved: "已审核",
+      pending: "待审核",
+      count: "共 {n} 条术语",
+      noResult: "没有匹配的术语，请调整筛选条件",
+      loading: "正在加载术语库…",
+      error: "加载失败，请确认已启动本地服务（python rag_server.py）",
+      prevPage: "上一页",
+      nextPage: "下一页",
+      pageInfo: "第 {p} / {n} 页",
+      detailTitle: "术语详情",
+      domainLabel: "领域",
+      sourceLabel: "来源",
+      reviewLabel: "审核状态",
+      translations: "多语种译法",
+      definitionZh: "中文释义",
+      definitionEn: "English definition",
+      sourceUrl: "来源链接",
+      close: "关闭",
+      idLabel: "术语编号"
+    },
+    en: {
+      docTitle: "Term Management · ASEAN Emergency Language Platform",
+      title: "Term Management",
+      desc: "A multilingual glossary for ASEAN cross-border disaster response and post-disaster psychosocial care. Each entry provides Chinese, English, Thai, Vietnamese and Malay equivalents plus domain, source and review status; the translation module highlights matched terms.",
+      demoTag: "Demo data",
+      statTotal: "Total terms",
+      statTotalSub: "Five-language professional terms",
+      statDomains: "Domains",
+      statDomainsSub: "Search & rescue / psychosocial / health",
+      statApproved: "Reviewed",
+      statApprovedSub: "Usable as standard translation",
+      statPending: "Pending review",
+      statPendingSub: "Candidates awaiting expert review",
+      statCoverage: "Domains covered",
+      statCoverageSub: "Domain categories in the glossary",
+      statApprovedRate: "Approval rate",
+      statApprovedRateSub: "Reviewed / all terms",
+      statFiveLang: "Five-language completeness",
+      statFiveLangSub: "All five languages filled in",
+      exportCsv: "Export CSV",
+      exportEmpty: "No filtered terms to export",
+      exportDone: "Exported {n} terms",
+      searchPlaceholder: "Search terms in Chinese, English, Thai, Vietnamese or Malay…",
+      langAll: "All languages",
+      langZh: "Chinese",
+      langEn: "English",
+      langTh: "Thai",
+      langVi: "Vietnamese",
+      langMs: "Malay",
+      domainAll: "All domains",
+      reviewAll: "All review states",
+      approved: "Reviewed",
+      pending: "Pending review",
+      count: "{n} terms",
+      noResult: "No matching terms, please adjust the filters",
+      loading: "Loading glossary…",
+      error: "Failed to load. Make sure the local server is running (python rag_server.py).",
+      prevPage: "Previous",
+      nextPage: "Next",
+      pageInfo: "Page {p} / {n}",
+      detailTitle: "Term detail",
+      domainLabel: "Domain",
+      sourceLabel: "Source",
+      reviewLabel: "Review status",
+      translations: "Multilingual equivalents",
+      definitionZh: "Chinese definition",
+      definitionEn: "English definition",
+      sourceUrl: "Source URL",
+      close: "Close",
+      idLabel: "Term ID"
+    },
+    th: {
+      docTitle: "การจัดการศัพท์ · แพลตฟอร์มภาษาเพื่อการช่วยเหลือภัยพิบัติอาเซียน",
+      title: "การจัดการศัพท์",
+      desc: "คลังศัพท์หลายภาษาสำหรับการช่วยเหลือภัยพิบัติข้ามพรมแดนอาเซียนและการดูแลจิตใจหลังภัยพิบัติ แต่ละรายการมีคำแปลจีน อังกฤษ ไทย เวียดนาม มลายู พร้อมสาขา แหล่งที่มา และสถานะการตรวจ",
+      demoTag: "ข้อมูลสาธิต",
+      statTotal: "จำนวนศัพท์",
+      statTotalSub: "ศัพท์วิชาชีพห้าภาษา",
+      statDomains: "จำนวนสาขา",
+      statDomainsSub: "ค้นหาและกู้ภัย / จิตใจ / สาธารณสุข",
+      statApproved: "ตรวจแล้ว",
+      statApprovedSub: "ใช้เป็นมาตรฐานการแปลได้",
+      statPending: "รอตรวจ",
+      statPendingSub: "รอผู้เชี่ยวชาญตรวจสอบ",
+      statCoverage: "จำนวนสาขาที่ครอบคลุม",
+      statCoverageSub: "จำนวนหมวดสาขาที่รวบรวมไว้",
+      statApprovedRate: "อัตราการตรวจผ่าน",
+      statApprovedRateSub: "ตรวจแล้ว / ศัพท์ทั้งหมด",
+      statFiveLang: "ความครบถ้วนห้าภาษา",
+      statFiveLangSub: "มีครบจีน อังกฤษ ไทย เวียดนาม มลายู",
+      exportCsv: "ส่งออก CSV",
+      exportEmpty: "ไม่มีศัพท์ที่กรองได้ให้ส่งออก",
+      exportDone: "ส่งออกแล้ว {n} รายการ",
+      searchPlaceholder: "ค้นหาศัพท์ภาษาจีน อังกฤษ ไทย เวียดนาม มลายู…",
+      langAll: "ทุกภาษา",
+      langZh: "จีน",
+      langEn: "อังกฤษ",
+      langTh: "ไทย",
+      langVi: "เวียดนาม",
+      langMs: "มลายู",
+      domainAll: "ทุกสาขา",
+      reviewAll: "ทุกสถานะ",
+      approved: "ตรวจแล้ว",
+      pending: "รอตรวจ",
+      count: "ศัพท์ทั้งหมด {n} รายการ",
+      noResult: "ไม่พบศัพท์ที่ตรงกัน โปรดปรับตัวกรอง",
+      loading: "กำลังโหลดคลังศัพท์…",
+      error: "โหลดไม่สำเร็จ โปรดตรวจสอบเซิร์ฟเวอร์ (python rag_server.py)",
+      prevPage: "ก่อนหน้า",
+      nextPage: "ถัดไป",
+      pageInfo: "หน้า {p} / {n}",
+      detailTitle: "รายละเอียดศัพท์",
+      domainLabel: "สาขา",
+      sourceLabel: "แหล่งที่มา",
+      reviewLabel: "สถานะการตรวจ",
+      translations: "คำแปลหลายภาษา",
+      definitionZh: "คำอธิบายภาษาจีน",
+      definitionEn: "คำอธิบายภาษาอังกฤษ",
+      sourceUrl: "ลิงก์แหล่งที่มา",
+      close: "ปิด",
+      idLabel: "รหัสศัพท์"
+    },
+    vi: {
+      docTitle: "Quản lý thuật ngữ · Nền tảng ngôn ngữ ứng phó thảm họa ASEAN",
+      title: "Quản lý thuật ngữ",
+      desc: "Kho thuật ngữ đa ngữ phục vụ ứng phó thảm họa xuyên biên giới và chăm sóc tâm lý sau thảm họa. Mỗi mục gồm tương đương tiếng Trung, Anh, Thái, Việt, Mã Lai cùng lĩnh vực, nguồn và trạng thái duyệt.",
+      demoTag: "Dữ liệu mô phỏng",
+      statTotal: "Tổng thuật ngữ",
+      statTotalSub: "Thuật ngữ chuyên ngành năm thứ tiếng",
+      statDomains: "Số lĩnh vực",
+      statDomainsSub: "Tìm kiếm cứu nạn / tâm lý / y tế",
+      statApproved: "Đã duyệt",
+      statApprovedSub: "Dùng làm chuẩn dịch",
+      statPending: "Chờ duyệt",
+      statPendingSub: "Chờ chuyên gia phản biện",
+      statCoverage: "Số lĩnh vực bao phủ",
+      statCoverageSub: "Số nhóm lĩnh vực đã thu thập",
+      statApprovedRate: "Tỷ lệ duyệt",
+      statApprovedRateSub: "Đã duyệt / toàn bộ thuật ngữ",
+      statFiveLang: "Độ đầy đủ năm ngôn ngữ",
+      statFiveLangSub: "Đủ Trung, Anh, Thái, Việt, Mã Lai",
+      exportCsv: "Xuất CSV",
+      exportEmpty: "Không có thuật ngữ nào để xuất",
+      exportDone: "Đã xuất {n} thuật ngữ",
+      searchPlaceholder: "Tìm thuật ngữ Trung, Anh, Thái, Việt, Mã Lai…",
+      langAll: "Tất cả ngôn ngữ",
+      langZh: "Tiếng Trung",
+      langEn: "Tiếng Anh",
+      langTh: "Tiếng Thái",
+      langVi: "Tiếng Việt",
+      langMs: "Tiếng Mã Lai",
+      domainAll: "Tất cả lĩnh vực",
+      reviewAll: "Tất cả trạng thái",
+      approved: "Đã duyệt",
+      pending: "Chờ duyệt",
+      count: "Tổng {n} thuật ngữ",
+      noResult: "Không có thuật ngữ phù hợp, vui lòng điều chỉnh bộ lọc",
+      loading: "Đang tải kho thuật ngữ…",
+      error: "Tải thất bại. Hãy kiểm tra máy chủ cục bộ (python rag_server.py).",
+      prevPage: "Trang trước",
+      nextPage: "Trang sau",
+      pageInfo: "Trang {p} / {n}",
+      detailTitle: "Chi tiết thuật ngữ",
+      domainLabel: "Lĩnh vực",
+      sourceLabel: "Nguồn",
+      reviewLabel: "Trạng thái duyệt",
+      translations: "Tương đương đa ngữ",
+      definitionZh: "Định nghĩa tiếng Trung",
+      definitionEn: "Định nghĩa tiếng Anh",
+      sourceUrl: "Liên kết nguồn",
+      close: "Đóng",
+      idLabel: "Mã thuật ngữ"
+    },
+    ms: {
+      docTitle: "Pengurusan Istilah · Platform Bahasa Kecemasan ASEAN",
+      title: "Pengurusan Istilah",
+      desc: "Glosari berbilang bahasa untuk tindak balas bencana rentas sempadan ASEAN dan penjagaan psikososial selepas bencana. Setiap entri mengandungi padanan Cina, Inggeris, Thai, Vietnam dan Melayu serta domain, sumber dan status semakan.",
+      demoTag: "Data demo",
+      statTotal: "Jumlah istilah",
+      statTotalSub: "Istilah profesional lima bahasa",
+      statDomains: "Jumlah domain",
+      statDomainsSub: "Carian & penyelamatan / psikologi / kesihatan",
+      statApproved: "Disemak",
+      statApprovedSub: "Boleh jadi piawaian terjemahan",
+      statPending: "Menunggu semakan",
+      statPendingSub: "Menunggu semakan pakar",
+      statCoverage: "Domain diliputi",
+      statCoverageSub: "Bilangan kategori domain dikumpul",
+      statApprovedRate: "Kadar kelulusan",
+      statApprovedRateSub: "Disemak / semua istilah",
+      statFiveLang: "Kelengkapan lima bahasa",
+      statFiveLangSub: "Cina, Inggeris, Thai, Vietnam, Melayu lengkap",
+      exportCsv: "Eksport CSV",
+      exportEmpty: "Tiada istilah untuk dieksport",
+      exportDone: "{n} istilah dieksport",
+      searchPlaceholder: "Cari istilah Cina, Inggeris, Thai, Vietnam atau Melayu…",
+      langAll: "Semua bahasa",
+      langZh: "Cina",
+      langEn: "Inggeris",
+      langTh: "Thai",
+      langVi: "Vietnam",
+      langMs: "Melayu",
+      domainAll: "Semua domain",
+      reviewAll: "Semua status",
+      approved: "Disemak",
+      pending: "Menunggu semakan",
+      count: "{n} istilah",
+      noResult: "Tiada istilah sepadan, sila ubah penapis",
+      loading: "Memuatkan glosari…",
+      error: "Gagal memuatkan. Pastikan pelayan setempat berjalan (python rag_server.py).",
+      prevPage: "Sebelum",
+      nextPage: "Seterusnya",
+      pageInfo: "Halaman {p} / {n}",
+      detailTitle: "Butiran istilah",
+      domainLabel: "Domain",
+      sourceLabel: "Sumber",
+      reviewLabel: "Status semakan",
+      translations: "Padanan berbilang bahasa",
+      definitionZh: "Definisi bahasa Cina",
+      definitionEn: "Definisi bahasa Inggeris",
+      sourceUrl: "Pautan sumber",
+      close: "Tutup",
+      idLabel: "ID istilah"
+    }
+  };
+
+  var lang = KB.readLang();
+  var t = KB.makeT(T, lang);
+  var data = [];
+  var keyword = "";
+  var viewLang = "zh";
+  var domainFilter = "all";
+  var reviewFilter = "all";
+  var page = 1;
+  var pageSize = 30;
+  var activeItem = null;
+
+  var FIELDS = { zh: "term_zh", en: "term_en", th: "term_th", vi: "term_vi", ms: "term_ms" };
+  var FIELD_KEYS = {
+    zh: "langZh", en: "langEn", th: "langTh", vi: "langVi", ms: "langMs"
+  };
+
+  function domains() {
+    var set = {};
+    data.forEach(function (item) { if (item.domain) set[item.domain] = true; });
+    return Object.keys(set).sort();
+  }
+
+  function renderFilters() {
+    var langSelect = document.getElementById("langSelect");
+    langSelect.innerHTML = '<option value="zh">' + KB.escapeHtml(t("langZh")) + "</option>" +
+      KB.CODES.filter(function (code) { return code !== "zh"; }).map(function (code) {
+        return '<option value="' + code + '">' + KB.escapeHtml(t(FIELD_KEYS[code])) + "</option>";
+      }).join("");
+    langSelect.value = viewLang;
+
+    var domainSelect = document.getElementById("domainSelect");
+    domainSelect.innerHTML = '<option value="all">' + KB.escapeHtml(t("domainAll")) + "</option>" +
+      domains().map(function (name) {
+        return '<option value="' + KB.escapeHtml(name) + '">' + KB.escapeHtml(name) + "</option>";
+      }).join("");
+    domainSelect.value = domainFilter;
+
+    var reviewSelect = document.getElementById("reviewSelect");
+    reviewSelect.innerHTML = '<option value="all">' + KB.escapeHtml(t("reviewAll")) + "</option>" +
+      '<option value="approved">' + KB.escapeHtml(t("approved")) + "</option>" +
+      '<option value="pending">' + KB.escapeHtml(t("pending")) + "</option>";
+    reviewSelect.value = reviewFilter;
+  }
+
+  function filtered() {
+    var word = keyword.trim().toLowerCase();
+    return data.filter(function (item) {
+      if (domainFilter !== "all" && item.domain !== domainFilter) return false;
+      if (reviewFilter !== "all") {
+        var approved = item.review_status === "已审核";
+        if (reviewFilter === "approved" && !approved) return false;
+        if (reviewFilter === "pending" && approved) return false;
+      }
+      if (!word) return true;
+      var haystack = [item.term_zh, item.term_en, item.term_th, item.term_vi, item.term_ms, item.domain]
+        .join(" ").toLowerCase();
+      return haystack.indexOf(word) >= 0;
+    });
+  }
+
+  function renderList() {
+    var rows = filtered();
+    var totalPages = Math.max(1, Math.ceil(rows.length / pageSize));
+    if (page > totalPages) page = totalPages;
+    var start = (page - 1) * pageSize;
+    var slice = rows.slice(start, start + pageSize);
+    document.getElementById("countText").textContent = KB.fillTpl(t("count"), { n: rows.length });
+    document.getElementById("pageInfo").textContent = KB.fillTpl(t("pageInfo"), { p: page, n: totalPages });
+    document.getElementById("prevPage").disabled = page <= 1;
+    document.getElementById("nextPage").disabled = page >= totalPages;
+
+    var list = document.getElementById("termList");
+    if (!slice.length) {
+      list.innerHTML = '<div class="empty">' + KB.escapeHtml(t("noResult")) + "</div>";
+      return;
+    }
+    list.innerHTML = slice.map(function (item, i) {
+      var main = item[FIELDS[viewLang]] || item.term_zh;
+      var alt = viewLang === "zh" ? item.term_en : item.term_zh;
+      var approved = item.review_status === "已审核";
+      var definition = lang === "zh" ? item.definition_zh : (lang === "en" ? item.definition_en : item.definition_zh);
+      return '<div class="row" data-index="' + i + '" role="button" tabindex="0">' +
+        '<div class="row-main">' +
+          '<div class="term-primary">' +
+            '<span class="main">' + KB.highlight(main, keyword) + "</span>" +
+            '<span class="alt">' + KB.escapeHtml(alt || "") + "</span>" +
+            '<span class="tag blue">' + KB.escapeHtml(item.domain || "") + "</span>" +
+            '<span class="tag ' + (approved ? "green" : "amber") + '">' + KB.escapeHtml(approved ? t("approved") : t("pending")) + "</span>" +
+          "</div>" +
+          '<div class="term-def">' + KB.highlight(definition || "", keyword) + "</div>" +
+          '<div class="row-meta"><span>' + KB.escapeHtml(item.source || "") + "</span><span>" + KB.escapeHtml(item.id) + "</span></div>" +
+        "</div>" +
+      "</div>";
+    }).join("");
+    Array.prototype.forEach.call(list.querySelectorAll(".row"), function (row) {
+      row.addEventListener("click", function () {
+        openDetail(slice[parseInt(row.getAttribute("data-index"), 10)]);
+      });
+    });
+  }
+
+  function openDetail(item) {
+    if (!item) return;
+    activeItem = item;
+    var approved = item.review_status === "已审核";
+    document.getElementById("modalTitle").textContent = item[FIELDS[viewLang]] || item.term_zh;
+    document.getElementById("modalSub").textContent = item.id + " · " + (item.domain || "");
+    var langLines = KB.CODES.map(function (code) {
+      return '<div class="lang-line"><b>' + KB.escapeHtml(t(FIELD_KEYS[code])) + "</b><span>" +
+        KB.escapeHtml(item[FIELDS[code]] || "") + "</span></div>";
+    }).join("");
+    document.getElementById("modalBody").innerHTML =
+      '<div class="detail-grid">' +
+        '<div class="detail-cell"><b>' + KB.escapeHtml(t("domainLabel")) + "</b><span>" + KB.escapeHtml(item.domain || "") + "</span></div>" +
+        '<div class="detail-cell"><b>' + KB.escapeHtml(t("sourceLabel")) + "</b><span>" + KB.escapeHtml(item.source || "") + "</span></div>" +
+        '<div class="detail-cell"><b>' + KB.escapeHtml(t("reviewLabel")) + "</b><span>" + KB.escapeHtml(approved ? t("approved") : t("pending")) + "</span></div>" +
+        '<div class="detail-cell"><b>' + KB.escapeHtml(t("idLabel")) + "</b><span>" + KB.escapeHtml(item.id || "") + "</span></div>" +
+      "</div>" +
+      '<div class="detail-block"><h4>' + KB.escapeHtml(t("translations")) + "</h4>" + langLines + "</div>" +
+      '<div class="detail-block"><h4>' + KB.escapeHtml(t("definitionZh")) + "</h4><p>" + KB.escapeHtml(item.definition_zh || "") + "</p></div>" +
+      '<div class="detail-block"><h4>' + KB.escapeHtml(t("definitionEn")) + "</h4><p>" + KB.escapeHtml(item.definition_en || "") + "</p></div>" +
+      '<div class="detail-block"><h4>' + KB.escapeHtml(t("sourceUrl")) + "</h4><p><a href=\"" + KB.escapeHtml(item.source_url || "#") + "\" target=\"_blank\" rel=\"noopener noreferrer\">" +
+        KB.escapeHtml(item.source_url || "-") + "</a></p></div>" +
+      '<div class="detail-block"><h4>授权说明 / License</h4><p>' + KB.escapeHtml(item.license || "-") + "</p></div>";
+    document.getElementById("modalMask").classList.add("show");
+  }
+
+  function closeDetail() {
+    document.getElementById("modalMask").classList.remove("show");
+    activeItem = null;
+  }
+
+  function updateStats() {
+    var approvedCount = data.filter(function (item) {
+      return item.review_status === "已审核";
+    }).length;
+    var fiveLangCount = data.filter(function (item) {
+      return KB.CODES.every(function (code) {
+        return String(item[FIELDS[code]] || "").trim() !== "";
+      });
+    }).length;
+    document.getElementById("statTotal").textContent = data.length;
+    document.getElementById("statDomains").textContent = domains().length;
+    document.getElementById("statApproved").textContent = approvedCount;
+    document.getElementById("statPending").textContent = data.filter(function (item) {
+      return item.review_status !== "已审核";
+    }).length;
+    document.getElementById("statCoverage").textContent = domains().length;
+    document.getElementById("statApprovedRate").textContent = data.length
+      ? ((approvedCount / data.length) * 100).toFixed(1) + "%" : "—";
+    document.getElementById("statFiveLang").textContent = data.length
+      ? ((fiveLangCount / data.length) * 100).toFixed(1) + "%" : "—";
+  }
+
+  /* ---------- 特色功能：导出当前筛选结果为 CSV ---------- */
+  function csvCell(value) {
+    return '"' + String(value == null ? "" : value).replace(/"/g, '""') + '"';
+  }
+
+  function timeStamp() {
+    var d = new Date();
+    function pad(n) { return (n < 10 ? "0" : "") + n; }
+    return d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) + "_" +
+      pad(d.getHours()) + pad(d.getMinutes()) + pad(d.getSeconds());
+  }
+
+  function exportCsv() {
+    var rows = filtered();
+    if (!rows.length) {
+      KB.toast(t("exportEmpty"), "error");
+      return;
+    }
+    var header = [t("langZh"), t("langEn"), t("langTh"), t("langVi"), t("langMs"),
+      t("domainLabel"), t("sourceLabel"), t("reviewLabel")];
+    var lines = [header.map(csvCell).join(",")];
+    rows.forEach(function (item) {
+      lines.push([
+        item.term_zh, item.term_en, item.term_th, item.term_vi, item.term_ms,
+        item.domain, item.source,
+        item.review_status === "已审核" ? t("approved") : t("pending")
+      ].map(csvCell).join(","));
+    });
+    var blob = new Blob(["\ufeff" + lines.join("\r\n")], { type: "text/csv;charset=utf-8" });
+    var url = URL.createObjectURL(blob);
+    var link = document.createElement("a");
+    link.href = url;
+    link.download = "glossary_terms_" + timeStamp() + ".csv";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+    KB.toast(KB.fillTpl(t("exportDone"), { n: rows.length }));
+  }
+
+  function applyLang(next) {
+    lang = next;
+    t = KB.makeT(T, lang);
+    document.documentElement.lang = lang === "zh" ? "zh-CN" : lang;
+    document.title = t("docTitle");
+    KB.applyStatic(t);
+    document.getElementById("searchInput").placeholder = t("searchPlaceholder");
+    renderFilters();
+    renderList();
+    if (activeItem) openDetail(activeItem);
+  }
+
+  function load() {
+    document.getElementById("termList").innerHTML = '<div class="empty">' + KB.escapeHtml(t("loading")) + "</div>";
+    Promise.all([KB.fetchJson("insarag_terms.json"), KB.fetchJson("glossary.json")])
+      .then(function (results) {
+        var real = Array.isArray(results[0]) ? results[0] : [];
+        data = real.concat(Array.isArray(results[1]) ? results[1] : []);
+        updateStats();
+        renderFilters();
+        renderList();
+      })
+      .catch(function () {
+        document.getElementById("termList").innerHTML = '<div class="empty">' + KB.escapeHtml(t("error")) + "</div>";
+      });
+  }
+
+  var timer = null;
+  document.getElementById("searchInput").addEventListener("input", function (e) {
+    clearTimeout(timer);
+    var value = e.target.value;
+    timer = setTimeout(function () {
+      keyword = value;
+      page = 1;
+      renderList();
+    }, 160);
+  });
+  document.getElementById("langSelect").addEventListener("change", function () {
+    viewLang = this.value;
+    page = 1;
+    renderList();
+  });
+  document.getElementById("domainSelect").addEventListener("change", function () {
+    domainFilter = this.value;
+    page = 1;
+    renderList();
+  });
+  document.getElementById("reviewSelect").addEventListener("change", function () {
+    reviewFilter = this.value;
+    page = 1;
+    renderList();
+  });
+  document.getElementById("prevPage").addEventListener("click", function () {
+    if (page > 1) { page -= 1; renderList(); }
+  });
+  document.getElementById("btnExport").addEventListener("click", exportCsv);
+  document.getElementById("nextPage").addEventListener("click", function () {
+    page += 1;
+    renderList();
+  });
+  document.getElementById("modalClose").addEventListener("click", closeDetail);
+  document.getElementById("modalOk").addEventListener("click", closeDetail);
+  document.getElementById("modalMask").addEventListener("click", function (e) {
+    if (e.target === e.currentTarget) closeDetail();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") closeDetail();
+  });
+
+  KB.bindLanguage(applyLang, { onVisible: true });
+  applyLang(lang);
+  load();
+})();
+</script>
+</body>
+</html>
