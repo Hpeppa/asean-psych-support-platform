@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>多语种翻译 · 东盟灾害心理干预应急语言服务平台</title>
+<link rel="stylesheet" href="assets/kb.css">
+<style>
+  .trans-grid{display:grid;grid-template-columns:1fr 34px 1fr;gap:12px;align-items:stretch;}
+  .trans-col{display:flex;flex-direction:column;min-width:0;}
+  .trans-col textarea{
+    width:100%;min-height:190px;resize:vertical;border:1px solid var(--line);border-radius:12px;
+    padding:12px 14px;font-family:inherit;font-size:13.5px;line-height:1.85;color:var(--text);
+    background:#fbfcfe;outline:none;transition:border-color .15s,box-shadow .15s,background .15s;
+  }
+  .trans-col textarea:focus{border-color:#93b4fd;background:#fff;box-shadow:0 0 0 3px rgba(37,99,235,.12);}
+  .trans-col textarea[readonly]{background:#f8fafc;color:#1e293b;}
+  .col-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:7px;}
+  .col-head .lbl{font-size:11.5px;font-weight:600;color:#94a3b8;letter-spacing:.4px;text-transform:uppercase;}
+  .swap-col{display:flex;align-items:center;justify-content:center;}
+  .swap-btn{
+    width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:#fff;
+    color:var(--primary);cursor:pointer;display:flex;align-items:center;justify-content:center;
+    box-shadow:var(--shadow);transition:border-color .15s,background .15s;
+  }
+  .swap-btn:hover{border-color:#93b4fd;background:var(--primary-soft);}
+  .trans-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px;}
+  .counter{font-size:11px;color:#a3aec2;margin-left:auto;}
+  .result-status{font-size:11.5px;color:#94a3b8;margin-top:8px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+  .hl-preview{
+    margin-top:8px;padding:10px 12px;border:1px dashed #e2e8f0;border-radius:10px;
+    background:#fbfcfe;font-size:12.5px;line-height:1.85;color:#334155;max-height:130px;overflow:auto;
+  }
+  .hl-preview b{display:block;font-size:10.5px;color:#94a3b8;letter-spacing:.4px;margin-bottom:3px;font-weight:600;text-transform:uppercase;}
+  mark{background:#fff3bf;color:#92400e;border-radius:3px;padding:0 2px;font-weight:600;}
+  .term-list{display:flex;flex-direction:column;}
+  .term-row{
+    display:flex;align-items:center;gap:10px;padding:9px 18px;border-bottom:1px solid #eef2f8;flex-wrap:wrap;
+  }
+  .term-row:last-child{border-bottom:none;}
+  .term-row .pair{font-size:12.5px;color:#0f172a;font-weight:600;}
+  .term-row .arrow{color:#cbd5e1;}
+  .ref-card{padding:11px 18px;border-bottom:1px solid #eef2f8;}
+  .ref-card:last-child{border-bottom:none;}
+  .ref-card .src{font-size:12.5px;color:#334155;line-height:1.7;}
+  .ref-card .tgt{font-size:12.5px;color:#1d4ed8;line-height:1.7;margin-top:3px;}
+  .ref-card .meta{font-size:11px;color:#94a3b8;margin-top:4px;display:flex;gap:10px;flex-wrap:wrap;}
+  .side-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start;}
+  .rag-bar{
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;padding:9px 12px;
+    border:1px solid #bfdbfe;border-radius:10px;
+    background:linear-gradient(90deg,#eff6ff,#f8fbff 70%,#ffffff);
+  }
+  .rag-title{font-size:11px;font-weight:700;color:#1d4ed8;letter-spacing:.5px;text-transform:uppercase;}
+  .rag-pill{
+    font-size:11.5px;font-weight:600;color:#1e3a8a;background:#fff;
+    border:1px solid #dbeafe;border-radius:999px;padding:2px 10px;
+  }
+  .rag-pill b{color:#1d4ed8;}
+  .hist-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:3px;}
+  .hist-time{font-size:11px;color:#94a3b8;margin-left:auto;}
+  @media (max-width:900px){
+    .trans-grid{grid-template-columns:1fr;}
+    .swap-col{transform:rotate(90deg);}
+    .side-grid{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+<script src="assets/static-api.js"></script>
+<div class="wrap">
+  <div class="page-head">
+    <div>
+      <h1 data-i18n="title">多语种翻译</h1>
+      <p data-i18n="desc">面向灾后心理干预场景，支持中文、英语、泰语、越南语、马来语双向互译；翻译时自动命中 PFA 心理急救、创伤应激、哀伤辅导等术语标准译法，并检索心理安抚平行语料向量库获取双语上下文辅助生成。</p>
+    </div>
+    <span class="demo-tag" data-i18n="demoTag">演示模拟数据</span>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <h2 data-i18n="panelTitle">双向翻译工作台</h2>
+      <span class="sub" id="engineLabel">DeepSeek · Bigmodel</span>
+    </div>
+    <div class="panel-body">
+      <div class="rag-bar hidden" id="ragBar"></div>
+      <div class="trans-grid">
+        <div class="trans-col">
+          <div class="col-head">
+            <span class="lbl" data-i18n="sourceLabel">原文</span>
+            <select class="select" id="sourceSelect" style="height:31px;font-size:12px;"></select>
+          </div>
+          <textarea id="sourceText" data-i18n-placeholder="sourcePlaceholder" placeholder="请输入心理干预文本，例如：请对受灾家庭开展心理急救和需求评估…"></textarea>
+          <div class="col-head" style="margin-top:8px;">
+            <span class="counter" id="sourceCount">0 / 2000</span>
+          </div>
+        </div>
+
+        <div class="swap-col">
+          <button class="swap-btn" id="swapBtn" data-i18n-title="swap" title="交换语言">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="M16 21l4-4-4-4"/><path d="M20 17H4"/></svg>
+          </button>
+        </div>
+
+        <div class="trans-col">
+          <div class="col-head">
+            <span class="lbl" data-i18n="targetLabel">译文</span>
+            <select class="select" id="targetSelect" style="height:31px;font-size:12px;"></select>
+          </div>
+          <textarea id="targetText" readonly placeholder=""></textarea>
+          <div class="result-status" id="resultStatus"></div>
+        </div>
+      </div>
+
+      <div class="trans-actions">
+        <button class="btn btn-primary" id="btnTranslate" data-i18n="translateBtn">开始翻译</button>
+        <button class="btn btn-outline" id="btnCopy" data-i18n="copyBtn">复制译文</button>
+        <button class="btn btn-outline" id="btnSpeak" data-i18n="speakBtn">播报译文</button>
+        <button class="btn btn-outline" id="btnMic" data-i18n="micBtn">语音输入</button>
+        <button class="btn btn-outline" id="btnClear" data-i18n="clearBtn">清空</button>
+        <span class="counter" data-i18n="hint">Ctrl + Enter 快速翻译</span>
+      </div>
+      <div class="notice hidden" id="notice"></div>
+
+      <div class="hl-preview hidden" id="sourcePreview"><b data-i18n="sourcePreviewLabel">原文术语命中</b><div id="sourcePreviewText"></div></div>
+      <div class="hl-preview hidden" id="targetPreview"><b data-i18n="targetPreviewLabel">译文术语命中</b><div id="targetPreviewText"></div></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;">
+        <h2 data-i18n="historyTitle">翻译历史</h2>
+        <span class="sub" data-i18n="historyHint">最近 10 条 · 点击回填</span>
+      </div>
+      <button class="btn btn-outline btn-sm" id="btnClearHistory" data-i18n="historyClear">清空历史</button>
+    </div>
+    <div class="list" id="historyList"></div>
+  </div>
+
+  <div class="side-grid">
+    <div class="panel">
+      <div class="panel-head">
+        <h2 data-i18n="glossaryTitle">术语库命中</h2>
+        <span class="sub" id="glossaryCount">0</span>
+      </div>
+      <div class="term-list" id="glossaryList">
+        <div class="empty" data-i18n="glossaryEmpty">本次翻译未命中术语库条目</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h2 data-i18n="parallelTitle">平行语料参考</h2>
+        <span class="sub" id="parallelCount">0</span>
+      </div>
+      <div id="parallelList">
+        <div class="empty" data-i18n="parallelEmpty">未检索到相关平行语料</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h2 data-i18n="newsTitle">相关新闻来源</h2>
+        <span class="sub" id="newsCount">0</span>
+      </div>
+      <div id="newsList">
+        <div class="empty" data-i18n="newsEmpty">未匹配到相关新闻</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="assets/kb.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  var T = {
+    zh: {
+      docTitle: "多语种翻译 · 东盟灾害心理干预应急语言服务平台",
+      title: "多语种翻译",
+      desc: "面向灾后心理干预场景，支持中文、英语、泰语、越南语、马来语双向互译；翻译时自动命中 PFA 心理急救、创伤应激、哀伤辅导等术语标准译法，并检索心理安抚平行语料向量库获取双语上下文辅助生成。",
+      demoTag: "演示模拟数据",
+      panelTitle: "双向翻译工作台",
+      sourceLabel: "原文",
+      targetLabel: "译文",
+      sourcePlaceholder: "请输入心理干预文本，例如：请对受灾家庭开展心理急救和需求评估…",
+      targetPlaceholder: "",
+      translateBtn: "开始翻译",
+      translatingBtn: "翻译中…",
+      copyBtn: "复制译文",
+      speakBtn: "播报译文",
+      micBtn: "语音输入",
+      speaking: "正在播报…",
+      listening: "正在聆听，请说话…",
+      voiceUnsupported: "当前浏览器不支持语音功能",
+      clearBtn: "清空",
+      hint: "Ctrl + Enter 快速翻译",
+      swap: "交换源语言与目标语言",
+      emptyText: "请先输入需要翻译的原文",
+      sameLang: "源语言与目标语言不能相同",
+      copied: "译文已复制到剪贴板",
+      copyEmpty: "暂无可复制的译文",
+      copyFail: "复制失败，请手动选择译文",
+      cleared: "已清空输入与结果",
+      failed: "翻译失败：{e}",
+      loading: "正在检索术语库与平行语料并生成译文…",
+      sourcePreviewLabel: "原文术语命中",
+      targetPreviewLabel: "译文术语命中",
+      glossaryTitle: "术语库命中",
+      glossaryEmpty: "本次翻译未命中术语库条目",
+      parallelTitle: "平行语料参考",
+      parallelEmpty: "未检索到相关平行语料",
+      newsTitle: "相关新闻来源",
+      newsEmpty: "未匹配到相关新闻",
+      newsLink: "原文链接 ↗",
+      resultMeta: "{mode} · {ms} 毫秒 · 术语 {g} 条 · 平行语料 {p} 条",
+      ragTitle: "RAG 增强指标",
+      ragTerms: "命中术语 {n} 条",
+      ragRefs: "平行语料参考 {n} 条",
+      ragNews: "相关新闻 {n} 条",
+      ragElapsed: "耗时 {ms} ms",
+      historyTitle: "翻译历史",
+      historyHint: "最近 10 条 · 点击回填",
+      historyEmpty: "暂无翻译历史",
+      historyClear: "清空历史",
+      historyCleared: "翻译历史已清空",
+      historyRestored: "已回填到翻译工作台",
+      modeDeepseek: "DeepSeek 生成",
+      modeDemo: "本地回退",
+      reviewApproved: "已审核",
+      reviewPending: "待审核",
+      domainLabel: "领域",
+      sourceNameLabel: "来源",
+      scoreLabel: "相似度 {p}%",
+      referenceHint: "翻译时自动检索的参考句对（演示数据）",
+      noticeDemo: "未配置 DeepSeek 密钥，当前使用术语库与平行语料回退翻译。",
+      noticeFallback: "DeepSeek 调用失败，已使用术语库与平行语料回退翻译。"
+    },
+    en: {
+      docTitle: "Multilingual Translation · ASEAN Emergency Language Platform",
+      title: "Multilingual Translation",
+      desc: "Built for post-disaster psychosocial response: two-way translation among Chinese, English, Thai, Vietnamese and Malay, with automatic PFA / trauma-stress / grief-counselling glossary terms and psychosocial parallel-corpus context.",
+      demoTag: "Demo data",
+      panelTitle: "Translation workbench",
+      sourceLabel: "Source text",
+      targetLabel: "Translation",
+      sourcePlaceholder: "Enter psychosocial text, e.g. Provide psychological first aid and needs assessment for affected families…",
+      translateBtn: "Translate",
+      translatingBtn: "Translating…",
+      copyBtn: "Copy translation",
+      speakBtn: "Speak result",
+      micBtn: "Voice input",
+      speaking: "Speaking…",
+      listening: "Listening, please speak…",
+      voiceUnsupported: "Voice features are not supported in this browser",
+      clearBtn: "Clear",
+      hint: "Ctrl + Enter to translate",
+      swap: "Swap source and target languages",
+      emptyText: "Please enter the source text first",
+      sameLang: "Source and target languages must differ",
+      copied: "Translation copied to clipboard",
+      copyEmpty: "There is no translation to copy",
+      copyFail: "Copy failed, please select the text manually",
+      cleared: "Input and result cleared",
+      failed: "Translation failed: {e}",
+      loading: "Retrieving glossary and parallel corpus, generating translation…",
+      sourcePreviewLabel: "Glossary hits in source",
+      targetPreviewLabel: "Glossary hits in translation",
+      glossaryTitle: "Glossary matches",
+      glossaryEmpty: "No glossary entries matched this translation",
+      parallelTitle: "Parallel corpus references",
+      parallelEmpty: "No related parallel sentences retrieved",
+      newsTitle: "Related news sources",
+      newsEmpty: "No related news matched",
+      newsLink: "Source link ↗",
+      resultMeta: "{mode} · {ms} ms · {g} glossary hits · {p} references",
+      ragTitle: "RAG enhancement metrics",
+      ragTerms: "{n} glossary hits",
+      ragRefs: "{n} parallel references",
+      ragNews: "{n} related news",
+      ragElapsed: "{ms} ms elapsed",
+      historyTitle: "Translation history",
+      historyHint: "Latest 10 · click to restore",
+      historyEmpty: "No translation history yet",
+      historyClear: "Clear history",
+      historyCleared: "Translation history cleared",
+      historyRestored: "Restored to the workbench",
+      modeDeepseek: "DeepSeek",
+      modeDemo: "Local fallback",
+      reviewApproved: "Reviewed",
+      reviewPending: "Pending review",
+      domainLabel: "Domain",
+      sourceNameLabel: "Source",
+      scoreLabel: "Similarity {p}%",
+      referenceHint: "Reference sentence pairs retrieved during translation (demo data)",
+      noticeDemo: "DeepSeek key is not configured; using glossary and parallel corpus fallback.",
+      noticeFallback: "DeepSeek call failed; using glossary and parallel corpus fallback."
+    },
+    th: {
+      docTitle: "การแปลหลายภาษา · แพลตฟอร์มภาษาเพื่อการช่วยเหลือภัยพิบัติอาเซียน",
+      title: "การแปลหลายภาษา",
+      desc: "สำหรับงานช่วยเหลือทางจิตใจหลังภัยพิบัติ รองรับการแปลสองทิศทางระหว่างจีน อังกฤษ ไทย เวียดนาม และมลายู พร้อมจับศัพท์มาตรฐานด้าน PFA ความเครียดจาก trauma และการให้คำปรึกษาเรื่องการสูญเสีย รวมถึงค้นคลังประโยคคู่ขนานด้านการปลอบใจ",
+      demoTag: "ข้อมูลสาธิต",
+      panelTitle: "พื้นที่ทำงานแปลภาษา",
+      sourceLabel: "ต้นฉบับ",
+      targetLabel: "คำแปล",
+      sourcePlaceholder: "พิมพ์ข้อความช่วยเหลือทางจิตใจ เช่น: ให้การปฐมพยาบาลทางจิตใจและประเมินความต้องการของครอบครัวที่ได้รับผลกระทบ…",
+      translateBtn: "เริ่มแปล",
+      translatingBtn: "กำลังแปล…",
+      copyBtn: "คัดลอกคำแปล",
+      speakBtn: "อ่านคำแปลออกเสียง",
+      micBtn: "ป้อนด้วยเสียง",
+      speaking: "กำลังอ่านออกเสียง…",
+      listening: "กำลังฟัง โปรดพูด…",
+      voiceUnsupported: "เบราว์เซอร์นี้ไม่รองรับฟังก์ชันเสียง",
+      clearBtn: "ล้าง",
+      hint: "Ctrl + Enter เพื่อแปล",
+      swap: "สลับภาษา",
+      emptyText: "กรุณากรอกข้อความต้นฉบับ",
+      sameLang: "ภาษาต้นทางและปลายทางต้องต่างกัน",
+      copied: "คัดลอกคำแปลแล้ว",
+      copyEmpty: "ยังไม่มีคำแปลให้คัดลอก",
+      copyFail: "คัดลอกไม่สำเร็จ กรุณาเลือกข้อความเอง",
+      cleared: "ล้างข้อมูลแล้ว",
+      failed: "แปลไม่สำเร็จ: {e}",
+      loading: "กำลังค้นคลังศัพท์และคลังประโยคคู่ขนาน…",
+      sourcePreviewLabel: "คำศัพท์ที่พบในต้นฉบับ",
+      targetPreviewLabel: "คำศัพท์ที่พบในคำแปล",
+      glossaryTitle: "คำศัพท์ที่ตรงกัน",
+      glossaryEmpty: "ไม่พบคำศัพท์ในคลังสำหรับการแปลนี้",
+      parallelTitle: "ประโยคคู่ขนานอ้างอิง",
+      parallelEmpty: "ไม่พบประโยคคู่ขนานที่เกี่ยวข้อง",
+      newsTitle: "แหล่งข่าวที่เกี่ยวข้อง",
+      newsEmpty: "ไม่พบข่าวที่เกี่ยวข้อง",
+      newsLink: "ลิงก์ต้นฉบับ ↗",
+      resultMeta: "{mode} · {ms} มิลลิวินาที · ศัพท์ {g} · ประโยคอ้างอิง {p}",
+      ragTitle: "ตัวชี้วัดการเสริม RAG",
+      ragTerms: "ศัพท์ที่พบ {n} รายการ",
+      ragRefs: "ประโยคอ้างอิง {n} รายการ",
+      ragNews: "ข่าวที่เกี่ยวข้อง {n} รายการ",
+      ragElapsed: "ใช้เวลา {ms} มิลลิวินาที",
+      historyTitle: "ประวัติการแปล",
+      historyHint: "ล่าสุด 10 รายการ · คลิกเพื่อนำกลับ",
+      historyEmpty: "ยังไม่มีประวัติการแปล",
+      historyClear: "ล้างประวัติ",
+      historyCleared: "ล้างประวัติการแปลแล้ว",
+      historyRestored: "นำกลับไปยังพื้นที่ทำงานแล้ว",
+      modeDeepseek: "DeepSeek",
+      modeDemo: "สำรองภายใน",
+      reviewApproved: "ตรวจแล้ว",
+      reviewPending: "รอตรวจ",
+      domainLabel: "สาขา",
+      sourceNameLabel: "แหล่งที่มา",
+      scoreLabel: "ความคล้าย {p}%",
+      referenceHint: "ประโยคอ้างอิงที่ค้นได้ระหว่างการแปล (ข้อมูลสาธิต)",
+      noticeDemo: "ยังไม่ได้ตั้งค่าคีย์ DeepSeek ระบบใช้คลังศัพท์และประโยคคู่ขนานแทน",
+      noticeFallback: "เรียก DeepSeek ไม่สำเร็จ ระบบใช้คลังศัพท์และประโยคคู่ขนานแทน"
+    },
+    vi: {
+      docTitle: "Dịch đa ngữ · Nền tảng ngôn ngữ ứng phó thảm họa ASEAN",
+      title: "Dịch đa ngữ",
+      desc: "Dành cho ứng phó tâm lý sau thảm họa: dịch hai chiều giữa tiếng Trung, Anh, Thái, Việt và Mã Lai, tự động áp dụng thuật ngữ PFA, sang chấn căng thẳng và tư vấn đau buồn, kèm ngữ liệu song song về trấn an tâm lý.",
+      demoTag: "Dữ liệu mô phỏng",
+      panelTitle: "Bàn dịch hai chiều",
+      sourceLabel: "Nguyên văn",
+      targetLabel: "Bản dịch",
+      sourcePlaceholder: "Nhập văn bản hỗ trợ tâm lý, ví dụ: Hãy sơ cứu tâm lý và đánh giá nhu cầu cho các gia đình bị ảnh hưởng…",
+      translateBtn: "Bắt đầu dịch",
+      translatingBtn: "Đang dịch…",
+      copyBtn: "Sao chép bản dịch",
+      speakBtn: "Đọc bản dịch",
+      micBtn: "Nhập bằng giọng nói",
+      speaking: "Đang đọc…",
+      listening: "Đang nghe, hãy nói…",
+      voiceUnsupported: "Trình duyệt không hỗ trợ chức năng giọng nói",
+      clearBtn: "Xóa",
+      hint: "Ctrl + Enter để dịch",
+      swap: "Hoán đổi ngôn ngữ",
+      emptyText: "Vui lòng nhập nguyên văn trước",
+      sameLang: "Ngôn ngữ nguồn và đích phải khác nhau",
+      copied: "Đã sao chép bản dịch",
+      copyEmpty: "Chưa có bản dịch để sao chép",
+      copyFail: "Sao chép thất bại, vui lòng chọn thủ công",
+      cleared: "Đã xóa nội dung",
+      failed: "Dịch thất bại: {e}",
+      loading: "Đang truy xuất thuật ngữ và ngữ liệu song song…",
+      sourcePreviewLabel: "Thuật ngữ trong nguyên văn",
+      targetPreviewLabel: "Thuật ngữ trong bản dịch",
+      glossaryTitle: "Thuật ngữ trùng khớp",
+      glossaryEmpty: "Không có thuật ngữ nào trùng khớp",
+      parallelTitle: "Ngữ liệu song song tham khảo",
+      parallelEmpty: "Không tìm thấy câu song song liên quan",
+      newsTitle: "Nguồn tin liên quan",
+      newsEmpty: "Không tìm thấy tin liên quan",
+      newsLink: "Liên kết gốc ↗",
+      resultMeta: "{mode} · {ms} ms · {g} thuật ngữ · {p} tham khảo",
+      ragTitle: "Chỉ số tăng cường RAG",
+      ragTerms: "{n} thuật ngữ trùng khớp",
+      ragRefs: "{n} ngữ liệu song song",
+      ragNews: "{n} tin liên quan",
+      ragElapsed: "Thời gian {ms} ms",
+      historyTitle: "Lịch sử dịch",
+      historyHint: "10 bản gần nhất · nhấp để điền lại",
+      historyEmpty: "Chưa có lịch sử dịch",
+      historyClear: "Xóa lịch sử",
+      historyCleared: "Đã xóa lịch sử dịch",
+      historyRestored: "Đã điền lại vào bàn dịch",
+      modeDeepseek: "DeepSeek",
+      modeDemo: "Dự phòng cục bộ",
+      reviewApproved: "Đã duyệt",
+      reviewPending: "Chờ duyệt",
+      domainLabel: "Lĩnh vực",
+      sourceNameLabel: "Nguồn",
+      scoreLabel: "Tương đồng {p}%",
+      referenceHint: "Cặp câu tham khảo được truy xuất khi dịch (dữ liệu mô phỏng)",
+      noticeDemo: "Chưa cấu hình khóa DeepSeek, đang dùng thuật ngữ và ngữ liệu song song.",
+      noticeFallback: "Gọi DeepSeek thất bại, đã dùng thuật ngữ và ngữ liệu song song."
+    },
+    ms: {
+      docTitle: "Terjemahan Pelbagai Bahasa · Platform Bahasa Kecemasan ASEAN",
+      title: "Terjemahan Pelbagai Bahasa",
+      desc: "Untuk tindak balas psikososial pascabencana: terjemahan dua hala antara bahasa Cina, Inggeris, Thai, Vietnam dan Melayu, dengan istilah PFA, tekanan trauma dan kaunseling kedukaan serta korpus selari penenang psikologi.",
+      demoTag: "Data demo",
+      panelTitle: "Ruang kerja terjemahan",
+      sourceLabel: "Teks sumber",
+      targetLabel: "Terjemahan",
+      sourcePlaceholder: "Masukkan teks sokongan psikologi, cth: Berikan bantuan psikologi pertama dan penilaian keperluan kepada keluarga terjejas…",
+      translateBtn: "Mula terjemah",
+      translatingBtn: "Menterjemah…",
+      copyBtn: "Salin terjemahan",
+      speakBtn: "Baca terjemahan",
+      micBtn: "Input suara",
+      speaking: "Sedang membaca…",
+      listening: "Mendengar, sila bercakap…",
+      voiceUnsupported: "Pelayar ini tidak menyokong fungsi suara",
+      clearBtn: "Kosongkan",
+      hint: "Ctrl + Enter untuk menterjemah",
+      swap: "Tukar bahasa",
+      emptyText: "Sila masukkan teks sumber",
+      sameLang: "Bahasa sumber dan sasaran mesti berbeza",
+      copied: "Terjemahan disalin",
+      copyEmpty: "Tiada terjemahan untuk disalin",
+      copyFail: "Salinan gagal, sila pilih teks secara manual",
+      cleared: "Input dan hasil dikosongkan",
+      failed: "Terjemahan gagal: {e}",
+      loading: "Mencari glosari dan korpus selari…",
+      sourcePreviewLabel: "Istilah dalam teks sumber",
+      targetPreviewLabel: "Istilah dalam terjemahan",
+      glossaryTitle: "Padanan glosari",
+      glossaryEmpty: "Tiada istilah glosari sepadan",
+      parallelTitle: "Rujukan korpus selari",
+      parallelEmpty: "Tiada ayat selari berkaitan ditemui",
+      newsTitle: "Sumber berita berkaitan",
+      newsEmpty: "Tiada berita berkaitan ditemui",
+      newsLink: "Pautan asal ↗",
+      resultMeta: "{mode} · {ms} ms · {g} istilah · {p} rujukan",
+      ragTitle: "Metrik pengukuhan RAG",
+      ragTerms: "{n} padanan glosari",
+      ragRefs: "{n} rujukan korpus selari",
+      ragNews: "{n} berita berkaitan",
+      ragElapsed: "{ms} ms masa diambil",
+      historyTitle: "Sejarah terjemahan",
+      historyHint: "10 terkini · klik untuk isi semula",
+      historyEmpty: "Belum ada sejarah terjemahan",
+      historyClear: "Kosongkan sejarah",
+      historyCleared: "Sejarah terjemahan dikosongkan",
+      historyRestored: "Diisi semula ke ruang kerja",
+      modeDeepseek: "DeepSeek",
+      modeDemo: "Sandaran setempat",
+      reviewApproved: "Disemak",
+      reviewPending: "Menunggu semakan",
+      domainLabel: "Domain",
+      sourceNameLabel: "Sumber",
+      scoreLabel: "Persamaan {p}%",
+      referenceHint: "Pasangan ayat rujukan yang dicari semasa terjemahan (data demo)",
+      noticeDemo: "Kunci DeepSeek belum dikonfigurasi; menggunakan glosari dan korpus selari.",
+      noticeFallback: "Panggilan DeepSeek gagal; menggunakan glosari dan korpus selari."
+    }
+  };
+
+  var lang = KB.readLang();
+  var t = KB.makeT(T, lang);
+  var busy = false;
+  var lastResult = null;
+
+  /* ---------- 特色功能：RAG 增强指标条 ---------- */
+  function renderRagBar(result) {
+    var node = document.getElementById("ragBar");
+    node.classList.remove("hidden");
+    node.innerHTML =
+      '<span class="rag-title">' + KB.escapeHtml(t("ragTitle")) + "</span>" +
+      '<span class="rag-pill">' + KB.escapeHtml(KB.fillTpl(t("ragTerms"), { n: (result.matches || []).length })) + "</span>" +
+      '<span class="rag-pill">' + KB.escapeHtml(KB.fillTpl(t("ragRefs"), { n: (result.references || []).length })) + "</span>" +
+      '<span class="rag-pill">' + KB.escapeHtml(KB.fillTpl(t("ragNews"), { n: (result.news_sources || []).length })) + "</span>" +
+      '<span class="rag-pill"><b>' + KB.escapeHtml(KB.fillTpl(t("ragElapsed"), { ms: result.elapsed_ms || 0 })) + "</b></span>";
+  }
+
+  function hideRagBar() {
+    var node = document.getElementById("ragBar");
+    node.classList.add("hidden");
+    node.innerHTML = "";
+  }
+
+  /* ---------- 特色功能：翻译历史（localStorage） ---------- */
+  var HISTORY_KEY = "kb_translate_history";
+  var HISTORY_MAX = 10;
+
+  function readHistory() {
+    try {
+      var list = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
+      return Array.isArray(list) ? list : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function writeHistory(list) {
+    try { localStorage.setItem(HISTORY_KEY, JSON.stringify(list)); } catch (e) { /* ignore */ }
+  }
+
+  function formatTime(ts) {
+    var d = new Date(ts || Date.now());
+    function pad(n) { return (n < 10 ? "0" : "") + n; }
+    return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()) +
+      " " + pad(d.getHours()) + ":" + pad(d.getMinutes());
+  }
+
+  function pushHistory(entry) {
+    var list = readHistory().filter(function (item) {
+      return !(item.text === entry.text && item.source === entry.source && item.target === entry.target);
+    });
+    list.unshift(entry);
+    writeHistory(list.slice(0, HISTORY_MAX));
+    renderHistory();
+  }
+
+  function renderHistory() {
+    var node = document.getElementById("historyList");
+    var list = readHistory();
+    document.getElementById("btnClearHistory").disabled = !list.length;
+    if (!list.length) {
+      node.innerHTML = '<div class="empty">' + KB.escapeHtml(t("historyEmpty")) + "</div>";
+      return;
+    }
+    node.innerHTML = list.map(function (item, i) {
+      return '<div class="row" data-index="' + i + '" role="button" tabindex="0">' +
+        '<div class="row-main">' +
+          '<div class="hist-head">' +
+            '<span class="tag blue">' + KB.escapeHtml(KB.langLabel(item.source)) + " → " +
+              KB.escapeHtml(KB.langLabel(item.target)) + "</span>" +
+            '<span class="hist-time">' + KB.escapeHtml(formatTime(item.ts)) + "</span>" +
+          "</div>" +
+          '<div class="row-title">' + KB.escapeHtml(KB.truncate(item.text, 80)) + "</div>" +
+          '<div class="row-summary">' + KB.escapeHtml(KB.truncate(item.translation, 110)) + "</div>" +
+        "</div>" +
+      "</div>";
+    }).join("");
+    Array.prototype.forEach.call(node.querySelectorAll(".row"), function (row) {
+      row.addEventListener("click", function () {
+        restoreHistory(list[parseInt(row.getAttribute("data-index"), 10)]);
+      });
+    });
+  }
+
+  function restoreHistory(item) {
+    if (!item) return;
+    document.getElementById("sourceSelect").value = item.source;
+    document.getElementById("targetSelect").value = item.target;
+    document.getElementById("sourceText").value = item.text;
+    resetResult();
+    applyLang(lang);
+    document.getElementById("sourceText").focus();
+    KB.toast(t("historyRestored"));
+  }
+
+  function clearHistory() {
+    writeHistory([]);
+    renderHistory();
+    KB.toast(t("historyCleared"));
+  }
+
+  function fillLangSelects() {
+    var source = document.getElementById("sourceSelect");
+    var target = document.getElementById("targetSelect");
+    var sourceValue = source.value || "zh";
+    var targetValue = target.value || "en";
+    var options = KB.LANGS.map(function (item) {
+      return '<option value="' + item.code + '">' + KB.escapeHtml(item.label) + "</option>";
+    }).join("");
+    source.innerHTML = options;
+    target.innerHTML = options;
+    source.value = sourceValue;
+    target.value = targetValue === sourceValue ? (sourceValue === "zh" ? "en" : "zh") : targetValue;
+  }
+
+  function renderStatic() {
+    KB.applyStatic(t);
+    document.title = t("docTitle");
+    document.documentElement.lang = lang === "zh" ? "zh-CN" : lang;
+  }
+
+  function updateCount() {
+    var value = document.getElementById("sourceText").value;
+    document.getElementById("sourceCount").textContent = value.length + " / 2000";
+  }
+
+  function setNotice(text, kind) {
+    var node = document.getElementById("notice");
+    if (!text) {
+      node.className = "notice hidden";
+      node.textContent = "";
+      return;
+    }
+    node.className = "notice" + (kind ? " " + kind : "");
+    node.textContent = text;
+  }
+
+  function buildPreview(container, textNode, text, hits, field) {
+    if (!hits.length) {
+      container.classList.add("hidden");
+      return;
+    }
+    container.classList.remove("hidden");
+    if (!text) {
+      textNode.innerHTML = KB.escapeHtml(text || "");
+      return;
+    }
+    var spans = [];
+    if (field === "source") {
+      hits.forEach(function (hit) {
+        spans.push({ start: hit.position, end: hit.position + hit.length });
+      });
+    } else {
+      var lower = text.toLowerCase();
+      hits.forEach(function (hit) {
+        var term = String(hit.target_term || "");
+        if (!term) return;
+        var at = lower.indexOf(term.toLowerCase());
+        if (at >= 0) spans.push({ start: at, end: at + term.length });
+      });
+    }
+    spans.sort(function (a, b) { return a.start - b.start; });
+    var out = "";
+    var cursor = 0;
+    spans.forEach(function (span) {
+      if (span.start < cursor) return;
+      out += KB.escapeHtml(text.slice(cursor, span.start));
+      out += "<mark>" + KB.escapeHtml(text.slice(span.start, span.end)) + "</mark>";
+      cursor = span.end;
+    });
+    out += KB.escapeHtml(text.slice(cursor));
+    textNode.innerHTML = out;
+  }
+
+  function renderResult(result) {
+    lastResult = result;
+    renderRagBar(result);
+    var matches = result.matches || [];
+    var references = result.references || [];
+    var newsSources = result.news_sources || [];
+    var translation = result.translation || "";
+    document.getElementById("targetText").value = translation;
+
+    var meta = KB.fillTpl(t("resultMeta"), {
+      mode: result.mode === "deepseek" ? t("modeDeepseek") : t("modeDemo"),
+      ms: result.elapsed_ms || 0,
+      g: matches.length,
+      p: references.length
+    });
+    document.getElementById("resultStatus").innerHTML =
+      '<span class="tag green">' + KB.escapeHtml(result.model || "") + "</span>" +
+      "<span>" + KB.escapeHtml(meta) + "</span>";
+
+    buildPreview(document.getElementById("sourcePreview"), document.getElementById("sourcePreviewText"),
+      document.getElementById("sourceText").value, matches, "source");
+    buildPreview(document.getElementById("targetPreview"), document.getElementById("targetPreviewText"),
+      translation, matches, "target");
+
+    document.getElementById("glossaryCount").textContent = matches.length;
+    document.getElementById("glossaryList").innerHTML = matches.length
+      ? matches.map(function (hit) {
+          return '<div class="term-row">' +
+            '<span class="pair">' + KB.escapeHtml(hit.source_term) + "</span>" +
+            '<span class="arrow">→</span>' +
+            '<span class="pair">' + KB.escapeHtml(hit.target_term) + "</span>" +
+            '<span class="tag blue">' + KB.escapeHtml(hit.domain || "") + "</span>" +
+            '<span class="tag ' + (hit.review_status === "已审核" ? "green" : "amber") + '">' +
+              KB.escapeHtml(hit.review_status === "已审核" ? t("reviewApproved") : t("reviewPending")) + "</span>" +
+          "</div>";
+        }).join("")
+      : '<div class="empty">' + KB.escapeHtml(t("glossaryEmpty")) + "</div>";
+
+    document.getElementById("parallelCount").textContent = references.length;
+    document.getElementById("parallelList").innerHTML = references.length
+      ? references.map(function (ref) {
+          return '<div class="ref-card">' +
+            '<div class="src">' + KB.escapeHtml(ref.source_text) + "</div>" +
+            '<div class="tgt">' + KB.escapeHtml(ref.target_text) + "</div>" +
+            '<div class="meta">' +
+              "<span>" + KB.escapeHtml(ref.lang_pair || "") + "</span>" +
+              "<span>" + KB.escapeHtml(ref.domain || "") + "</span>" +
+              "<span>" + KB.escapeHtml(KB.fillTpl(t("scoreLabel"), { p: ((ref.score || 0) * 100).toFixed(1) })) + "</span>" +
+              "<span>" + KB.escapeHtml(ref.source || "") + "</span>" +
+            "</div>" +
+          "</div>";
+        }).join("")
+      : '<div class="empty">' + KB.escapeHtml(t("parallelEmpty")) + "</div>";
+
+    document.getElementById("newsCount").textContent = newsSources.length;
+    document.getElementById("newsList").innerHTML = newsSources.length
+      ? newsSources.map(function (item) {
+          return '<div class="ref-card">' +
+            '<div class="src">' + KB.escapeHtml(item.title || "") + "</div>" +
+            '<div class="tgt">' + KB.escapeHtml(item.summary || "") + "</div>" +
+            '<div class="meta">' +
+              '<span class="tag ' + (item.type === "foreign" ? "green" : "blue") + '">' + KB.escapeHtml(item.keyword || "") + "</span>" +
+              "<span>" + KB.escapeHtml(item.source_name || "") + "</span>" +
+              "<span>" + KB.escapeHtml(item.publish_date || "") + "</span>" +
+              (item.url ? '<a href="' + KB.escapeHtml(item.url) + '" target="_blank" rel="noopener noreferrer">' + KB.escapeHtml(t("newsLink")) + "</a>" : "") +
+            "</div>" +
+          "</div>";
+        }).join("")
+      : '<div class="empty">' + KB.escapeHtml(t("newsEmpty")) + "</div>";
+
+    if (result.notice) {
+      setNotice(result.notice, "info");
+    } else {
+      setNotice("");
+    }
+  }
+
+  function resetResult() {
+    lastResult = null;
+    hideRagBar();
+    document.getElementById("targetText").value = "";
+    document.getElementById("resultStatus").innerHTML = "";
+    document.getElementById("glossaryCount").textContent = "0";
+    document.getElementById("glossaryList").innerHTML = '<div class="empty">' + KB.escapeHtml(t("glossaryEmpty")) + "</div>";
+    document.getElementById("parallelCount").textContent = "0";
+    document.getElementById("parallelList").innerHTML = '<div class="empty">' + KB.escapeHtml(t("parallelEmpty")) + "</div>";
+    document.getElementById("sourcePreview").classList.add("hidden");
+    document.getElementById("targetPreview").classList.add("hidden");
+    setNotice("");
+  }
+
+  function translate() {
+    if (busy) return;
+    var text = document.getElementById("sourceText").value.trim();
+    var sourceLang = document.getElementById("sourceSelect").value;
+    var targetLang = document.getElementById("targetSelect").value;
+    if (!text) {
+      KB.toast(t("emptyText"), "error");
+      document.getElementById("sourceText").focus();
+      return;
+    }
+    if (sourceLang === targetLang) {
+      KB.toast(t("sameLang"), "error");
+      return;
+    }
+
+    busy = true;
+    var button = document.getElementById("btnTranslate");
+    button.disabled = true;
+    button.textContent = t("translatingBtn");
+    setNotice(t("loading"), "info");
+    hideRagBar();
+    document.getElementById("resultStatus").innerHTML = '<span class="tag gray">…</span>';
+
+    fetch("/api/translate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: text, source: sourceLang, target: targetLang })
+    }).then(function (res) {
+      return res.json().then(function (data) {
+        if (!res.ok || data.ok === false) throw new Error(data.error || ("HTTP " + res.status));
+        return data;
+      });
+    }).then(function (data) {
+      renderResult(data);
+      pushHistory({
+        source: sourceLang,
+        target: targetLang,
+        text: text,
+        translation: data.translation || "",
+        ts: Date.now()
+      });
+    }).catch(function (err) {
+      setNotice(KB.fillTpl(t("failed"), { e: err.message || "" }), "error");
+      document.getElementById("resultStatus").innerHTML = '<span class="tag amber">' + KB.escapeHtml(t("modeDemo")) + "</span>";
+      KB.toast(KB.fillTpl(t("failed"), { e: err.message || "" }), "error");
+    }).then(function () {
+      busy = false;
+      button.disabled = false;
+      button.textContent = t("translateBtn");
+    });
+  }
+
+  function copyTranslation() {
+    var value = document.getElementById("targetText").value;
+    if (!value) {
+      KB.toast(t("copyEmpty"), "error");
+      return;
+    }
+    function done() { KB.toast(t("copied")); }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(value).then(done).catch(function () {
+        var area = document.getElementById("targetText");
+        area.removeAttribute("readonly");
+        area.select();
+        try { document.execCommand("copy"); done(); } catch (e) { KB.toast(t("copyFail"), "error"); }
+        area.setAttribute("readonly", "readonly");
+      });
+    } else {
+      var area = document.getElementById("targetText");
+      area.removeAttribute("readonly");
+      area.select();
+      try { document.execCommand("copy"); done(); } catch (e) { KB.toast(t("copyFail"), "error"); }
+      area.setAttribute("readonly", "readonly");
+    }
+  }
+
+  function clearAll() {
+    document.getElementById("sourceText").value = "";
+    updateCount();
+    resetResult();
+    KB.toast(t("cleared"));
+  }
+
+  /* ---------- 特色功能：语音播报与语音输入 ---------- */
+  var VOICE_LOCALES = { zh: "zh-CN", en: "en-US", th: "th-TH", vi: "vi-VN", ms: "ms-MY" };
+  var speaking = false;
+  var recognizing = false;
+  var recognizer = null;
+
+  function speakResult() {
+    if (!("speechSynthesis" in window)) { KB.toast(t("voiceUnsupported"), "error"); return; }
+    if (speaking) {
+      window.speechSynthesis.cancel();
+      speaking = false;
+      document.getElementById("btnSpeak").textContent = t("speakBtn");
+      return;
+    }
+    var text = document.getElementById("targetText").value.trim();
+    if (!text) { KB.toast(t("emptyText"), "error"); return; }
+    var targetLang = document.getElementById("targetSelect").value;
+    var utter = new SpeechSynthesisUtterance(text);
+    utter.lang = VOICE_LOCALES[targetLang] || "zh-CN";
+    utter.rate = 0.95;
+    utter.onend = function () {
+      speaking = false;
+      document.getElementById("btnSpeak").textContent = t("speakBtn");
+    };
+    utter.onerror = utter.onend;
+    speaking = true;
+    document.getElementById("btnSpeak").textContent = t("speaking");
+    window.speechSynthesis.speak(utter);
+  }
+
+  function startVoiceInput() {
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) { KB.toast(t("voiceUnsupported"), "error"); return; }
+    if (recognizing && recognizer) { recognizer.stop(); return; }
+    recognizer = new SR();
+    recognizer.lang = VOICE_LOCALES[document.getElementById("sourceSelect").value] || "zh-CN";
+    recognizer.interimResults = false;
+    recognizer.maxAlternatives = 1;
+    recognizer.onresult = function (e) {
+      var text = e.results[0][0].transcript || "";
+      if (text) {
+        var area = document.getElementById("sourceText");
+        area.value = area.value ? area.value + " " + text : text;
+        updateCount();
+      }
+    };
+    recognizer.onend = function () {
+      recognizing = false;
+      document.getElementById("btnMic").textContent = t("micBtn");
+    };
+    recognizer.onerror = recognizer.onend;
+    recognizing = true;
+    document.getElementById("btnMic").textContent = t("listening");
+    try { recognizer.start(); } catch (e) { recognizer.onend(); }
+  }
+
+  function swapLangs() {
+    var source = document.getElementById("sourceSelect");
+    var target = document.getElementById("targetSelect");
+    var temp = source.value;
+    source.value = target.value;
+    target.value = temp;
+  }
+
+  function applyLang(next) {
+    lang = next;
+    t = KB.makeT(T, lang);
+    renderStatic();
+    fillLangSelects();
+    var sourceValue = document.getElementById("sourceSelect").value;
+    document.getElementById("sourceText").placeholder = t("sourcePlaceholder");
+    document.getElementById("btnTranslate").textContent = busy ? t("translatingBtn") : t("translateBtn");
+    if (lastResult) {
+      renderResult(lastResult);
+    } else {
+      resetResult();
+    }
+    document.getElementById("engineLabel").textContent = "DeepSeek · Bigmodel · " + KB.langLabel(sourceValue);
+    renderHistory();
+  }
+
+  document.getElementById("btnTranslate").addEventListener("click", translate);
+  document.getElementById("btnCopy").addEventListener("click", copyTranslation);
+  document.getElementById("btnClear").addEventListener("click", clearAll);
+  document.getElementById("btnClearHistory").addEventListener("click", clearHistory);
+  document.getElementById("btnSpeak").addEventListener("click", speakResult);
+  document.getElementById("btnMic").addEventListener("click", startVoiceInput);
+  document.getElementById("swapBtn").addEventListener("click", swapLangs);
+  document.getElementById("sourceText").addEventListener("input", updateCount);
+  document.getElementById("sourceText").addEventListener("keydown", function (e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+      e.preventDefault();
+      translate();
+    }
+  });
+  document.getElementById("sourceSelect").addEventListener("change", function () {
+    var target = document.getElementById("targetSelect");
+    if (target.value === this.value) {
+      target.value = this.value === "zh" ? "en" : "zh";
+    }
+    applyLang(lang);
+  });
+  document.getElementById("targetSelect").addEventListener("change", function () {
+    var source = document.getElementById("sourceSelect");
+    if (source.value === this.value) {
+      source.value = this.value === "zh" ? "en" : "zh";
+    }
+    applyLang(lang);
+  });
+
+  KB.bindLanguage(applyLang, { onVisible: true });
+  fillLangSelects();
+  applyLang(lang);
+  updateCount();
+})();
+</script>
+</body>
+</html>
