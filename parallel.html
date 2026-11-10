@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>平行语料库管理 · 东盟灾害心理干预应急语言服务平台</title>
+<link rel="stylesheet" href="assets/kb.css">
+<style>
+  .pair-row{display:flex;gap:16px;align-items:flex-start;}
+  .pair-col{flex:1;min-width:0;}
+  .pair-col .lbl{font-size:10.5px;color:#94a3b8;font-weight:600;letter-spacing:.4px;text-transform:uppercase;margin-bottom:2px;}
+  .pair-col .txt{font-size:13px;line-height:1.7;color:#0f172a;}
+  .pair-col .txt.tgt{color:#1d4ed8;}
+  .pager{display:flex;align-items:center;justify-content:center;gap:10px;padding:14px;border-top:1px solid var(--line);}
+  .pager span{font-size:12px;color:#64748b;}
+  .side-note{font-size:11.5px;color:#94a3b8;margin-top:6px;}
+  .stats.metrics{grid-template-columns:repeat(2,1fr);}
+  .stats.metrics .stat::before{background:linear-gradient(90deg,#0d9488,#06b6d4);}
+  @media (max-width:640px){.stats.metrics{grid-template-columns:1fr;}}
+  @media (max-width:760px){.pair-row{flex-direction:column;gap:8px;}}
+</style>
+</head>
+<body>
+<script src="assets/static-api.js"></script>
+<div class="wrap">
+  <div class="page-head">
+    <div>
+      <h1 data-i18n="title">平行语料库管理</h1>
+      <p data-i18n="desc">管理灾后心理干预与心理安抚场景的双语句对（安置点安抚、主动倾听、需求询问、风险评估、转介、哀伤陪伴等），后端已完成向量化建库；翻译模块会检索本库获取双语上下文，辅助译文生成与术语统一。</p>
+    </div>
+    <span class="demo-tag" data-i18n="demoTag">演示模拟数据</span>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-label" data-i18n="statTotal">平行语料总数</div>
+      <div class="stat-value" id="statTotal">—</div>
+      <div class="stat-sub" data-i18n="statTotalSub">心理干预与心理安抚句对</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label" data-i18n="statPairs">语种对</div>
+      <div class="stat-value" id="statPairs">—</div>
+      <div class="stat-sub" data-i18n="statPairsSub">中文与英/泰/越/马来</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label" data-i18n="statApproved">已审核</div>
+      <div class="stat-value" id="statApproved">—</div>
+      <div class="stat-sub" data-i18n="statApprovedSub">可直接用于翻译参考</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label" data-i18n="statVector">向量建库状态</div>
+      <div class="stat-value" style="font-size:15px;padding-top:6px;" id="statVector">—</div>
+      <div class="stat-sub" id="statVectorSub">—</div>
+    </div>
+  </div>
+
+  <div class="stats metrics">
+    <div class="stat">
+      <div class="stat-label" data-i18n="statPairCoverage">语种对覆盖数</div>
+      <div class="stat-value" id="statPairCoverage">—</div>
+      <div class="stat-sub" data-i18n="statPairCoverageSub">已覆盖的语种对组合数</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label" data-i18n="statApprovedRate">审核通过率</div>
+      <div class="stat-value" id="statApprovedRate">—</div>
+      <div class="stat-sub" data-i18n="statApprovedRateSub">已审核 / 全量语料</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="toolbar">
+      <div class="search-box">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="searchInput" data-i18n-placeholder="searchPlaceholder" placeholder="检索原文或译文…">
+      </div>
+      <select class="select" id="pairSelect"></select>
+      <select class="select" id="reviewSelect"></select>
+      <button class="btn btn-outline" id="btnExport" data-i18n="exportCsv">导出 CSV</button>
+      <span class="count-text" id="countText">—</span>
+    </div>
+    <div class="list" id="pairList"></div>
+    <div class="pager" id="pager">
+      <button class="btn btn-outline btn-sm" id="prevPage" data-i18n="prevPage">上一页</button>
+      <span id="pageInfo">—</span>
+      <button class="btn btn-outline btn-sm" id="nextPage" data-i18n="nextPage">下一页</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <h2 data-i18n="vectorTitle">向量索引说明</h2>
+      <button class="btn btn-outline btn-sm" id="btnRebuild" data-i18n="rebuildBtn">重建平行语料索引</button>
+    </div>
+    <div class="panel-body">
+      <p style="margin:0;font-size:12.5px;color:#64748b;line-height:1.8;" data-i18n="vectorDesc">后端启动时会对 500 句平行语料调用 Bigmodel Embedding 进行向量化，并缓存到本地索引；翻译接口按语种对过滤后，使用余弦相似度取 Top-3 句对作为双语上下文。</p>
+      <div class="side-note" id="vectorMeta"></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-mask" id="modalMask">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <h3 id="modalTitle">语料详情</h3>
+        <p id="modalSub"></p>
+      </div>
+      <button class="modal-close" id="modalClose" aria-label="close">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-foot">
+      <button class="btn btn-primary" id="modalOk" data-i18n="close">关闭</button>
+    </div>
+  </div>
+</div>
+
+<script src="assets/kb.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  var T = {
+    zh: {
+      docTitle: "平行语料库管理 · 东盟灾害心理干预应急语言服务平台",
+      title: "平行语料库管理",
+      desc: "管理灾后心理干预与心理安抚场景的双语句对（安置点安抚、主动倾听、需求询问、风险评估、转介、哀伤陪伴等），后端已完成向量化建库；翻译模块会检索本库获取双语上下文，辅助译文生成与术语统一。",
+      demoTag: "演示模拟数据",
+      statTotal: "平行语料总数",
+      statTotalSub: "心理干预与心理安抚句对",
+      statPairs: "语种对",
+      statPairsSub: "中文与英/泰/越/马来",
+      statApproved: "已审核",
+      statApprovedSub: "可直接用于翻译参考",
+      statPairCoverage: "语种对覆盖数",
+      statPairCoverageSub: "已覆盖的语种对组合数",
+      statApprovedRate: "审核通过率",
+      statApprovedRateSub: "已审核 / 全量语料",
+      exportCsv: "导出 CSV",
+      exportEmpty: "当前筛选没有可导出的语料",
+      exportDone: "已导出 {n} 条语料",
+      statVector: "向量建库状态",
+      searchPlaceholder: "检索原文或译文…",
+      filterAllPairs: "全部语种对",
+      filterAllReview: "全部审核状态",
+      approved: "已审核",
+      pending: "待审核",
+      count: "共 {n} 句",
+      sourceLabel: "原文",
+      targetLabel: "译文",
+      noResult: "没有匹配的平行语料，请调整筛选条件",
+      loading: "正在加载平行语料…",
+      error: "加载失败，请确认已启动本地服务（python rag_server.py）",
+      prevPage: "上一页",
+      nextPage: "下一页",
+      pageInfo: "第 {p} / {n} 页",
+      vectorTitle: "向量索引说明",
+      vectorDesc: "后端启动时会对 500 句平行语料调用 Bigmodel Embedding 进行向量化，并缓存到本地索引；翻译接口按语种对过滤后，使用余弦相似度取 Top-3 句对作为双语上下文。",
+      rebuildBtn: "重建平行语料索引",
+      rebuilding: "重建中…",
+      rebuildDone: "平行语料索引已重建：{n} 句 · {d} 维",
+      rebuildFail: "重建失败：{e}",
+      vectorReady: "已就绪 · {model} · {dim} 维",
+      vectorPending: "未构建",
+      vectorOffline: "服务未连接",
+      vectorMeta: "索引模型：{model} · 向量维度：{dim} · 构建时间：{time}",
+      detailTitle: "语料详情",
+      pairLabel: "语种对",
+      domainLabel: "领域",
+      sourceNameLabel: "来源",
+      reviewLabel: "审核状态",
+      close: "关闭",
+      scoreLabel: "相似度 {p}%"
+    },
+    en: {
+      docTitle: "Parallel Corpus Management · ASEAN Emergency Language Platform",
+      title: "Parallel Corpus Management",
+      desc: "Manages bilingual sentence pairs for disaster response and psychosocial support. The corpus is vectorized on the backend and retrieved by the translation module as bilingual context.",
+      demoTag: "Demo data",
+      statTotal: "Parallel sentences",
+      statTotalSub: "Disaster response and psychosocial pairs",
+      statPairs: "Language pairs",
+      statPairsSub: "Chinese with EN/TH/VI/MS",
+      statApproved: "Reviewed",
+      statApprovedSub: "Ready for translation reference",
+      statPairCoverage: "Language pairs covered",
+      statPairCoverageSub: "Distinct language-pair combinations",
+      statApprovedRate: "Approval rate",
+      statApprovedRateSub: "Reviewed / all sentences",
+      exportCsv: "Export CSV",
+      exportEmpty: "No filtered sentences to export",
+      exportDone: "Exported {n} sentences",
+      statVector: "Vector index status",
+      searchPlaceholder: "Search source or target text…",
+      filterAllPairs: "All language pairs",
+      filterAllReview: "All review states",
+      approved: "Reviewed",
+      pending: "Pending review",
+      count: "{n} sentences",
+      sourceLabel: "Source",
+      targetLabel: "Target",
+      noResult: "No matching parallel sentences, please adjust the filters",
+      loading: "Loading parallel corpus…",
+      error: "Failed to load. Make sure the local server is running (python rag_server.py).",
+      prevPage: "Previous",
+      nextPage: "Next",
+      pageInfo: "Page {p} / {n}",
+      vectorTitle: "About the vector index",
+      vectorDesc: "On startup the backend embeds all 500 parallel sentences with Bigmodel Embedding and caches the index locally. The translation API filters by language pair and retrieves the Top-3 sentence pairs by cosine similarity.",
+      rebuildBtn: "Rebuild parallel index",
+      rebuilding: "Rebuilding…",
+      rebuildDone: "Parallel index rebuilt: {n} sentences · {d}-dim",
+      rebuildFail: "Rebuild failed: {e}",
+      vectorReady: "Ready · {model} · {dim}-dim",
+      vectorPending: "Not built",
+      vectorOffline: "Service offline",
+      vectorMeta: "Model: {model} · Dimensions: {dim} · Built at: {time}",
+      detailTitle: "Corpus detail",
+      pairLabel: "Language pair",
+      domainLabel: "Domain",
+      sourceNameLabel: "Source",
+      reviewLabel: "Review status",
+      close: "Close",
+      scoreLabel: "Similarity {p}%"
+    },
+    th: {
+      docTitle: "การจัดการคลังประโยคคู่ขนาน · แพลตฟอร์มภาษาเพื่อการช่วยเหลือภัยพิบัติอาเซียน",
+      title: "การจัดการคลังประโยคคู่ขนาน",
+      desc: "จัดการประโยคคู่สองภาษาด้านการช่วยเหลือภัยพิบัติและการปลอบประโลมทางจิตใจ ระบบหลังบ้านสร้างดัชนีเวกเตอร์ และโมดูลแปลจะค้นคลังนี้เป็นบริบทช่วยแปล",
+      demoTag: "ข้อมูลสาธิต",
+      statTotal: "จำนวนประโยคคู่ขนาน",
+      statTotalSub: "ประโยคด้านการช่วยเหลือและจิตใจ",
+      statPairs: "คู่ภาษา",
+      statPairsSub: "จีนกับอังกฤษ/ไทย/เวียดนาม/มลายู",
+      statApproved: "ตรวจแล้ว",
+      statApprovedSub: "ใช้เป็นข้อมูลอ้างอิงได้",
+      statPairCoverage: "จำนวนคู่ภาษาที่ครอบคลุม",
+      statPairCoverageSub: "จำนวนคู่ภาษาที่มีข้อมูล",
+      statApprovedRate: "อัตราการตรวจผ่าน",
+      statApprovedRateSub: "ตรวจแล้ว / ประโยคทั้งหมด",
+      exportCsv: "ส่งออก CSV",
+      exportEmpty: "ไม่มีประโยคที่กรองได้ให้ส่งออก",
+      exportDone: "ส่งออกแล้ว {n} ประโยค",
+      statVector: "สถานะดัชนีเวกเตอร์",
+      searchPlaceholder: "ค้นหาต้นฉบับหรือคำแปล…",
+      filterAllPairs: "ทุกคู่ภาษา",
+      filterAllReview: "ทุกสถานะการตรวจ",
+      approved: "ตรวจแล้ว",
+      pending: "รอตรวจ",
+      count: "{n} ประโยค",
+      sourceLabel: "ต้นฉบับ",
+      targetLabel: "คำแปล",
+      noResult: "ไม่พบประโยคคู่ขนานที่ตรงกัน โปรดปรับตัวกรอง",
+      loading: "กำลังโหลดคลังประโยค…",
+      error: "โหลดไม่สำเร็จ โปรดตรวจสอบเซิร์ฟเวอร์ (python rag_server.py)",
+      prevPage: "ก่อนหน้า",
+      nextPage: "ถัดไป",
+      pageInfo: "หน้า {p} / {n}",
+      vectorTitle: "คำอธิบายดัชนีเวกเตอร์",
+      vectorDesc: "เมื่อเริ่มระบบ ระบบหลังบ้านจะแปลง 500 ประโยคเป็นเวกเตอร์ด้วย Bigmodel Embedding และแคชไว้ในเครื่อง API แปลจะกรองตามคู่ภาษาและใช้ความคล้ายโคไซน์เลือก 3 ประโยคแรก",
+      rebuildBtn: "สร้างดัชนีใหม่",
+      rebuilding: "กำลังสร้าง…",
+      rebuildDone: "สร้างดัชนีใหม่แล้ว: {n} ประโยค · {d} มิติ",
+      rebuildFail: "สร้างใหม่ไม่สำเร็จ: {e}",
+      vectorReady: "พร้อม · {model} · {dim} มิติ",
+      vectorPending: "ยังไม่สร้าง",
+      vectorOffline: "ไม่ได้เชื่อมต่อเซิร์ฟเวอร์",
+      vectorMeta: "โมเดล: {model} · มิติ: {dim} · เวลาสร้าง: {time}",
+      detailTitle: "รายละเอียดประโยค",
+      pairLabel: "คู่ภาษา",
+      domainLabel: "สาขา",
+      sourceNameLabel: "แหล่งที่มา",
+      reviewLabel: "สถานะการตรวจ",
+      close: "ปิด",
+      scoreLabel: "ความคล้าย {p}%"
+    },
+    vi: {
+      docTitle: "Quản lý ngữ liệu song song · Nền tảng ngôn ngữ ứng phó thảm họa ASEAN",
+      title: "Quản lý ngữ liệu song song",
+      desc: "Quản lý các cặp câu song ngữ về ứng phó thảm họa và hỗ trợ tâm lý. Máy chủ đã lập chỉ mục vector; mô-đun dịch sẽ truy xuất ngữ liệu này làm ngữ cảnh.",
+      demoTag: "Dữ liệu mô phỏng",
+      statTotal: "Tổng số câu song song",
+      statTotalSub: "Cặp câu ứng phó và hỗ trợ tâm lý",
+      statPairs: "Cặp ngôn ngữ",
+      statPairsSub: "Trung với Anh/Thái/Việt/Mã Lai",
+      statApproved: "Đã duyệt",
+      statApprovedSub: "Dùng được làm tham khảo",
+      statPairCoverage: "Số cặp ngôn ngữ bao phủ",
+      statPairCoverageSub: "Số tổ hợp cặp ngôn ngữ có dữ liệu",
+      statApprovedRate: "Tỷ lệ duyệt",
+      statApprovedRateSub: "Đã duyệt / toàn bộ câu",
+      exportCsv: "Xuất CSV",
+      exportEmpty: "Không có câu nào để xuất",
+      exportDone: "Đã xuất {n} câu",
+      statVector: "Trạng thái chỉ mục",
+      searchPlaceholder: "Tìm nguyên văn hoặc bản dịch…",
+      filterAllPairs: "Tất cả cặp ngôn ngữ",
+      filterAllReview: "Tất cả trạng thái",
+      approved: "Đã duyệt",
+      pending: "Chờ duyệt",
+      count: "{n} câu",
+      sourceLabel: "Nguyên văn",
+      targetLabel: "Bản dịch",
+      noResult: "Không có câu phù hợp, vui lòng điều chỉnh bộ lọc",
+      loading: "Đang tải ngữ liệu…",
+      error: "Tải thất bại. Hãy kiểm tra máy chủ cục bộ (python rag_server.py).",
+      prevPage: "Trang trước",
+      nextPage: "Trang sau",
+      pageInfo: "Trang {p} / {n}",
+      vectorTitle: "Giới thiệu chỉ mục vector",
+      vectorDesc: "Khi khởi động, máy chủ tạo vector cho 500 câu bằng Bigmodel Embedding và lưu chỉ mục cục bộ. API dịch lọc theo cặp ngôn ngữ và lấy Top-3 câu theo độ tương đồng cosin.",
+      rebuildBtn: "Xây dựng lại chỉ mục",
+      rebuilding: "Đang xây dựng…",
+      rebuildDone: "Đã xây dựng lại: {n} câu · {d} chiều",
+      rebuildFail: "Xây dựng lại thất bại: {e}",
+      vectorReady: "Sẵn sàng · {model} · {dim} chiều",
+      vectorPending: "Chưa xây dựng",
+      vectorOffline: "Máy chủ chưa kết nối",
+      vectorMeta: "Mô hình: {model} · Số chiều: {dim} · Thời điểm: {time}",
+      detailTitle: "Chi tiết ngữ liệu",
+      pairLabel: "Cặp ngôn ngữ",
+      domainLabel: "Lĩnh vực",
+      sourceNameLabel: "Nguồn",
+      reviewLabel: "Trạng thái duyệt",
+      close: "Đóng",
+      scoreLabel: "Tương đồng {p}%"
+    },
+    ms: {
+      docTitle: "Pengurusan Korpus Selari · Platform Bahasa Kecemasan ASEAN",
+      title: "Pengurusan Korpus Selari",
+      desc: "Mengurus pasangan ayat dwibahasa bagi tindak balas bencana dan sokongan psikososial. Pelayan telah membina indeks vektor; modul terjemahan menggunakan korpus ini sebagai konteks.",
+      demoTag: "Data demo",
+      statTotal: "Jumlah ayat selari",
+      statTotalSub: "Pasangan tindak balas dan sokongan psikososial",
+      statPairs: "Pasangan bahasa",
+      statPairsSub: "Cina dengan EN/TH/VI/MS",
+      statApproved: "Disemak",
+      statApprovedSub: "Sedia untuk rujukan terjemahan",
+      statPairCoverage: "Pasangan bahasa diliputi",
+      statPairCoverageSub: "Bilangan gabungan pasangan bahasa",
+      statApprovedRate: "Kadar kelulusan",
+      statApprovedRateSub: "Disemak / semua ayat",
+      exportCsv: "Eksport CSV",
+      exportEmpty: "Tiada ayat untuk dieksport",
+      exportDone: "{n} ayat dieksport",
+      statVector: "Status indeks vektor",
+      searchPlaceholder: "Cari teks sumber atau sasaran…",
+      filterAllPairs: "Semua pasangan bahasa",
+      filterAllReview: "Semua status semakan",
+      approved: "Disemak",
+      pending: "Menunggu semakan",
+      count: "{n} ayat",
+      sourceLabel: "Sumber",
+      targetLabel: "Sasaran",
+      noResult: "Tiada ayat selari sepadan, sila ubah penapis",
+      loading: "Memuatkan korpus selari…",
+      error: "Gagal memuatkan. Pastikan pelayan setempat berjalan (python rag_server.py).",
+      prevPage: "Sebelum",
+      nextPage: "Seterusnya",
+      pageInfo: "Halaman {p} / {n}",
+      vectorTitle: "Tentang indeks vektor",
+      vectorDesc: "Semasa permulaan, pelayan membina vektor untuk 500 ayat menggunakan Bigmodel Embedding dan menyimpan indeks secara setempat. API terjemahan menapis mengikut pasangan bahasa dan mengambil Top-3 ayat mengikut persamaan kosinus.",
+      rebuildBtn: "Bina semula indeks",
+      rebuilding: "Membina semula…",
+      rebuildDone: "Indeks dibina semula: {n} ayat · {d} dimensi",
+      rebuildFail: "Bina semula gagal: {e}",
+      vectorReady: "Sedia · {model} · {dim} dimensi",
+      vectorPending: "Belum dibina",
+      vectorOffline: "Pelayan tidak disambung",
+      vectorMeta: "Model: {model} · Dimensi: {dim} · Dibina: {time}",
+      detailTitle: "Butiran korpus",
+      pairLabel: "Pasangan bahasa",
+      domainLabel: "Domain",
+      sourceNameLabel: "Sumber",
+      reviewLabel: "Status semakan",
+      close: "Tutup",
+      scoreLabel: "Persamaan {p}%"
+    }
+  };
+
+  var lang = KB.readLang();
+  var t = KB.makeT(T, lang);
+  var data = [];
+  var keyword = "";
+  var pairFilter = "all";
+  var reviewFilter = "all";
+  var page = 1;
+  var pageSize = 40;
+  var activeItem = null;
+
+  function pairOptions() {
+    var pairs = {};
+    data.forEach(function (item) { pairs[item.lang_pair] = true; });
+    return Object.keys(pairs).sort();
+  }
+
+  function renderFilters() {
+    var pairSelect = document.getElementById("pairSelect");
+    var reviewSelect = document.getElementById("reviewSelect");
+    pairSelect.innerHTML = '<option value="all">' + KB.escapeHtml(t("filterAllPairs")) + "</option>" +
+      pairOptions().map(function (code) {
+        return '<option value="' + KB.escapeHtml(code) + '">' + KB.escapeHtml(code.toUpperCase()) + "</option>";
+      }).join("");
+    pairSelect.value = pairFilter;
+    reviewSelect.innerHTML = '<option value="all">' + KB.escapeHtml(t("filterAllReview")) + "</option>" +
+      '<option value="approved">' + KB.escapeHtml(t("approved")) + "</option>" +
+      '<option value="pending">' + KB.escapeHtml(t("pending")) + "</option>";
+    reviewSelect.value = reviewFilter;
+  }
+
+  function filtered() {
+    var word = keyword.trim().toLowerCase();
+    return data.filter(function (item) {
+      if (pairFilter !== "all" && item.lang_pair !== pairFilter) return false;
+      if (reviewFilter !== "all") {
+        var approved = item.review_status === "已审核";
+        if (reviewFilter === "approved" && !approved) return false;
+        if (reviewFilter === "pending" && approved) return false;
+      }
+      if (!word) return true;
+      return (item.source_text + " " + item.target_text).toLowerCase().indexOf(word) >= 0;
+    });
+  }
+
+  function renderList() {
+    var rows = filtered();
+    var totalPages = Math.max(1, Math.ceil(rows.length / pageSize));
+    if (page > totalPages) page = totalPages;
+    var start = (page - 1) * pageSize;
+    var slice = rows.slice(start, start + pageSize);
+    document.getElementById("countText").textContent = KB.fillTpl(t("count"), { n: rows.length });
+    document.getElementById("pageInfo").textContent = KB.fillTpl(t("pageInfo"), { p: page, n: totalPages });
+    document.getElementById("prevPage").disabled = page <= 1;
+    document.getElementById("nextPage").disabled = page >= totalPages;
+
+    var list = document.getElementById("pairList");
+    if (!slice.length) {
+      list.innerHTML = '<div class="empty">' + KB.escapeHtml(t("noResult")) + "</div>";
+      return;
+    }
+    list.innerHTML = slice.map(function (item, i) {
+      var approved = item.review_status === "已审核";
+      return '<div class="row" data-index="' + i + '" role="button" tabindex="0">' +
+        '<div class="row-main">' +
+          '<div class="pair-row">' +
+            '<div class="pair-col"><div class="lbl">' + KB.escapeHtml(t("sourceLabel")) + "</div>" +
+              '<div class="txt">' + KB.highlight(item.source_text, keyword) + "</div></div>" +
+            '<div class="pair-col"><div class="lbl">' + KB.escapeHtml(t("targetLabel")) + "</div>" +
+              '<div class="txt tgt">' + KB.highlight(item.target_text, keyword) + "</div></div>" +
+          "</div>" +
+          '<div class="row-meta">' +
+            '<span class="tag blue">' + KB.escapeHtml((item.lang_pair || "").toUpperCase()) + "</span>" +
+            '<span class="tag gray">' + KB.escapeHtml(item.domain || "") + "</span>" +
+            '<span class="tag ' + (approved ? "green" : "amber") + '">' + KB.escapeHtml(approved ? t("approved") : t("pending")) + "</span>" +
+            "<span>" + KB.escapeHtml(item.source || "") + "</span>" +
+          "</div>" +
+        "</div>" +
+      "</div>";
+    }).join("");
+    Array.prototype.forEach.call(list.querySelectorAll(".row"), function (row) {
+      row.addEventListener("click", function () {
+        openDetail(slice[parseInt(row.getAttribute("data-index"), 10)]);
+      });
+    });
+  }
+
+  function openDetail(item) {
+    if (!item) return;
+    activeItem = item;
+    var approved = item.review_status === "已审核";
+    document.getElementById("modalTitle").textContent = (item.lang_pair || "").toUpperCase() + " · " + item.id;
+    document.getElementById("modalSub").textContent = item.source || "";
+    document.getElementById("modalBody").innerHTML =
+      '<div class="detail-grid">' +
+        '<div class="detail-cell"><b>' + KB.escapeHtml(t("pairLabel")) + "</b><span>" + KB.escapeHtml((item.lang_pair || "").toUpperCase()) + "</span></div>" +
+        '<div class="detail-cell"><b>' + KB.escapeHtml(t("domainLabel")) + "</b><span>" + KB.escapeHtml(item.domain || "") + "</span></div>" +
+        '<div class="detail-cell"><b>' + KB.escapeHtml(t("sourceNameLabel")) + "</b><span>" + KB.escapeHtml(item.source || "") + "</span></div>" +
+        '<div class="detail-cell"><b>' + KB.escapeHtml(t("reviewLabel")) + "</b><span>" + KB.escapeHtml(approved ? t("approved") : t("pending")) + "</span></div>" +
+      "</div>" +
+      '<div class="detail-block"><h4>' + KB.escapeHtml(t("sourceLabel")) + "</h4><p>" + KB.escapeHtml(item.source_text) + "</p></div>" +
+      '<div class="detail-block"><h4>' + KB.escapeHtml(t("targetLabel")) + "</h4><p>" + KB.escapeHtml(item.target_text) + "</p></div>" +
+      '<div class="detail-block"><h4>授权说明 / License</h4><p>' + KB.escapeHtml(item.license || "-") + "</p></div>";
+    document.getElementById("modalMask").classList.add("show");
+  }
+
+  function closeDetail() {
+    document.getElementById("modalMask").classList.remove("show");
+    activeItem = null;
+  }
+
+  function updateStats() {
+    var approvedCount = data.filter(function (item) {
+      return item.review_status === "已审核";
+    }).length;
+    document.getElementById("statTotal").textContent = data.length;
+    document.getElementById("statPairs").textContent = pairOptions().length;
+    document.getElementById("statApproved").textContent = approvedCount;
+    document.getElementById("statPairCoverage").textContent = pairOptions().length;
+    document.getElementById("statApprovedRate").textContent = data.length
+      ? ((approvedCount / data.length) * 100).toFixed(1) + "%" : "—";
+  }
+
+  /* ---------- 特色功能：导出当前筛选结果为 CSV ---------- */
+  function csvCell(value) {
+    return '"' + String(value == null ? "" : value).replace(/"/g, '""') + '"';
+  }
+
+  function timeStamp() {
+    var d = new Date();
+    function pad(n) { return (n < 10 ? "0" : "") + n; }
+    return d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) + "_" +
+      pad(d.getHours()) + pad(d.getMinutes()) + pad(d.getSeconds());
+  }
+
+  function exportCsv() {
+    var rows = filtered();
+    if (!rows.length) {
+      KB.toast(t("exportEmpty"), "error");
+      return;
+    }
+    var header = [t("sourceLabel"), t("targetLabel"), t("pairLabel"),
+      t("sourceNameLabel"), t("reviewLabel")];
+    var lines = [header.map(csvCell).join(",")];
+    rows.forEach(function (item) {
+      lines.push([
+        item.source_text, item.target_text, (item.lang_pair || "").toUpperCase(),
+        item.source,
+        item.review_status === "已审核" ? t("approved") : t("pending")
+      ].map(csvCell).join(","));
+    });
+    var blob = new Blob(["\ufeff" + lines.join("\r\n")], { type: "text/csv;charset=utf-8" });
+    var url = URL.createObjectURL(blob);
+    var link = document.createElement("a");
+    link.href = url;
+    link.download = "parallel_corpus_" + timeStamp() + ".csv";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+    KB.toast(KB.fillTpl(t("exportDone"), { n: rows.length }));
+  }
+
+  function applyStatus(info) {
+    var value = document.getElementById("statVector");
+    var sub = document.getElementById("statVectorSub");
+    var meta = document.getElementById("vectorMeta");
+    var ready = info && info.parallel_index_ready;
+    value.textContent = ready ? t("vectorReady")
+      .replace("{model}", info.parallel_model || "")
+      .replace("{dim}", String(info.parallel_dim || 0)) : t("vectorPending");
+    value.style.fontSize = "13px";
+    sub.textContent = ready ? (info.parallel_built_at || "") : t("vectorPending");
+    if (ready) {
+      meta.textContent = KB.fillTpl(t("vectorMeta"), {
+        model: info.parallel_model || "",
+        dim: info.parallel_dim || 0,
+        time: info.parallel_built_at || "-"
+      });
+    } else {
+      meta.textContent = "";
+    }
+  }
+
+  function refreshStatus() {
+    KB.fetchJson("/api/status")
+      .then(function (info) { applyStatus(info); })
+      .catch(function () {
+        document.getElementById("statVector").textContent = t("vectorOffline");
+        document.getElementById("statVector").style.fontSize = "13px";
+      });
+  }
+
+  function rebuild() {
+    var button = document.getElementById("btnRebuild");
+    button.disabled = true;
+    button.textContent = t("rebuilding");
+    fetch("/api/rebuild?target=parallel", { method: "POST" })
+      .then(function (res) { return res.json(); })
+      .then(function (info) {
+        if (info.ok === false) throw new Error(info.error || "HTTP");
+        applyStatus(info);
+        KB.toast(KB.fillTpl(t("rebuildDone"), { n: info.parallel_count, d: info.parallel_dim }));
+      })
+      .catch(function (err) {
+        KB.toast(KB.fillTpl(t("rebuildFail"), { e: err.message }), "error");
+      })
+      .then(function () {
+        button.disabled = false;
+        button.textContent = t("rebuildBtn");
+      });
+  }
+
+  function applyLang(next) {
+    lang = next;
+    t = KB.makeT(T, lang);
+    document.documentElement.lang = lang === "zh" ? "zh-CN" : lang;
+    document.title = t("docTitle");
+    KB.applyStatic(t);
+    document.getElementById("searchInput").placeholder = t("searchPlaceholder");
+    renderFilters();
+    renderList();
+    refreshStatus();
+    document.getElementById("btnRebuild").textContent = t("rebuildBtn");
+    if (activeItem) openDetail(activeItem);
+  }
+
+  function load() {
+    document.getElementById("pairList").innerHTML = '<div class="empty">' + KB.escapeHtml(t("loading")) + "</div>";
+    Promise.all([KB.fetchJson("parallel_corpus_1to1.json"), KB.fetchJson("parallel.json")])
+      .then(function (results) {
+        var real = Array.isArray(results[0]) ? results[0] : [];
+        data = real.concat(Array.isArray(results[1]) ? results[1] : []);
+        updateStats();
+        renderFilters();
+        renderList();
+      })
+      .catch(function () {
+        document.getElementById("pairList").innerHTML = '<div class="empty">' + KB.escapeHtml(t("error")) + "</div>";
+      });
+  }
+
+  var timer = null;
+  document.getElementById("searchInput").addEventListener("input", function (e) {
+    clearTimeout(timer);
+    var value = e.target.value;
+    timer = setTimeout(function () {
+      keyword = value;
+      page = 1;
+      renderList();
+    }, 160);
+  });
+  document.getElementById("pairSelect").addEventListener("change", function () {
+    pairFilter = this.value;
+    page = 1;
+    renderList();
+  });
+  document.getElementById("reviewSelect").addEventListener("change", function () {
+    reviewFilter = this.value;
+    page = 1;
+    renderList();
+  });
+  document.getElementById("prevPage").addEventListener("click", function () {
+    if (page > 1) { page -= 1; renderList(); }
+  });
+  document.getElementById("btnExport").addEventListener("click", exportCsv);
+  document.getElementById("nextPage").addEventListener("click", function () {
+    page += 1;
+    renderList();
+  });
+  document.getElementById("btnRebuild").addEventListener("click", rebuild);
+  document.getElementById("modalClose").addEventListener("click", closeDetail);
+  document.getElementById("modalOk").addEventListener("click", closeDetail);
+  document.getElementById("modalMask").addEventListener("click", function (e) {
+    if (e.target === e.currentTarget) closeDetail();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") closeDetail();
+  });
+
+  KB.bindLanguage(applyLang, { onVisible: true });
+  applyLang(lang);
+  load();
+})();
+</script>
+</body>
+</html>
