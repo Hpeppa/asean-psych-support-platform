@@ -1,0 +1,1475 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>东盟灾害救援新闻 RAG 智能问答</title>
+<style>
+  :root{
+    --bg:#f4f6fa;
+    --card:#ffffff;
+    --text:#0f172a;
+    --muted:#64748b;
+    --line:#e6eaf2;
+    --primary:#2563eb;
+    --primary-dark:#1d4ed8;
+    --primary-soft:#eff5ff;
+    --danger:#e11d48;
+    --danger-soft:#fff1f3;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:"Inter","Segoe UI","Microsoft YaHei","PingFang SC",sans-serif;
+    font-size:14px;
+    line-height:1.6;
+    padding:26px 30px 40px;
+    min-height:100vh;
+  }
+  .wrap{max-width:1280px;margin:0 auto;}
+  body.embed{padding:18px 20px 26px;background:var(--bg);}
+  body.embed .header,body.embed .footer{display:none !important;}
+
+  /* ---------- Header ---------- */
+  .header{
+    position:relative;overflow:hidden;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:18px 22px 18px 26px;
+    display:flex;
+    align-items:center;
+    gap:16px;
+    box-shadow:0 1px 2px rgba(15,23,42,.04),0 4px 14px rgba(15,23,42,.04);
+    margin-bottom:16px;
+  }
+  .header::before{
+    content:"";position:absolute;left:0;top:0;bottom:0;width:4px;
+    background:linear-gradient(180deg,#2563eb,#06b6d4);
+  }
+  .header::after{
+    content:"";position:absolute;right:-60px;top:-70px;width:220px;height:220px;border-radius:50%;
+    background:radial-gradient(circle,rgba(37,99,235,.07),transparent 70%);pointer-events:none;
+  }
+  .brand-mark{
+    width:46px;height:46px;border-radius:12px;flex:none;
+    background:linear-gradient(135deg,#2563eb,#0ea5a4);
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;
+    box-shadow:0 6px 14px rgba(37,99,235,.35),inset 0 1px 0 rgba(255,255,255,.28);
+  }
+  .brand-text{flex:1;min-width:0;}
+  h1{margin:0;font-size:20px;font-weight:700;letter-spacing:.2px;line-height:1.35;}
+  .brand-note{
+    margin-top:5px;font-size:12.5px;color:var(--muted);
+    display:flex;align-items:flex-start;gap:6px;
+  }
+  .brand-note svg{flex:none;margin-top:3px;color:#94a3b8;}
+  .header-actions{display:flex;align-items:center;gap:10px;flex:none;}
+  .nav-btn{height:36px;text-decoration:none;font-size:13px;}
+  .mode-pill{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:5px 11px;border-radius:999px;font-size:12px;font-weight:600;
+    white-space:nowrap;border:1px solid transparent;
+  }
+  .mode-pill .dot{width:6px;height:6px;border-radius:50%;display:inline-block;background:currentColor;}
+  .mode-pill.online{color:#0f766e;background:#ecfdf5;border-color:#ccfbf1;}
+  .mode-pill.demo{color:#b45309;background:#fffbeb;border-color:#fde68a;}
+  .mode-pill.error{color:#be123c;background:#fff1f2;border-color:#fecdd3;}
+  .mode-pill.checking{color:#64748b;background:#f1f5f9;border-color:#e2e8f0;}
+
+  /* ---------- Stats ---------- */
+  .stats{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:14px;
+  }
+  .stat{
+    position:relative;overflow:hidden;
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:14px 17px;box-shadow:0 1px 2px rgba(15,23,42,.04);
+    transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;
+  }
+  .stat::before{
+    content:"";position:absolute;left:0;top:0;right:0;height:3px;
+    background:linear-gradient(90deg,#2563eb,#06b6d4);opacity:.85;
+  }
+  .stat:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(15,23,42,.10);border-color:#d7e3f6;}
+  .stat-label{font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:6px;}
+  .stat-value{font-size:23px;font-weight:700;margin-top:4px;letter-spacing:.3px;}
+  .stat-value.sm{font-size:15.5px;padding-top:5px;line-height:1.5;word-break:break-word;}
+  .stat-sub{font-size:11.5px;color:#94a3b8;margin-top:2px;}
+
+  /* ---------- Pipeline ---------- */
+  .pipeline{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:13px 18px 15px;margin-bottom:16px;box-shadow:0 1px 2px rgba(15,23,42,.04);
+  }
+  .pipeline-head{
+    display:flex;align-items:center;justify-content:space-between;
+    font-size:12px;color:#94a3b8;margin-bottom:10px;
+  }
+  .pipeline-head b{font-size:12.5px;color:#475569;font-weight:600;}
+  .steps{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .step{
+    flex:1 1 160px;display:flex;align-items:center;gap:9px;
+    background:#f8fafc;border:1px solid #eef2f8;border-radius:10px;padding:8px 11px;
+  }
+  .step-num{
+    width:22px;height:22px;border-radius:50%;flex:none;
+    background:var(--primary-soft);color:var(--primary);
+    font-size:11.5px;font-weight:700;display:flex;align-items:center;justify-content:center;
+  }
+  .step b{display:block;font-size:12.5px;color:#334155;font-weight:600;line-height:1.4;}
+  .step small{display:block;font-size:10.5px;color:#94a3b8;line-height:1.4;}
+  .arrow{color:#cbd5e1;font-size:13px;flex:none;}
+  .pipeline-note{font-size:11.5px;color:#94a3b8;}
+
+  /* ---------- Layout ---------- */
+  .main-grid{
+    display:grid;grid-template-columns:minmax(0,1.55fr) minmax(330px,.92fr);
+    gap:16px;align-items:start;
+  }
+  .panel{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:0 1px 2px rgba(15,23,42,.04);overflow:hidden;
+  }
+  .panel-head{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:14px 18px;border-bottom:1px solid var(--line);
+  }
+  .panel-title{display:flex;align-items:baseline;gap:8px;min-width:0;}
+  .panel-head h2{margin:0;font-size:15.5px;font-weight:700;}
+  .panel-sub{font-size:11.5px;color:#94a3b8;white-space:nowrap;}
+  .meta{font-size:11.5px;color:#94a3b8;white-space:nowrap;}
+  .qa-body{padding:16px 18px 18px;}
+
+  /* ---------- Examples & ask ---------- */
+  .examples{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:11px;}
+  .examples-label{font-size:11.5px;color:#94a3b8;flex:none;}
+  .chip{
+    border:1px solid var(--line);background:#fbfcfe;color:#475569;
+    font-size:11.5px;font-family:inherit;padding:4px 10px;border-radius:999px;
+    cursor:pointer;transition:all .15s;line-height:1.5;
+  }
+  .chip:hover{border-color:#93b4fd;color:var(--primary);background:var(--primary-soft);}
+  .ask-box{
+    border:1px solid var(--line);border-radius:12px;background:#fbfcfe;
+    transition:border-color .15s, box-shadow .15s, background .15s;
+  }
+  .ask-box:focus-within{border-color:#93b4fd;background:#fff;box-shadow:0 0 0 3px rgba(37,99,235,.12);}
+  .ask-box textarea{
+    width:100%;border:none;background:transparent;outline:none;resize:vertical;
+    min-height:78px;padding:12px 14px 4px;font-family:inherit;font-size:13.5px;
+    color:var(--text);line-height:1.7;
+  }
+  .ask-box textarea::placeholder{color:#a3aec2;}
+  .ask-actions{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:6px 12px 10px;
+  }
+  .hint{font-size:11px;color:#a3aec2;}
+  .btn{
+    height:38px;padding:0 16px;border-radius:10px;border:1px solid transparent;
+    font-size:13.5px;font-weight:600;font-family:inherit;cursor:pointer;
+    display:inline-flex;align-items:center;justify-content:center;gap:7px;
+    white-space:nowrap;transition:background .15s,border-color .15s,color .15s,box-shadow .15s;
+  }
+  .btn:disabled{opacity:.6;cursor:not-allowed;}
+  .btn-primary{background:var(--primary);color:#fff;box-shadow:0 2px 6px rgba(37,99,235,.22);}
+  .btn-primary:hover:not(:disabled){background:var(--primary-dark);}
+  .btn-outline{background:#fff;border-color:var(--line);color:#334155;}
+  .btn-outline:hover:not(:disabled){border-color:#c7d2e4;background:#f8fafc;}
+  .small-btn{height:32px;padding:0 12px;font-size:12px;}
+
+  /* ---------- Notice ---------- */
+  .notice{
+    margin-top:12px;padding:9px 12px;border-radius:9px;
+    font-size:12px;line-height:1.6;
+    border:1px solid #fde68a;background:#fffbeb;color:#92400e;
+  }
+  .notice.error{border-color:#fecdd3;background:#fff1f2;color:#be123c;}
+  .notice.info{border-color:#bfdbfe;background:#eff6ff;color:#1d4ed8;}
+
+  /* ---------- Answer ---------- */
+  .answer-card{
+    margin-top:14px;border:1px solid var(--line);border-radius:12px;background:#fbfcfe;
+    overflow:hidden;
+  }
+  .answer-head{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:9px 14px;border-bottom:1px solid #eef2f8;background:#f8fafc;
+  }
+  .answer-label{font-size:12.5px;font-weight:700;color:#334155;}
+  .answer-status{font-size:11.5px;color:#94a3b8;font-variant-numeric:tabular-nums;}
+  .answer-body{
+    padding:15px 16px;min-height:220px;max-height:520px;overflow:auto;
+    font-size:13.5px;line-height:1.85;color:#334155;
+    white-space:pre-wrap;word-break:break-word;
+  }
+  .answer-placeholder{
+    min-height:180px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:8px;color:#94a3b8;text-align:center;font-size:12.5px;
+  }
+  .answer-placeholder svg{color:#cbd5e1;}
+  .answer-placeholder b{display:block;font-size:13px;color:#64748b;font-weight:600;}
+  .stream-cursor{
+    display:inline-block;width:7px;height:15px;margin-left:2px;
+    background:var(--primary);border-radius:2px;vertical-align:-2px;
+    animation:blink .9s steps(2,start) infinite;
+  }
+  @keyframes blink{0%,49%{opacity:1;}50%,100%{opacity:.15;}}
+  .spinner{
+    width:18px;height:18px;border:2px solid #dbeafe;border-top-color:var(--primary);
+    border-radius:50%;animation:spin .8s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .cite{
+    display:inline;border:none;background:var(--primary-soft);color:var(--primary);
+    font-size:11px;font-weight:700;font-family:inherit;padding:0 4px;margin:0 1px;
+    border-radius:4px;cursor:pointer;vertical-align:1px;line-height:1.4;
+  }
+  .cite:hover{background:#dbeafe;}
+
+  /* ---------- Sources ---------- */
+  .source-panel{position:sticky;top:18px;}
+  .source-list{padding:12px 14px;max-height:640px;overflow:auto;display:flex;flex-direction:column;gap:10px;}
+  .source-empty{
+    padding:44px 16px;text-align:center;color:#94a3b8;font-size:12.5px;line-height:1.8;
+  }
+  .source-empty svg{color:#cbd5e1;margin-bottom:8px;}
+  .source-card{
+    border:1px solid var(--line);border-radius:11px;padding:11px 12px;background:#fff;
+    transition:border-color .2s, box-shadow .2s, transform .2s;
+  }
+  .source-card:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(15,23,42,.08);border-color:#d7e3f6;}
+  .source-card.active{border-color:#93b4fd;box-shadow:0 0 0 3px rgba(37,99,235,.12);}
+  .source-top{display:flex;align-items:center;gap:7px;margin-bottom:7px;flex-wrap:wrap;}
+  .source-index{
+    width:20px;height:20px;border-radius:6px;flex:none;
+    background:var(--primary);color:#fff;font-size:11px;font-weight:700;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .source-score{font-size:10.5px;color:#94a3b8;margin-left:auto;font-variant-numeric:tabular-nums;white-space:nowrap;}
+  .source-title{font-size:12.8px;font-weight:600;line-height:1.55;color:#1e293b;margin-bottom:4px;}
+  .source-meta{font-size:10.8px;color:#94a3b8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .score-bar{height:3px;border-radius:2px;background:#eef2f8;overflow:hidden;margin:8px 0 7px;}
+  .score-bar span{display:block;height:100%;background:linear-gradient(90deg,#60a5fa,#2563eb);border-radius:2px;}
+  .source-snippet{font-size:11.5px;color:#64748b;line-height:1.65;
+    display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+  .source-link{
+    display:inline-block;margin-top:7px;font-size:11.5px;color:var(--primary);
+    text-decoration:none;font-weight:600;
+  }
+  .source-link:hover{text-decoration:underline;}
+  .source-foot{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:11px 14px;border-top:1px solid var(--line);
+    font-size:10.8px;color:#94a3b8;flex-wrap:wrap;
+  }
+
+  .badge{
+    display:inline-block;padding:2px 8px;border-radius:999px;
+    font-size:10.5px;font-weight:600;line-height:1.5;white-space:nowrap;
+  }
+  .kw-blue{background:#e8f0fe;color:#1d4ed8;}
+  .kw-purple{background:#f3e8ff;color:#7e22ce;}
+  .kw-amber{background:#fef3c7;color:#b45309;}
+  .kw-teal{background:#ccfbf1;color:#0f766e;}
+  .kw-gray{background:#eef2f7;color:#475569;}
+
+  /* ---------- Footer / toast ---------- */
+  .footer{
+    margin-top:14px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;
+    font-size:11.5px;color:#94a3b8;padding:0 4px;
+  }
+  .toasts{position:fixed;top:20px;right:24px;z-index:200;display:flex;flex-direction:column;gap:10px;}
+  .toast{
+    background:#fff;border:1px solid var(--line);border-left:3px solid #10b981;
+    border-radius:10px;padding:11px 16px;font-size:13px;color:#334155;
+    box-shadow:0 8px 24px rgba(15,23,42,.14);animation:slideIn .2s ease-out;max-width:360px;
+  }
+  .toast.error{border-left-color:var(--danger);}
+  .toast.info{border-left-color:var(--primary);}
+  @keyframes slideIn{from{transform:translateX(16px);opacity:0;}to{transform:none;opacity:1;}}
+  .hidden{display:none !important;}
+
+  @media (max-width:1000px){
+    .main-grid{grid-template-columns:1fr;}
+    .source-panel{position:static;}
+    .source-list{max-height:none;}
+  }
+  @media (max-width:900px){
+    body{padding:18px 16px 32px;}
+    .stats{grid-template-columns:repeat(2,1fr);}
+    .header{flex-wrap:wrap;}
+    .header-actions{width:100%;justify-content:flex-end;}
+    .steps{gap:6px;}
+    .arrow{display:none;}
+  }
+</style>
+</head>
+<body>
+<script src="assets/static-api.js"></script>
+<div class="wrap">
+
+  <header class="header">
+    <div class="brand-mark">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        <path d="M12 7v3"/><path d="M12 11.5h.01"/>
+      </svg>
+    </div>
+    <div class="brand-text">
+      <h1 data-i18n="brandTitle">东盟跨境灾害心理干预 · 可追溯来源智能问答</h1>
+      <div class="brand-note">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+        </svg>
+        <span data-i18n="brandNote">Bigmodel embedding-3 向量索引（175 条心理干预知识切片，每条带原始来源 URL）· 余弦相似度检索 · DeepSeek 流式回答 · 知识库范围外自动拒答</span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-outline nav-btn" id="btnBackCms" type="button">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        <span data-i18n="backCms">返回新闻 CMS</span>
+      </button>
+      <span class="mode-pill checking" id="modePill"><span class="dot"></span><span id="modeText" data-i18n="modeChecking">检测中…</span></span>
+    </div>
+  </header>
+
+  <section class="stats">
+    <div class="stat">
+      <div class="stat-label">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        <span data-i18n="statCorpusLabel">语料新闻</span>
+      </div>
+      <div class="stat-value" id="statCorpus">—</div>
+      <div class="stat-sub" id="statCorpusSub">insarag_news.json + foreign_news.json</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        <span data-i18n="statChunksLabel">向量片段</span>
+      </div>
+      <div class="stat-value" id="statChunks">—</div>
+      <div class="stat-sub" id="statChunksSub">全部语料已向量化</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>
+        <span data-i18n="statEmbedLabel">向量模型</span>
+      </div>
+      <div class="stat-value sm" id="statEmbed">—</div>
+      <div class="stat-sub" id="statEmbedSub">Bigmodel embedding</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/><line x1="9" y1="21" x2="15" y2="21"/></svg>
+        <span data-i18n="statLLMLabel">生成模型</span>
+      </div>
+      <div class="stat-value sm" id="statLLM">—</div>
+      <div class="stat-sub" id="statLLMSub">DeepSeek 流式输出</div>
+    </div>
+  </section>
+
+  <section class="pipeline">
+    <div class="pipeline-head">
+      <b data-i18n="pipelineTitle">RAG 检索增强流程</b>
+      <span class="pipeline-note" id="pipelineNote" data-i18n="pipelineNote">每次提问实时执行</span>
+    </div>
+    <div class="steps">
+      <div class="step"><span class="step-num">1</span><div><b data-i18n="step1Title">问题向量化</b><small data-i18n="step1Sub">Bigmodel embedding-3</small></div></div>
+      <span class="arrow">→</span>
+      <div class="step"><span class="step-num">2</span><div><b data-i18n="step2Title">余弦相似度检索</b><small data-i18n="step2Sub">Top-K 语料片段</small></div></div>
+      <span class="arrow">→</span>
+      <div class="step"><span class="step-num">3</span><div><b data-i18n="step3Title">DeepSeek 生成</b><small data-i18n="step3Sub">SSE 流式输出</small></div></div>
+      <span class="arrow">→</span>
+      <div class="step"><span class="step-num">4</span><div><b data-i18n="step4Title">来源追溯</b><small data-i18n="step4Sub">引用编号对应原文</small></div></div>
+    </div>
+  </section>
+
+  <div class="main-grid">
+    <section class="panel">
+      <div class="panel-head">
+        <div class="panel-title">
+          <h2 data-i18n="qaTitle">智能问答</h2>
+          <span class="panel-sub" data-i18n="qaSub">检索增强生成（RAG）</span>
+        </div>
+        <span class="meta" id="qaMeta">Top 4 语料片段</span>
+      </div>
+      <div class="qa-body">
+        <div class="examples">
+          <span class="examples-label" data-i18n="examplesLabel">示例问题</span>
+          <button class="chip" data-i18n="chip1" data-q-zh="灾后心理急救（PFA）的核心原则是什么？" data-q-en="What are the core principles of Psychological First Aid (PFA) after a disaster?">PFA 核心原则</button>
+          <button class="chip" data-i18n="chip2" data-q-zh="灾后应该如何为儿童提供心理支持？" data-q-en="How should psychosocial support be provided to children after a disaster?">儿童心理支持</button>
+          <button class="chip" data-i18n="chip3" data-q-zh="出现哪些心理反应需要转介专业心理帮助？" data-q-en="Which psychological reactions require referral to professional mental health care?">何时需要转介</button>
+        </div>
+        <div class="ask-box">
+          <textarea id="questionInput" rows="3" placeholder="请输入关于灾后心理干预、PFA 心理急救、创伤应激或哀伤辅导的问题…"></textarea>
+          <div class="ask-actions">
+            <span class="hint" data-i18n="hint">Ctrl + Enter 快速提交</span>
+            <button class="btn btn-primary" id="btnAsk" data-i18n="submitBtn">提交问题</button>
+          </div>
+        </div>
+        <div class="notice hidden" id="notice"></div>
+        <div class="answer-card">
+          <div class="answer-head">
+            <span class="answer-label" data-i18n="answerLabel">回答</span>
+            <span style="display:flex;align-items:center;gap:8px;">
+              <button class="btn btn-outline small-btn hidden" id="btnSpeakAnswer" data-i18n="speakBtn">播报回答</button>
+              <span class="answer-status" id="answerStatus">等待提问</span>
+            </span>
+          </div>
+          <div class="answer-body" id="answerBody">
+            <div class="answer-placeholder">
+              <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8"/><path d="M8 13h5"/></svg>
+              <b>等待提问</b>
+              <span>提交问题后，系统先向量化检索语料，再由 DeepSeek 流式生成带引用的回答</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="panel source-panel">
+      <div class="panel-head">
+        <div class="panel-title">
+          <h2 data-i18n="sourcesTitle">来源追溯</h2>
+          <span class="panel-sub" data-i18n="sourcesSub">余弦相似度排序</span>
+        </div>
+        <span class="meta" id="sourceCount">0 条来源</span>
+      </div>
+      <div class="source-list" id="sourceList">
+        <div class="source-empty">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          <div>回答生成后，这里会显示本次引用的新闻语料</div>
+          <div>包含标题、发布日期、相似度与原文链接</div>
+        </div>
+      </div>
+      <div class="source-foot">
+        <button class="btn btn-outline small-btn" id="btnRebuild" data-i18n="rebuildBtn">重建向量索引</button>
+        <span id="indexFoot">余弦相似度 · Top 4</span>
+      </div>
+    </aside>
+  </div>
+
+  <div class="footer">
+    <span data-i18n="footer1">检索：Bigmodel embedding-3 向量化 → 余弦相似度 Top-K；生成：DeepSeek 流式输出；引用编号可点击回溯来源。</span>
+    <span data-i18n="footer2">启动命令：python rag_server.py</span>
+  </div>
+</div>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  if (new URLSearchParams(location.search).get("embed") === "1") {
+    document.body.classList.add("embed");
+  }
+
+  var LANG_KEY = "kb_lang";
+  var CODES = ["zh", "en", "th", "vi", "ms"];
+  var LANG = (function () {
+    try {
+      var v = localStorage.getItem(LANG_KEY);
+      return CODES.indexOf(v) >= 0 ? v : "zh";
+    } catch (e) { return "zh"; }
+  })();
+
+  var I18N = {
+    zh: {
+      docTitle: "东盟跨境灾害心理干预 · 可追溯来源智能问答",
+      brandTitle: "东盟跨境灾害心理干预 · 可追溯来源智能问答",
+      brandNote: "Bigmodel embedding-3 向量索引（175 条心理干预知识切片，每条带原始来源 URL）· 余弦相似度检索 · DeepSeek 流式回答 · 知识库范围外自动拒答",
+      backCms: "返回新闻 CMS",
+      modeChecking: "检测中…",
+      modeError: "服务未连接",
+      modeOnline: "在线模式 · Bigmodel + DeepSeek",
+      modeDemo: "演示模式 · 本地检索",
+      statCorpusLabel: "语料新闻",
+      statChunksLabel: "向量片段",
+      statEmbedLabel: "向量模型",
+      statLLMLabel: "生成模型",
+      statChunksSubAll: "全部语料已向量化",
+      statChunksSubDim: "全部语料 · {n} 维向量",
+      statChunksSubPending: "首次提问时自动构建",
+      statPendingBuild: "待构建",
+      statEmbedDemo: "本地哈希演示",
+      statEmbedSubOnline: "Bigmodel · {n} 维",
+      statEmbedSubPending: "Bigmodel · 待构建",
+      statEmbedSubDemo: "未配置 BIGMODEL_API_KEY",
+      statLLMDemo: "本地演示回答",
+      statLLMSubOnline: "DeepSeek · SSE 流式输出",
+      statLLMSubDemo: "未配置 DEEPSEEK_API_KEY",
+      pipelineTitle: "RAG 检索增强流程",
+      pipelineNote: "每次提问实时执行",
+      step1Title: "问题向量化",
+      step1Sub: "Bigmodel embedding-3",
+      step2Title: "余弦相似度检索",
+      step2Sub: "Top-K 语料片段",
+      step3Title: "DeepSeek 生成",
+      step3Sub: "SSE 流式输出",
+      step4Title: "来源追溯",
+      step4Sub: "引用编号对应原文",
+      qaTitle: "智能问答",
+      qaSub: "检索增强生成（RAG）",
+      qaMeta: "Top {n} 语料片段",
+      examplesLabel: "示例问题",
+      chip1: "PFA 核心原则",
+      chip2: "儿童心理支持",
+      chip3: "何时需要转介",
+      inputPlaceholder: "请输入灾后心理干预、PFA 心理急救、创伤应激、哀伤辅导等问题…",
+      hint: "Ctrl + Enter 快速提交",
+      submitBtn: "提交问题",
+      generatingBtn: "生成中…",
+      speakBtn: "播报回答",
+      speaking: "播报中…",
+      voiceUnsupported: "当前浏览器不支持语音播报",
+      answerLabel: "回答",
+      statusIdle: "等待提问",
+      statusVectorizing: "正在向量化问题…",
+      statusRetrieving: "检索中…",
+      statusRetrieved: "已检索 {n} 条语料，正在生成回答…",
+      statusDone: "已完成 · {s} 秒 · {m}",
+      statusFailed: "生成失败",
+      statusThinking: "正在检索并生成回答…",
+      placeholderTitle: "等待提问",
+      placeholderDesc: "提交问题后，系统先向量化检索语料，再由 DeepSeek 流式生成带引用的回答",
+      thinkingDesc: "向量化问题 → 余弦相似度匹配 → DeepSeek 流式生成",
+      answerRequestFailed: "请求失败",
+      unknownError: "未知错误",
+      sourcesTitle: "来源追溯",
+      sourcesSub: "余弦相似度排序",
+      sourcesCount: "{n} 条来源",
+      sourcesEmpty: "暂未检索到引用语料",
+      scoreLabel: "相似度 {p}%",
+      uncategorized: "未分类",
+      dateUnknown: "日期未标注",
+      viewOriginal: "查看原文 ↗",
+      rebuildBtn: "重建向量索引",
+      rebuildingBtn: "重建中…",
+      rebuildDone: "向量索引已重建：{n} 个片段 · {d} 维",
+      rebuildFail: "索引重建失败：{e}",
+      indexFoot: "余弦相似度 · Top {n}",
+      demoLabel: "本地演示",
+      deepseekLabel: "DeepSeek",
+      footer1: "检索：Bigmodel embedding-3 向量化 → 余弦相似度 Top-K；生成：DeepSeek 流式输出；引用编号可点击回溯来源。",
+      footer2: "启动命令：python rag_server.py",
+      noticeDemo: "当前为本地演示模式：未配置 {keys}。检索使用本地哈希向量，回答由检索片段拼接生成；配置密钥并重启服务后将启用 Bigmodel + DeepSeek。",
+      noticeFile: "服务未连接：请确认已启动 rag_server.py，并通过部署地址访问本页，不要直接双击打开文件",
+      noticeOffline: "无法连接 RAG 服务（{e}）。请确认已运行 python rag_server.py。",
+      toastNoQuestion: "请先输入问题",
+      toastAskFail: "问答请求失败",
+      noticeAskFail: "问答请求失败：{e}",
+      statCorpusSub: "新闻 9 条 + 外文资讯 50 条",
+      refusedNotice: "该问题超出当前知识库范围（仅覆盖东盟灾害救援、PFA 心理干预、术语与外语资讯，相似度低于 {s}）。系统已明确拒答，未引用任何来源。",
+      statusRefused: "已拒答 · 超出知识库范围",
+      refusedLabel: "范围外拒答",
+      typeNews: "新闻语料",
+      typeForeign: "外文资讯",
+      typeGlossary: "术语知识",
+      sourceFrom: "来源：{s}"
+    },
+    en: {
+      docTitle: "RAG Q&A · ASEAN Psychosocial Emergency Language Platform",
+      brandTitle: "Traceable Q&A for ASEAN Cross-border Disaster Psychosocial Support",
+      brandNote: "Bigmodel embedding-3 index (175 psychosocial knowledge chunks, each with its original source URL) · cosine similarity retrieval · DeepSeek streaming answers · explicit refusal beyond the knowledge base",
+      backCms: "Back to News CMS",
+      modeChecking: "Checking…",
+      modeError: "Service unavailable",
+      modeOnline: "Online · Bigmodel + DeepSeek",
+      modeDemo: "Demo mode · Local retrieval",
+      statCorpusLabel: "News corpus",
+      statChunksLabel: "Vector chunks",
+      statEmbedLabel: "Embedding model",
+      statLLMLabel: "Generation model",
+      statChunksSubAll: "All corpus vectorized",
+      statChunksSubDim: "All corpus · {n}-dim vectors",
+      statChunksSubPending: "Built on first question",
+      statPendingBuild: "Pending",
+      statEmbedDemo: "Local hash demo",
+      statEmbedSubOnline: "Bigmodel · {n}-dim",
+      statEmbedSubPending: "Bigmodel · pending",
+      statEmbedSubDemo: "BIGMODEL_API_KEY not set",
+      statLLMDemo: "Local demo answer",
+      statLLMSubOnline: "DeepSeek · SSE streaming",
+      statLLMSubDemo: "DEEPSEEK_API_KEY not set",
+      pipelineTitle: "RAG retrieval pipeline",
+      pipelineNote: "Runs on every question",
+      step1Title: "Embed the question",
+      step1Sub: "Bigmodel embedding-3",
+      step2Title: "Cosine similarity search",
+      step2Sub: "Top-K corpus chunks",
+      step3Title: "DeepSeek generation",
+      step3Sub: "SSE streaming",
+      step4Title: "Source traceability",
+      step4Sub: "Citations map to originals",
+      qaTitle: "Q&A",
+      qaSub: "Retrieval-augmented generation",
+      qaMeta: "Top {n} corpus chunks",
+      examplesLabel: "Examples",
+      chip1: "INSARAG classification",
+      chip2: "Role of AHA Centre",
+      chip3: "PFA core practices",
+      inputPlaceholder: "Ask a question about INSARAG, PFA or ASEAN cross-border disaster rescue…",
+      hint: "Ctrl + Enter to submit",
+      submitBtn: "Ask",
+      speakBtn: "Read answer",
+      speaking: "Speaking…",
+      voiceUnsupported: "Voice playback is not supported in this browser",
+      generatingBtn: "Generating…",
+      answerLabel: "Answer",
+      statusIdle: "Waiting for a question",
+      statusVectorizing: "Embedding your question…",
+      statusRetrieving: "Retrieving…",
+      statusRetrieved: "Retrieved {n} sources, generating answer…",
+      statusDone: "Completed · {s}s · {m}",
+      statusFailed: "Generation failed",
+      statusThinking: "Retrieving and generating…",
+      placeholderTitle: "Waiting for a question",
+      placeholderDesc: "After you submit, the system embeds the query, retrieves relevant corpus, then streams a cited answer from DeepSeek",
+      thinkingDesc: "Embed question → cosine similarity → DeepSeek streaming",
+      answerRequestFailed: "Request failed",
+      unknownError: "Unknown error",
+      sourcesTitle: "Source traceability",
+      sourcesSub: "Ranked by cosine similarity",
+      sourcesCount: "{n} sources",
+      sourcesEmpty: "No cited corpus found yet",
+      scoreLabel: "Similarity {p}%",
+      uncategorized: "Uncategorized",
+      dateUnknown: "Date not specified",
+      viewOriginal: "View original ↗",
+      rebuildBtn: "Rebuild vector index",
+      rebuildingBtn: "Rebuilding…",
+      rebuildDone: "Vector index rebuilt: {n} chunks · {d}-dim",
+      rebuildFail: "Rebuild failed: {e}",
+      indexFoot: "Cosine similarity · Top {n}",
+      demoLabel: "Local demo",
+      deepseekLabel: "DeepSeek",
+      footer1: "Retrieval: Bigmodel embedding-3 → cosine similarity Top-K; Generation: DeepSeek streaming; citation numbers link back to sources.",
+      footer2: "Start: python rag_server.py",
+      noticeDemo: "Running in local demo mode: {keys} not configured. Retrieval uses local hash vectors and answers are assembled from retrieved chunks. Configure the keys and restart to enable Bigmodel + DeepSeek.",
+      noticeFile: "Service unavailable: make sure rag_server.py is running and open this page through the deployed address instead of the local file.",
+      noticeOffline: "Cannot reach the RAG service ({e}). Please make sure python rag_server.py is running.",
+      toastNoQuestion: "Please enter a question first",
+      toastAskFail: "Q&A request failed",
+      noticeAskFail: "Q&A request failed: {e}",
+      statCorpusSub: "9 news items + 50 foreign items",
+      refusedNotice: "This question is beyond the current knowledge base (it only covers ASEAN disaster response, PFA psychosocial support, terms and foreign news; similarity is below {s}). The system explicitly refused and cited no sources.",
+      statusRefused: "Refused · out of knowledge scope",
+      refusedLabel: "Out-of-scope refusal",
+      typeNews: "News corpus",
+      typeForeign: "Foreign news",
+      typeGlossary: "Glossary knowledge",
+      sourceFrom: "Source: {s}"
+    }
+  };
+
+  I18N.th = Object.assign({}, I18N.en, {
+    docTitle: "ถามตอบ RAG · แพลตฟอร์มบริการภาษาฉุกเฉินด้านจิตใจอาเซียน",
+    brandTitle: "ถามตอบพร้อมแหล่งอ้างอิง · การช่วยเหลือด้านจิตใจจากภัยพิบัติข้ามพรมแดนอาเซียน",
+    brandNote: "ดัชนีเวกเตอร์ Bigmodel embedding-3 (175 ชิ้นส่วนองค์ความรู้ด้านจิตใจ แต่ละชิ้นมี URL แหล่งที่มา) · ค้นหาความคล้ายโคไซน์ · DeepSeek ตอบแบบสตรีม · ปฏิเสธคำถามนอกขอบเขตอย่างชัดเจน",
+    backCms: "กลับไปยัง CMS ข่าว",
+    modeChecking: "กำลังตรวจสอบ…",
+    modeError: "ไม่ได้เชื่อมต่อบริการ",
+    modeOnline: "ออนไลน์ · Bigmodel + DeepSeek",
+    modeDemo: "โหมดสาธิต · ค้นหาในเครื่อง",
+    statCorpusLabel: "ข่าวในคลัง",
+    statChunksLabel: "ชิ้นส่วนเวกเตอร์",
+    statEmbedLabel: "โมเดลเวกเตอร์",
+    statLLMLabel: "โมเดลสร้างคำตอบ",
+    statCorpusSub: "ข่าว 9 รายการ + ข่าวต่างประเทศ 50 รายการ",
+    statChunksSubAll: "แปลงเวกเตอร์ครบแล้ว",
+    statChunksSubDim: "ทั้งหมด · {n} มิติ",
+    statChunksSubPending: "สร้างเมื่อถามครั้งแรก",
+    statPendingBuild: "ยังไม่สร้าง",
+    statEmbedDemo: "แฮชสาธิตในเครื่อง",
+    statEmbedSubOnline: "Bigmodel · {n} มิติ",
+    statEmbedSubPending: "Bigmodel · ยังไม่สร้าง",
+    statEmbedSubDemo: "ยังไม่ได้ตั้ง BIGMODEL_API_KEY",
+    statLLMDemo: "คำตอบสาธิตในเครื่อง",
+    statLLMSubDemo: "ยังไม่ได้ตั้ง DEEPSEEK_API_KEY",
+    pipelineTitle: "ขั้นตอน RAG",
+    pipelineNote: "ทำงานทุกครั้งที่ถาม",
+    step1Title: "แปลงคำถามเป็นเวกเตอร์",
+    step2Title: "ค้นหาความคล้ายโคไซน์",
+    step2Sub: "ชิ้นส่วน Top-K",
+    step3Title: "สร้างด้วย DeepSeek",
+    step4Title: "อ้างอิงแหล่งที่มา",
+    step4Sub: "หมายเลขอ้างอิงตรงกับต้นฉบับ",
+    qaTitle: "ถามตอบอัจฉริยะ",
+    qaSub: "RAG",
+    qaMeta: "ชิ้นส่วน Top {n}",
+    examplesLabel: "ตัวอย่างคำถาม",
+    chip1: "มาตรฐานการจัดชั้น INSARAG",
+    chip2: "บทบาทของ AHA Centre",
+    chip3: "แนวปฏิบัติ PFA",
+    inputPlaceholder: "พิมพ์คำถามเกี่ยวกับ INSARAG, PFA หรือภัยพิบัติข้ามพรมแดนอาเซียน…",
+    hint: "Ctrl + Enter เพื่อส่ง",
+    submitBtn: "ส่งคำถาม",
+    speakBtn: "อ่านคำตอบ",
+    speaking: "กำลังอ่าน…",
+    voiceUnsupported: "เบราว์เซอร์นี้ไม่รองรับการอ่านออกเสียง",
+    generatingBtn: "กำลังสร้าง…",
+    answerLabel: "คำตอบ",
+    statusIdle: "รอคำถาม",
+    statusVectorizing: "กำลังแปลงคำถามเป็นเวกเตอร์…",
+    statusRetrieving: "กำลังค้นหา…",
+    statusRetrieved: "พบ {n} แหล่ง กำลังสร้างคำตอบ…",
+    statusDone: "เสร็จสิ้น · {s} วินาที · {m}",
+    statusFailed: "สร้างไม่สำเร็จ",
+    statusThinking: "กำลังค้นหาและสร้างคำตอบ…",
+    placeholderTitle: "รอคำถาม",
+    placeholderDesc: "เมื่อส่งคำถาม ระบบจะแปลงเวกเตอร์ ค้นหาคลังข้อมูล แล้วให้ DeepSeek สร้างคำตอบพร้อมการอ้างอิงแบบสตรีม",
+    thinkingDesc: "แปลงเวกเตอร์ → ความคล้ายโคไซน์ → DeepSeek สตรีม",
+    answerRequestFailed: "คำขอล้มเหลว",
+    unknownError: "ข้อผิดพลาดไม่ทราบสาเหตุ",
+    sourcesTitle: "แหล่งอ้างอิง",
+    sourcesSub: "เรียงตามความคล้ายโคไซน์",
+    sourcesCount: "{n} แหล่ง",
+    sourcesEmpty: "ยังไม่พบแหล่งอ้างอิง",
+    scoreLabel: "ความคล้าย {p}%",
+    uncategorized: "ไม่จัดหมวด",
+    dateUnknown: "ไม่ระบุวันที่",
+    viewOriginal: "ดูต้นฉบับ ↗",
+    rebuildBtn: "สร้างดัชนีใหม่",
+    rebuildingBtn: "กำลังสร้าง…",
+    rebuildDone: "สร้างดัชนีแล้ว: {n} ชิ้นส่วน · {d} มิติ",
+    rebuildFail: "สร้างดัชนีล้มเหลว: {e}",
+    indexFoot: "ความคล้ายโคไซน์ · Top {n}",
+    demoLabel: "สาธิตในเครื่อง",
+    footer1: "ค้นหา: Bigmodel embedding-3 → ความคล้ายโคไซน์ Top-K; สร้าง: DeepSeek สตรีม; หมายเลขอ้างอิงคลิกกลับไปยังต้นฉบับได้",
+    footer2: "คำสั่งเริ่ม: python rag_server.py",
+    statCorpusSub: "ข่าว 9 รายการ + ข่าวต่างประเทศ 50 รายการ",
+    refusedNotice: "คำถามนี้อยู่นอกขอบเขตฐานความรู้ปัจจุบัน (ครอบคลุมเฉพาะภัยพิบัติอาเซียน PFA คำศัพท์ และข่าวต่างประเทศ; ความคล้ายต่ำกว่า {s}) ระบบปฏิเสธอย่างชัดเจนและไม่อ้างอิงแหล่งใด",
+    statusRefused: "ปฏิเสธ · นอกขอบเขตฐานความรู้",
+    refusedLabel: "ปฏิเสธนอกขอบเขต",
+    typeNews: "คลังข่าว",
+    typeForeign: "ข่าวต่างประเทศ",
+    typeGlossary: "องค์ความรู้ศัพท์",
+    sourceFrom: "แหล่ง: {s}"
+  });
+
+  I18N.vi = Object.assign({}, I18N.en, {
+    docTitle: "Hỏi đáp RAG · Nền tảng dịch vụ ngôn ngữ khẩn cấp ASEAN",
+    brandTitle: "Hỏi đáp có truy xuất nguồn · Hỗ trợ tâm lý thảm họa xuyên biên giới ASEAN",
+    brandNote: "Chỉ mục vector Bigmodel embedding-3 (175 phân đoạn kiến thức tâm lý, mỗi phân đoạn có URL nguồn gốc) · truy xuất độ tương đồng cosin · DeepSeek trả lời dạng luồng · từ chối rõ ràng ngoài phạm vi",
+    backCms: "Quay lại CMS tin tức",
+    modeChecking: "Đang kiểm tra…",
+    modeError: "Dịch vụ chưa kết nối",
+    modeOnline: "Trực tuyến · Bigmodel + DeepSeek",
+    modeDemo: "Chế độ mô phỏng · truy xuất cục bộ",
+    statCorpusLabel: "Tin trong kho",
+    statChunksLabel: "Phân đoạn vector",
+    statEmbedLabel: "Mô hình vector",
+    statLLMLabel: "Mô hình sinh câu trả lời",
+    statCorpusSub: "9 tin + 50 tin nước ngoài",
+    statChunksSubAll: "Đã vector hóa toàn bộ",
+    statChunksSubDim: "Toàn bộ · {n} chiều",
+    statChunksSubPending: "Xây dựng khi hỏi lần đầu",
+    statPendingBuild: "Chưa xây dựng",
+    statEmbedDemo: "Hash mô phỏng cục bộ",
+    statEmbedSubOnline: "Bigmodel · {n} chiều",
+    statEmbedSubPending: "Bigmodel · chưa xây dựng",
+    statEmbedSubDemo: "Chưa đặt BIGMODEL_API_KEY",
+    statLLMDemo: "Trả lời mô phỏng cục bộ",
+    statLLMSubDemo: "Chưa đặt DEEPSEEK_API_KEY",
+    pipelineTitle: "Quy trình RAG",
+    pipelineNote: "Chạy mỗi lần đặt câu hỏi",
+    step1Title: "Vector hóa câu hỏi",
+    step2Title: "Truy xuất cosin",
+    step2Sub: "Top-K phân đoạn",
+    step3Title: "DeepSeek sinh câu trả lời",
+    step4Title: "Truy xuất nguồn",
+    step4Sub: "Số trích dẫn khớp với nguồn",
+    qaTitle: "Hỏi đáp thông minh",
+    qaSub: "RAG",
+    qaMeta: "Top {n} phân đoạn",
+    examplesLabel: "Câu hỏi mẫu",
+    chip1: "Tiêu chuẩn phân loại INSARAG",
+    chip2: "Vai trò của AHA Centre",
+    chip3: "Thực hành PFA",
+    inputPlaceholder: "Nhập câu hỏi về INSARAG, PFA hoặc thảm họa xuyên biên giới ASEAN…",
+    hint: "Ctrl + Enter để gửi",
+    submitBtn: "Gửi câu hỏi",
+    speakBtn: "Đọc câu trả lời",
+    speaking: "Đang đọc…",
+    voiceUnsupported: "Trình duyệt không hỗ trợ đọc giọng nói",
+    generatingBtn: "Đang tạo…",
+    answerLabel: "Câu trả lời",
+    statusIdle: "Đang chờ câu hỏi",
+    statusVectorizing: "Đang vector hóa câu hỏi…",
+    statusRetrieving: "Đang truy xuất…",
+    statusRetrieved: "Đã tìm {n} nguồn, đang tạo câu trả lời…",
+    statusDone: "Hoàn tất · {s} giây · {m}",
+    statusFailed: "Tạo thất bại",
+    statusThinking: "Đang truy xuất và tạo câu trả lời…",
+    placeholderTitle: "Đang chờ câu hỏi",
+    placeholderDesc: "Sau khi gửi, hệ thống vector hóa câu hỏi, truy xuất kho tri thức rồi để DeepSeek sinh câu trả lời có trích dẫn dạng luồng",
+    thinkingDesc: "Vector hóa → tương đồng cosin → DeepSeek dạng luồng",
+    answerRequestFailed: "Yêu cầu thất bại",
+    unknownError: "Lỗi không xác định",
+    sourcesTitle: "Truy xuất nguồn",
+    sourcesSub: "Xếp theo tương đồng cosin",
+    sourcesCount: "{n} nguồn",
+    sourcesEmpty: "Chưa tìm thấy nguồn trích dẫn",
+    scoreLabel: "Tương đồng {p}%",
+    uncategorized: "Chưa phân loại",
+    dateUnknown: "Không rõ ngày",
+    viewOriginal: "Xem bản gốc ↗",
+    rebuildBtn: "Xây dựng lại chỉ mục",
+    rebuildingBtn: "Đang xây dựng…",
+    rebuildDone: "Đã xây dựng chỉ mục: {n} phân đoạn · {d} chiều",
+    rebuildFail: "Xây dựng chỉ mục thất bại: {e}",
+    indexFoot: "Tương đồng cosin · Top {n}",
+    demoLabel: "Mô phỏng cục bộ",
+    footer1: "Truy xuất: Bigmodel embedding-3 → tương đồng cosin Top-K; sinh: DeepSeek dạng luồng; số trích dẫn nhấn được để quay lại nguồn.",
+    footer2: "Lệnh khởi động: python rag_server.py",
+    refusedNotice: "Câu hỏi này nằm ngoài phạm vi kho tri thức hiện tại (chỉ gồm thảm họa ASEAN, PFA, thuật ngữ và tin nước ngoài; độ tương đồng dưới {s}). Hệ thống từ chối rõ ràng và không trích dẫn nguồn nào.",
+    statusRefused: "Đã từ chối · ngoài phạm vi",
+    refusedLabel: "Từ chối ngoài phạm vi",
+    typeNews: "Kho tin",
+    typeForeign: "Tin nước ngoài",
+    typeGlossary: "Tri thức thuật ngữ",
+    sourceFrom: "Nguồn: {s}"
+  });
+
+  I18N.ms = Object.assign({}, I18N.en, {
+    docTitle: "Soal Jawab RAG · Platform Bahasa Kecemasan ASEAN",
+    brandTitle: "Soal jawab boleh dijejaki · Sokongan psikososial bencana rentas sempadan ASEAN",
+    brandNote: "Indeks vektor Bigmodel embedding-3 (175 serpihan pengetahuan psikososial, setiap satu dengan URL sumber asal) · carian kesamaan kosinus · jawapan penstriman DeepSeek · penolakan jelas di luar skop",
+    backCms: "Kembali ke CMS Berita",
+    modeChecking: "Menyemak…",
+    modeError: "Perkhidmatan tidak disambung",
+    modeOnline: "Dalam talian · Bigmodel + DeepSeek",
+    modeDemo: "Mod demo · carian setempat",
+    statCorpusLabel: "Berita dalam korpus",
+    statChunksLabel: "Serpihan vektor",
+    statEmbedLabel: "Model vektor",
+    statLLMLabel: "Model penjanaan",
+    statCorpusSub: "9 berita + 50 berita asing",
+    statChunksSubAll: "Semua telah divektor",
+    statChunksSubDim: "Semua · {n} dimensi",
+    statChunksSubPending: "Dibina pada soalan pertama",
+    statPendingBuild: "Belum dibina",
+    statEmbedDemo: "Hash demo setempat",
+    statEmbedSubOnline: "Bigmodel · {n} dimensi",
+    statEmbedSubPending: "Bigmodel · belum dibina",
+    statEmbedSubDemo: "BIGMODEL_API_KEY belum ditetapkan",
+    statLLMDemo: "Jawapan demo setempat",
+    statLLMSubDemo: "DEEPSEEK_API_KEY belum ditetapkan",
+    pipelineTitle: "Aliran RAG",
+    pipelineNote: "Dijalankan setiap soalan",
+    step1Title: "Vektor soalan",
+    step2Title: "Carian kesamaan kosinus",
+    step2Sub: "Serpihan Top-K",
+    step3Title: "Penjanaan DeepSeek",
+    step4Title: "Jejak sumber",
+    step4Sub: "Nombor rujukan sepadan sumber",
+    qaTitle: "Soal jawab pintar",
+    qaSub: "RAG",
+    qaMeta: "Top {n} serpihan",
+    examplesLabel: "Contoh soalan",
+    chip1: "Standard klasifikasi INSARAG",
+    chip2: "Peranan AHA Centre",
+    chip3: "Amalan PFA",
+    inputPlaceholder: "Masukkan soalan tentang INSARAG, PFA atau bencana rentas sempadan ASEAN…",
+    hint: "Ctrl + Enter untuk hantar",
+    submitBtn: "Hantar soalan",
+    speakBtn: "Baca jawapan",
+    speaking: "Sedang membaca…",
+    voiceUnsupported: "Pelayar ini tidak menyokong bacaan suara",
+    generatingBtn: "Menjana…",
+    answerLabel: "Jawapan",
+    statusIdle: "Menunggu soalan",
+    statusVectorizing: "Mengevektor soalan…",
+    statusRetrieving: "Mendapatkan semula…",
+    statusRetrieved: "Ditemui {n} sumber, menjana jawapan…",
+    statusDone: "Selesai · {s} saat · {m}",
+    statusFailed: "Penjanaan gagal",
+    statusThinking: "Mendapatkan semula dan menjana…",
+    placeholderTitle: "Menunggu soalan",
+    placeholderDesc: "Selepas dihantar, sistem mengevektor soalan, mendapatkan semula korpus, kemudian DeepSeek menjana jawapan bertanda rujukan secara penstriman",
+    thinkingDesc: "Vektor soalan → kesamaan kosinus → penstriman DeepSeek",
+    answerRequestFailed: "Permintaan gagal",
+    unknownError: "Ralat tidak diketahui",
+    sourcesTitle: "Jejak sumber",
+    sourcesSub: "Disusun mengikut kesamaan kosinus",
+    sourcesCount: "{n} sumber",
+    sourcesEmpty: "Tiada sumber rujukan ditemui",
+    scoreLabel: "Kesamaan {p}%",
+    uncategorized: "Tanpa kategori",
+    dateUnknown: "Tarikh tidak dinyatakan",
+    viewOriginal: "Lihat asal ↗",
+    rebuildBtn: "Bina semula indeks",
+    rebuildingBtn: "Membina semula…",
+    rebuildDone: "Indeks dibina semula: {n} serpihan · {d} dimensi",
+    rebuildFail: "Pembinaan semula gagal: {e}",
+    indexFoot: "Kesamaan kosinus · Top {n}",
+    demoLabel: "Demo setempat",
+    footer1: "Carian: Bigmodel embedding-3 → kesamaan kosinus Top-K; penjanaan: penstriman DeepSeek; nombor rujukan boleh diklik untuk kembali ke sumber.",
+    footer2: "Perintah mula: python rag_server.py",
+    refusedNotice: "Soalan ini di luar skop pangkalan pengetahuan semasa (hanya meliputi bencana ASEAN, PFA, istilah dan berita asing; kesamaan di bawah {s}). Sistem menolak secara jelas dan tidak merujuk mana-mana sumber.",
+    statusRefused: "Ditolak · di luar skop",
+    refusedLabel: "Penolakan luar skop",
+    typeNews: "Korpus berita",
+    typeForeign: "Berita asing",
+    typeGlossary: "Pengetahuan istilah",
+    sourceFrom: "Sumber: {s}"
+  });
+
+  function t(key) {
+    return (I18N[LANG] && I18N[LANG][key]) || I18N.zh[key] || key;
+  }
+
+  function tpl(key, values) {
+    var text = t(key);
+    Object.keys(values || {}).forEach(function (name) {
+      text = text.replace(new RegExp("\\{" + name + "\\}", "g"), values[name]);
+    });
+    return text;
+  }
+
+  var state = {
+    sources: [],
+    answerText: "",
+    generating: false,
+    streaming: false,
+    retrieving: false,
+    rebuilding: false,
+    refused: false,
+    minScore: 0.3,
+    statusKey: "statusIdle",
+    statusArgs: null,
+    startedAt: 0
+  };
+
+  var baseNotice = null;
+  var transientNotice = null;
+  var lastStatus = null;
+  var lastStatusError = null;
+
+  var PLACEHOLDER_SVG =
+    '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8"/><path d="M8 13h5"/></svg>';
+
+  function $(id) { return document.getElementById(id); }
+
+  function escapeHtml(value) {
+    return String(value == null ? "" : value).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  function keywordClass(keyword) {
+    var k = String(keyword || "").toUpperCase();
+    if (k.indexOf("INSARAG") !== -1) return "kw-blue";
+    if (k.indexOf("PFA") !== -1 || k.indexOf("心理") !== -1) return "kw-purple";
+    if (k.indexOf("跨境") !== -1 || k.indexOf("救援") !== -1) return "kw-amber";
+    var palette = ["kw-teal", "kw-gray", "kw-blue", "kw-purple", "kw-amber"];
+    var sum = 0;
+    for (var i = 0; i < keyword.length; i++) sum += keyword.charCodeAt(i);
+    return palette[sum % palette.length];
+  }
+
+  function hostOf(url) {
+    try { return new URL(url).hostname.replace(/^www\./, ""); }
+    catch (e) { return url; }
+  }
+
+  function truncate(text, length) {
+    var s = String(text || "");
+    return s.length > length ? s.slice(0, length) + "…" : s;
+  }
+
+  function toast(message, type) {
+    var el = document.createElement("div");
+    el.className = "toast" + (type ? " " + type : "");
+    el.textContent = message;
+    $("toasts").appendChild(el);
+    setTimeout(function () {
+      el.style.opacity = "0";
+      el.style.transform = "translateX(12px)";
+      el.style.transition = "all .25s";
+      setTimeout(function () { el.remove(); }, 260);
+    }, 3200);
+  }
+
+  function renderNotice() {
+    var notice = $("notice");
+    var item = transientNotice || baseNotice;
+    if (!item) {
+      notice.classList.add("hidden");
+      notice.textContent = "";
+      return;
+    }
+    notice.className = "notice " + (item.type || "warn");
+    notice.textContent = item.text;
+  }
+
+  function setBaseNotice(text, type) {
+    baseNotice = text ? { text: text, type: type || "warn" } : null;
+    renderNotice();
+  }
+
+  function setTransientNotice(text, type) {
+    transientNotice = text ? { text: text, type: type || "warn" } : null;
+    renderNotice();
+  }
+
+  /* ---------------- 状态 ---------------- */
+  function updateModePill(embeddingOnline, llmOnline, failed) {
+    var pill = $("modePill");
+    var text = $("modeText");
+    if (failed) {
+      pill.className = "mode-pill error";
+      text.textContent = t("modeError");
+      return;
+    }
+    if (embeddingOnline && llmOnline) {
+      pill.className = "mode-pill online";
+      text.textContent = t("modeOnline");
+    } else {
+      pill.className = "mode-pill demo";
+      text.textContent = t("modeDemo");
+    }
+  }
+
+  function applyStatus(info) {
+    lastStatus = info;
+    lastStatusError = null;
+    var embedOnline = info.embedding_mode === "bigmodel";
+    var llmOnline = info.llm_mode === "deepseek";
+    var dim = info.dim || 0;
+
+    $("statCorpus").textContent = info.corpus_count || 0;
+    $("statCorpusSub").textContent = t("statCorpusSub");
+    $("statChunks").textContent = info.chunk_count || (info.index_ready ? 0 : t("statPendingBuild"));
+    $("statChunksSub").textContent = dim ? tpl("statChunksSubDim", { n: dim }) : t("statChunksSubPending");
+
+    $("statEmbed").textContent = embedOnline ? info.embedding_model : t("statEmbedDemo");
+    $("statEmbedSub").textContent = embedOnline
+      ? (dim ? tpl("statEmbedSubOnline", { n: dim }) : t("statEmbedSubPending"))
+      : t("statEmbedSubDemo");
+
+    $("statLLM").textContent = llmOnline ? info.llm_model : t("statLLMDemo");
+    $("statLLMSub").textContent = llmOnline ? t("statLLMSubOnline") : t("statLLMSubDemo");
+
+    $("indexFoot").textContent = tpl("indexFoot", { n: info.top_k || 4 });
+    $("qaMeta").textContent = tpl("qaMeta", { n: info.top_k || 4 });
+    updateModePill(embedOnline, llmOnline, false);
+
+    var missing = [];
+    if (!embedOnline) missing.push("BIGMODEL_API_KEY");
+    if (!llmOnline) missing.push("DEEPSEEK_API_KEY");
+    if (missing.length) {
+      var text = tpl("noticeDemo", { keys: missing.join(" / ") });
+      if (info.warning && info.warning.indexOf("Bigmodel") !== -1) text += " " + info.warning;
+      setBaseNotice(text, "warn");
+    } else {
+      setBaseNotice("", "warn");
+    }
+  }
+
+  function applyStatusError() {
+    updateModePill(false, false, true);
+    if (lastStatusError && lastStatusError.file) {
+      setBaseNotice(t("noticeFile"), "error");
+    } else {
+      setBaseNotice(tpl("noticeOffline", { e: (lastStatusError && lastStatusError.message) || "" }), "error");
+    }
+  }
+
+  function refreshStatus() {
+    return fetch("/api/status", { cache: "no-store" })
+      .then(function (res) {
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        return res.json();
+      })
+      .then(function (info) { applyStatus(info); return info; })
+      .catch(function (err) {
+        lastStatusError = { message: err.message, file: location.protocol === "file:" };
+        applyStatusError();
+        throw err;
+      });
+  }
+
+  /* ---------------- 检索来源 ---------------- */
+  function typeLabel(type) {
+    if (type === "foreign") return t("typeForeign");
+    if (type === "glossary") return t("typeGlossary");
+    return t("typeNews");
+  }
+
+  function typeClass(type) {
+    if (type === "foreign") return "kw-teal";
+    if (type === "glossary") return "kw-purple";
+    return "kw-blue";
+  }
+
+  function renderSources() {
+    var list = $("sourceList");
+    if (!state.sources.length) {
+      $("sourceCount").textContent = state.retrieving
+        ? t("statusRetrieving")
+        : tpl("sourcesCount", { n: 0 });
+      list.innerHTML =
+        '<div class="source-empty">' +
+        '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>' +
+        "<div>" + escapeHtml(t("sourcesEmpty")) + "</div>" +
+        "</div>";
+      return;
+    }
+
+    $("sourceCount").textContent = tpl("sourcesCount", { n: state.sources.length });
+    list.innerHTML = state.sources.map(function (source) {
+      var percent = Math.max(0, Math.min(100, source.score * 100));
+      var metaBits = [];
+      if (source.publish_date) metaBits.push(source.publish_date);
+      if (source.source_name) metaBits.push(tpl("sourceFrom", { s: source.source_name }));
+      if (source.url) metaBits.push(hostOf(source.url));
+      return (
+        '<div class="source-card" id="source-' + source.index + '">' +
+          '<div class="source-top">' +
+            '<span class="source-index">' + source.index + "</span>" +
+            '<span class="badge ' + typeClass(source.type) + '">' + escapeHtml(typeLabel(source.type)) + "</span>" +
+            '<span class="badge ' + keywordClass(source.keyword) + '">' + escapeHtml(source.keyword || t("uncategorized")) + "</span>" +
+            '<span class="source-score">' + escapeHtml(tpl("scoreLabel", { p: percent.toFixed(1) })) + "</span>" +
+          "</div>" +
+          '<div class="source-title">' + escapeHtml(source.title) + "</div>" +
+          '<div class="source-meta">' + escapeHtml(metaBits.join(" · ")) + "</div>" +
+          '<div class="score-bar"><span style="width:' + percent.toFixed(1) + '%"></span></div>' +
+          '<div class="source-snippet" title="' + escapeHtml(source.summary) + '">' + escapeHtml(truncate(source.summary, 120)) + "</div>" +
+          '<a class="source-link" href="' + escapeHtml(source.url || "#") + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(t("viewOriginal")) + "</a>" +
+        "</div>"
+      );
+    }).join("");
+  }
+
+  function updateStatsFromRetrieval(event) {
+    if (event.corpus_count) $("statCorpus").textContent = event.corpus_count;
+    if (event.chunk_count) $("statChunks").textContent = event.chunk_count;
+    if (event.dim) $("statChunksSub").textContent = tpl("statChunksSubDim", { n: event.dim });
+    if (event.embedding_mode === "bigmodel") {
+      $("statEmbed").textContent = event.embedding_model;
+      $("statEmbedSub").textContent = tpl("statEmbedSubOnline", { n: event.dim || 0 });
+    }
+    if (event.llm_mode === "deepseek") {
+      $("statLLM").textContent = event.llm_model;
+    }
+    updateModePill(event.embedding_mode === "bigmodel", event.llm_mode === "deepseek", false);
+    if (event.warning) setTransientNotice(event.warning, "warn");
+  }
+
+  /* ---------------- 回答渲染 ---------------- */
+  function setAnswerStatus(key, args) {
+    state.statusKey = key;
+    state.statusArgs = args || null;
+    $("answerStatus").textContent = args ? tpl(key, args) : t(key);
+  }
+
+  function renderAnswerStatus() {
+    setAnswerStatus(state.statusKey, state.statusArgs);
+  }
+
+  function renderAnswer() {
+    var body = $("answerBody");
+    var speakBtn = $("btnSpeakAnswer");
+    if (speakBtn) speakBtn.classList.toggle("hidden", !state.answerText);
+    if (!state.answerText) {
+      if (state.generating) {
+        body.innerHTML =
+          '<div class="answer-placeholder"><div class="spinner"></div><b>' +
+          escapeHtml(t("statusThinking")) + "</b><span>" +
+          escapeHtml(t("thinkingDesc")) + "</span></div>";
+      } else {
+        body.innerHTML =
+          '<div class="answer-placeholder">' + PLACEHOLDER_SVG + "<b>" +
+          escapeHtml(t("placeholderTitle")) + "</b><span>" +
+          escapeHtml(t("placeholderDesc")) + "</span></div>";
+      }
+      return;
+    }
+    var html = escapeHtml(state.answerText).replace(
+      /\[(\d+)\]/g,
+      '<button type="button" class="cite" data-cite="$1">[$1]</button>'
+    );
+    if (state.streaming) html += '<span class="stream-cursor"></span>';
+    body.innerHTML = html;
+    if (body.scrollHeight - body.scrollTop - body.clientHeight < 90) {
+      body.scrollTop = body.scrollHeight;
+    }
+  }
+
+  /* ---------------- 特色功能：回答语音播报 ---------------- */
+  var VOICE_LOCALES = { zh: "zh-CN", en: "en-US", th: "th-TH", vi: "vi-VN", ms: "ms-MY" };
+  var speaking = false;
+
+  function speakAnswer() {
+    if (!("speechSynthesis" in window)) { setTransientNotice(t("voiceUnsupported"), "warn"); return; }
+    var btn = $("btnSpeakAnswer");
+    if (speaking) {
+      window.speechSynthesis.cancel();
+      speaking = false;
+      btn.textContent = t("speakBtn");
+      return;
+    }
+    var text = (state.answerText || "").replace(/\[(\d+)\]/g, "").trim();
+    if (!text) return;
+    var utter = new SpeechSynthesisUtterance(text);
+    utter.lang = VOICE_LOCALES[LANG] || "zh-CN";
+    utter.rate = 0.95;
+    utter.onend = function () { speaking = false; btn.textContent = t("speakBtn"); };
+    utter.onerror = utter.onend;
+    speaking = true;
+    btn.textContent = t("speaking");
+    window.speechSynthesis.speak(utter);
+  }
+
+  /* ---------------- 事件处理 ---------------- */
+  function handleEvent(event) {
+    if (event.type === "retrieval") {
+      state.retrieving = false;
+      state.sources = event.sources || [];
+      state.refused = !!event.refused;
+      if (typeof event.min_score === "number") state.minScore = event.min_score;
+      renderSources();
+      updateStatsFromRetrieval(event);
+      if (state.refused) {
+        setAnswerStatus("statusRefused");
+        setTransientNotice(tpl("refusedNotice", { s: state.minScore }), "info");
+      } else {
+        setAnswerStatus("statusRetrieved", { n: state.sources.length });
+      }
+    } else if (event.type === "delta") {
+      state.answerText += event.content || "";
+      state.streaming = true;
+      renderAnswer();
+    } else if (event.type === "warning") {
+      setTransientNotice(event.message, "warn");
+    } else if (event.type === "done") {
+      state.retrieving = false;
+      state.streaming = false;
+      renderAnswer();
+      try {
+        var count = parseInt(localStorage.getItem("rag_qa_count") || "0", 10);
+        if (isNaN(count) || count < 0) count = 0;
+        localStorage.setItem("rag_qa_count", String(count + 1));
+      } catch (e) { /* 忽略本地存储异常 */ }
+      var seconds = (event.elapsed_ms / 1000).toFixed(1);
+      if (event.mode === "refusal") {
+        setAnswerStatus("statusRefused");
+        setTransientNotice(tpl("refusedNotice", { s: state.minScore }), "info");
+      } else {
+        var label = event.mode === "deepseek" ? t("deepseekLabel") : t("demoLabel");
+        setAnswerStatus("statusDone", { s: seconds, m: label });
+      }
+      if (event.mode === "demo-fallback") {
+        updateModePill(false, false, false);
+      }
+    } else if (event.type === "error") {
+      throw new Error(event.message || t("statusFailed"));
+    }
+  }
+
+  function consumeStream(response) {
+    var reader = response.body.getReader();
+    var decoder = new TextDecoder("utf-8");
+    var buffer = "";
+
+    function pump() {
+      return reader.read().then(function (result) {
+        if (result.done) return;
+        buffer += decoder.decode(result.value, { stream: true });
+        var separator;
+        while ((separator = buffer.indexOf("\n\n")) !== -1) {
+          var block = buffer.slice(0, separator);
+          buffer = buffer.slice(separator + 2);
+          var lines = block.split("\n");
+          for (var i = 0; i < lines.length; i++) {
+            if (lines[i].indexOf("data:") !== 0) continue;
+            var raw = lines[i].slice(5).trim();
+            if (!raw) continue;
+            var event;
+            try { event = JSON.parse(raw); } catch (e) { continue; }
+            handleEvent(event);
+          }
+        }
+        return pump();
+      });
+    }
+    return pump();
+  }
+
+  function ask() {
+    if (state.generating) return;
+    var question = $("questionInput").value.trim();
+    if (!question) {
+      toast(t("toastNoQuestion"), "error");
+      $("questionInput").focus();
+      return;
+    }
+
+    state.generating = true;
+    state.streaming = false;
+    state.retrieving = true;
+    state.answerText = "";
+    state.sources = [];
+    state.refused = false;
+    state.startedAt = performance.now();
+    transientNotice = null;
+    renderNotice();
+
+    var button = $("btnAsk");
+    button.disabled = true;
+    button.textContent = t("generatingBtn");
+    setAnswerStatus("statusVectorizing");
+    $("qaMeta").textContent = t("statusRetrieving");
+    renderAnswer();
+    renderSources();
+
+    fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question: question, lang: LANG })
+    }).then(function (response) {
+      if (!response.ok) {
+        return response.json().catch(function () { return {}; }).then(function (data) {
+          throw new Error(data.error || ("HTTP " + response.status));
+        });
+      }
+      if (!response.body) throw new Error("ReadableStream is not supported in this browser");
+      return consumeStream(response);
+    }).catch(function (err) {
+      state.streaming = false;
+      state.retrieving = false;
+      setAnswerStatus("statusFailed");
+      $("answerBody").innerHTML =
+        '<div class="answer-placeholder"><b style="color:#be123c;">' +
+        escapeHtml(t("answerRequestFailed")) + "</b><span>" +
+        escapeHtml(err.message || t("unknownError")) + "</span></div>";
+      setTransientNotice(tpl("noticeAskFail", { e: err.message || t("unknownError") }), "error");
+      toast(t("toastAskFail"), "error");
+    }).then(function () {
+      state.generating = false;
+      state.streaming = false;
+      state.retrieving = false;
+      button.disabled = false;
+      button.textContent = t("submitBtn");
+      $("qaMeta").textContent = state.refused
+        ? t("refusedLabel")
+        : tpl("qaMeta", { n: state.sources.length || 4 });
+    });
+  }
+
+  function rebuildIndex() {
+    var button = $("btnRebuild");
+    state.rebuilding = true;
+    button.disabled = true;
+    button.textContent = t("rebuildingBtn");
+    fetch("/api/rebuild", { method: "POST" })
+      .then(function (res) {
+        return res.json().then(function (data) {
+          if (!res.ok || data.ok === false) throw new Error(data.error || ("HTTP " + res.status));
+          return data;
+        });
+      })
+      .then(function (data) {
+        applyStatus(data);
+        toast(tpl("rebuildDone", { n: data.chunk_count, d: data.dim }));
+      })
+      .catch(function (err) {
+        toast(tpl("rebuildFail", { e: err.message }), "error");
+      })
+      .then(function () {
+        state.rebuilding = false;
+        button.disabled = false;
+        button.textContent = t("rebuildBtn");
+      });
+  }
+
+  /* ---------------- 语言 ---------------- */
+  function applyLang(next) {
+    LANG = CODES.indexOf(next) >= 0 ? next : "zh";
+    document.documentElement.lang = LANG === "zh" ? "zh-CN" : LANG;
+    document.title = t("docTitle");
+
+    Array.prototype.forEach.call(document.querySelectorAll("[data-i18n]"), function (el) {
+      el.textContent = t(el.getAttribute("data-i18n"));
+    });
+
+    Array.prototype.forEach.call(document.querySelectorAll(".chip"), function (chip) {
+      var question = chip.getAttribute("data-q-" + LANG) || chip.getAttribute("data-q-en");
+      if (question) chip.setAttribute("data-q", question);
+    });
+
+    $("questionInput").placeholder = t("inputPlaceholder");
+    $("btnAsk").textContent = state.generating ? t("generatingBtn") : t("submitBtn");
+    $("btnRebuild").textContent = state.rebuilding ? t("rebuildingBtn") : t("rebuildBtn");
+
+    if (lastStatus) {
+      applyStatus(lastStatus);
+    } else if (lastStatusError) {
+      applyStatusError();
+    }
+
+    renderSources();
+    renderAnswer();
+    renderAnswerStatus();
+  }
+
+  window.addEventListener("message", function (e) {
+    if (e.data && e.data.type === "setLang" &&
+        CODES.indexOf(e.data.lang) >= 0 && e.data.lang !== LANG) {
+      applyLang(e.data.lang);
+    }
+  });
+
+  window.addEventListener("storage", function (e) {
+    if (e.key === LANG_KEY && e.newValue && e.newValue !== LANG) {
+      applyLang(e.newValue);
+    }
+  });
+
+  /* ---------------- 绑定 ---------------- */
+  $("btnAsk").addEventListener("click", ask);
+  $("btnBackCms").addEventListener("click", function () {
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({ type: "navigate", view: "cms" }, "*");
+    } else {
+      location.href = "index.html#/cms";
+    }
+  });
+  $("questionInput").addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      ask();
+    }
+  });
+  $("btnRebuild").addEventListener("click", rebuildIndex);
+  $("btnSpeakAnswer").addEventListener("click", speakAnswer);
+  $("answerBody").addEventListener("click", function (e) {
+    var cite = e.target.closest(".cite");
+    if (!cite) return;
+    var card = document.getElementById("source-" + cite.getAttribute("data-cite"));
+    if (!card) return;
+    card.scrollIntoView({ behavior: "smooth", block: "center" });
+    card.classList.add("active");
+    setTimeout(function () { card.classList.remove("active"); }, 1800);
+  });
+  Array.prototype.forEach.call(document.querySelectorAll(".chip"), function (chip) {
+    chip.addEventListener("click", function () {
+      $("questionInput").value = chip.getAttribute("data-q") || chip.textContent;
+      $("questionInput").focus();
+    });
+  });
+
+  applyLang(LANG);
+  refreshStatus().catch(function () {});
+})();
+</script>
+</body>
+</html>
