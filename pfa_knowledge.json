@@ -1,0 +1,362 @@
+[
+  {
+    "id": "pfa-01",
+    "title_zh": "心理急救（PFA）的核心原则",
+    "summary_zh": "PFA 强调安全、稳定、联结与希望，通过主动倾听、情绪安抚和实际帮助支持受灾者，而不是进行心理治疗或强制讲述创伤细节。",
+    "source_name": "IASC MHPSS Guidelines",
+    "url": "https://interagencystandingcommittee.org/iasc-reference-group-mental-health-and-psychosocial-support-emergency-settings",
+    "domain": "心理干预知识",
+    "demo": true,
+    "license": "摘编自 IASC MHPSS、WHO、UNICEF、IFRC 公开出版物，仅用于教学演示，原始版权归各机构所有。"
+  },
+  {
+    "id": "pfa-02",
+    "title_zh": "PFA 的八个核心行动",
+    "summary_zh": "包括接触与建立联系、安全与舒适、稳定情绪、收集信息、满足基本需求、连接社会支持、提供应对信息以及链接后续服务。",
+    "source_name": "WHO Psychological First Aid",
+    "url": "https://www.who.int/publications/i/item/9789241548205",
+    "domain": "心理干预知识",
+    "demo": true,
+    "license": "摘编自 IASC MHPSS、WHO、UNICEF、IFRC 公开出版物，仅用于教学演示，原始版权归各机构所有。"
+  },
+  {
+    "id": "pfa-03",
+    "title_zh": "灾后常见应激反应",
+    "summary_zh": "恐惧、焦虑、失眠、易怒、注意力下降、闪回和躯体不适在灾后初期较为常见，多数会随时间缓解。",
+    "source_name": "WHO Mental Health",
+    "url": "https://www.who.int/health-topics/mental-health",
+    "domain": "心理干预知识",
+    "demo": true,
+    "license": "摘编自 IASC MHPSS、WHO、UNICEF、IFRC 公开出版物，仅用于教学演示，原始版权归各机构所有。"
+  },
+  {
+    "id": "pfa-04",
+    "title_zh": "急性应激反应的识别",
+    "summary_zh": "创伤后数小时至数天内出现强烈恐惧、解离、过度警觉或麻木，需要提供安全感、情绪稳定化与密切观察。",
+    "source_name": "IASC MHPSS Guidelines",
+    "url": "https://interagencystandingcommittee.org/iasc-reference-group-mental-health-and-psychosocial-support-emergency-settings",
+    "domain": "心理干预知识",
+    "demo": true,
+    "license": "摘编自 IASC MHPSS、WHO、UNICEF、IFRC 公开出版物，仅用于教学演示，原始版权归各机构所有。"
+  },
+  {
+    "id": "pfa-05",
+    "title_zh": "创伤后应激障碍（PTSD）",
+    "summary_zh": "PTSD 以再体验、回避、负性认知与过度警觉为核心，症状持续超过一个月并影响功能，需转介专业治疗。",
+    "source_name": "WHO Mental Health",
+    "url": "https://www.who.int/health-topics/mental-health",
+    "domain": "心理干预知识",
+    "demo": true,
+    "license": "摘编自 IASC MHPSS、WHO、UNICEF、IFRC 公开出版物，仅用于教学演示，原始版权归各机构所有。"
+  },
+  {
+    "id": "pfa-06",
+    "title_zh": "自杀风险评估与安全计划",
+    "summary_zh": "直接询问自伤自杀想法不会增加风险；发现高风险时应立即确保安全、移除危险物品并转介精神卫生服务。",
+    "source_name": "WHO Mental Health",
+    "url": "https://www.who.int/health-topics/mental-health",
+    "domain": "心理干预知识",
+    "demo": true,
+    "license": "摘编自 IASC MHPSS、WHO、UNICEF、IFRC 公开出版物，仅用于教学演示，原始版权归各机构所有。"
+  },
+  {
+    "id": "pfa-07",
+    "title_zh": "儿童心理支持要点",
+    "summary_zh": "儿童更依赖照护者的稳定与陪伴。应提供安全空间、游戏与绘画表达、稳定作息，并避免让儿童接触过多灾难画面。",
+    "source_name": "UNICEF Mental Health",
+    "url": "https://www.unicef.org/mental-health",
+    "domain": "心理干预知识",
+    "demo": true,
+    "license": "摘编自 IASC MHPSS、WHO、UNICEF、IFRC 公开出版物，仅用于教学演示，原始版权归各机构所有。"
+  },
+  {
+    "id": "pfa-08",
+    "title_zh": "青少年心理干预",
+    "summary_zh": "青少年可能表现为冲动、退缩或学业困难。应尊重其自主性，提供同伴支持与适度心理教育。",
+    "source_name": "UNICEF Mental Health",
+    "url": "https://www.unicef.org/mental-health",
+    "domain": "心理干预知识",
+    "demo": true,
+    "license": "摘编自 IASC MHPSS、WHO、UNICEF、IFRC 公开出版物，仅用于教学演示，原始版权归各机构所有。"
+  },
+  {
+    "id": "pfa-09",
+    "title_zh": "老年人心理关怀",
+    "summary_zh": "老年人可能因丧亲、慢性病与行动不便而更脆弱，应主动上门、耐心沟通并维护其社会角色。",
+    "source_name": "WHO Mental Health",
+    "url": "https://www.who.int/health-topics/mental-health",
+    "domain": "心理干预知识",
+    "demo": true,
+    "license": "摘编自 IASC MHPSS、WHO、UNICEF、IFRC 公开出版物，仅用于教学演示，原始版权归各机构所有。"
+  },
+  {
+    "id": "pfa-10",
+    "title_zh": "妇女心理支持",
+    "summary_zh": "应提供隐私、安全的空间，关注性暴力风险与照护负担，尊重其文化与信仰。",
+    "source_name": "UNICEF Mental Health",
+    "url": "https://www.unicef.org/mental-health",
+    "domain": "心理干预知识",
+    "demo": true,
+    "license": "摘编自 IASC MHPSS、WHO、UNICEF、IFRC 公开出版物，仅用于教学演示，原始版权归各机构所有。"
+  },
+  {
+    "id": "pfa-11",
+    "title_zh": "哀伤辅导",
+    "summary_zh": "悲伤没有固定时间表。陪伴、倾听和正常化悲伤反应比劝说“坚强”更有帮助；持续功能受损时应转介。",
+    "source_name": "IASC MHPSS Guidelines",
+    "url": "https://interagencystandingcommittee.org/iasc-reference-group-mental-health-and-psychosocial-support-emergency-settings",
+    "domain": "心理干预知识",
+    "demo": true,
+    "license": "摘编自 IASC MHPSS、WHO、UNICEF、IFRC 公开出版物，仅用于教学演示，原始版权归各机构所有。"
+  },
+  {
+    "id": "pfa-12",
+    "title_zh": "情绪稳定化技术",
+    "summary_zh": "可使用缓慢呼吸、接地技术（5-4-3-2-1）、身体扫描和安全地点想象帮助当事人降低过度唤醒。",
+    "source_name": "IFRC Psychological First Aid",
+    "url": "https://www.ifrc.org/document/psychological-first-aid",
+    "domain": "心理干预知识",
+    "demo": true,
+    "license": "摘编自 IASC MHPSS、WHO、UNICEF、IFRC 公开出版物，仅用于教学演示，原始版权归各机构所有。"
+  },
+  {
+    "id": "pfa-13",
+    "title_zh": "安全感重建",
+    "summary_zh": "提供准确信息、固定作息、明确支持点和可预期的帮助，有助于恢复对环境的掌控感。",
+    "source_name": "IASC MHPSS Guidelines",
+    "url": "https://interagencystandingcommittee.org/iasc-reference-group-mental-health-and-psychosocial-support-emergency-settings",
+    "domain": "心理干预知识",
+    "demo": true,
+    "license": "摘编自 IASC MHPSS、WHO、UNICEF、IFRC 公开出版物，仅用于教学演示，原始版权归各机构所有。"
+  },
+  {
+    "id": "pfa-14",
+    "title_zh": "主动倾听与共情",
+    "summary_zh": "保持目光接触、不打断、不评判，用简单语言复述与确认感受，避免急于给建议。",
+    "source_name": "WHO Psychological First Aid",
+    "url": "https://www.who.int/publications/i/item/9789241548205",
+    "domain": "心理干预知识",
+    "demo": true,
+    "license": "摘编自 IASC MHPSS、WHO、UNICEF、IFRC 公开出版物，仅用于教学演示，原始版权归各机构所有。"
+  },
+  {
+    "id": "pfa-15",
+    "title_zh": "心理教育",
+    "summary_zh": "向受灾者解释常见应激反应、应对方法与何时寻求帮助，可减少羞耻感并提升求助意愿。",
+    "source_name": "WHO Mental Health",
+    "url": "https://www.who.int/health-topics/mental-health",
+    "domain": "心理干预知识",
+    "demo": true,
+    "license": "摘编自 IASC MHPSS、WHO、UNICEF、IFRC 公开出版物，仅用于教学演示，原始版权归各机构所有。"
+  },
+  {
+    "id": "pfa-16",
+    "title_zh": "心理健康筛查",
+    "summary_zh": "使用简短量表与访谈识别高风险人群，筛查不是诊断，结果应保密并衔接转介。",
+    "source_name": "IASC MHPSS Guidelines",
+    "url": "https://interagencystandingcommittee.org/iasc-reference-group-mental-health-and-psychosocial-support-emergency-settings",
+    "domain": "心理干预知识",
+    "demo": true,
+    "license": "摘编自 IASC MHPSS、WHO、UNICEF、IFRC 公开出版物，仅用于教学演示，原始版权归各机构所有。"
+  },
+  {
+    "id": "pfa-17",
+    "title_zh": "转介机制",
+    "summary_zh": "建立清晰的分级转介路径，明确精神科、综合医院、社区服务的联系人、流程与反馈机制。",
+    "source_name": "WHO Mental Health",
+    "url": "https://www.who.int/health-topics/mental-health",
+    "domain": "心理干预知识",
+    "demo": true,
+    "license": "摘编自 IASC MHPSS、WHO、UNICEF、IFRC 公开出版物，仅用于教学演示，原始版权归各机构所有。"
+  },
+  {
+    "id": "pfa-18",
+    "title_zh": "文化敏感的心理援助",
+    "summary_zh": "了解当地语言、宗教与丧葬习俗，使用社区熟悉的表达与支持网络，避免强加外来框架。",
+    "source_name": "IASC MHPSS Guidelines",
+    "url": "https://interagencystandingcommittee.org/iasc-reference-group-mental-health-and-psychosocial-support-emergency-settings",
+    "domain": "心理干预知识",
+    "demo": true,
+    "license": "摘编自 IASC MHPSS、WHO、UNICEF、IFRC 公开出版物，仅用于教学演示，原始版权归各机构所有。"
+  },
+  {
+    "id": "pfa-19",
+    "title_zh": "救援人员心理关怀",
+    "summary_zh": "一线人员应获得轮休、督导、同伴支持和自我照护培训，管理者需关注职业倦怠与替代性创伤。",
+    "source_name": "IFRC Psychological First Aid",
+    "url": "https://www.ifrc.org/document/psychological-first-aid",
+    "domain": "心理干预知识",
+    "demo": true,
+    "license": "摘编自 IASC MHPSS、WHO、UNICEF、IFRC 公开出版物，仅用于教学演示，原始版权归各机构所有。"
+  },
+  {
+    "id": "pfa-20",
+    "title_zh": "自我照护",
+    "summary_zh": "保持睡眠、饮食与适度运动，限制灾难信息暴露，安排短暂休息并与同伴交流。",
+    "source_name": "IFRC Psychological First Aid",
+    "url": "https://www.ifrc.org/document/psychological-first-aid",
+    "domain": "心理干预知识",
+    "demo": true,
+    "license": "摘编自 IASC MHPSS、WHO、UNICEF、IFRC 公开出版物，仅用于教学演示，原始版权归各机构所有。"
+  },
+  {
+    "id": "pfa-21",
+    "title_zh": "社区心理重建",
+    "summary_zh": "通过社区活动、互助小组、本地骨干培训与生计支持恢复社会网络和集体韧性。",
+    "source_name": "IASC MHPSS Guidelines",
+    "url": "https://interagencystandingcommittee.org/iasc-reference-group-mental-health-and-psychosocial-support-emergency-settings",
+    "domain": "心理干预知识",
+    "demo": true,
+    "license": "摘编自 IASC MHPSS、WHO、UNICEF、IFRC 公开出版物，仅用于教学演示，原始版权归各机构所有。"
+  },
+  {
+    "id": "pfa-22",
+    "title_zh": "失亲家庭支持",
+    "summary_zh": "尊重丧葬习俗，提供实际帮助与持续陪伴，关注儿童对死亡的理解与照护者负担。",
+    "source_name": "UNICEF Mental Health",
+    "url": "https://www.unicef.org/mental-health",
+    "domain": "心理干预知识",
+    "demo": true,
+    "license": "摘编自 IASC MHPSS、WHO、UNICEF、IFRC 公开出版物，仅用于教学演示，原始版权归各机构所有。"
+  },
+  {
+    "id": "pfa-23",
+    "title_zh": "心理援助中的伦理",
+    "summary_zh": "坚持不伤害、知情同意、保密与尊重文化差异，避免拍照传播、强迫讲述和过度干预。",
+    "source_name": "IASC MHPSS Guidelines",
+    "url": "https://interagencystandingcommittee.org/iasc-reference-group-mental-health-and-psychosocial-support-emergency-settings",
+    "domain": "心理干预知识",
+    "demo": true,
+    "license": "摘编自 IASC MHPSS、WHO、UNICEF、IFRC 公开出版物，仅用于教学演示，原始版权归各机构所有。"
+  },
+  {
+    "id": "pfa-24",
+    "title_zh": "MHPSS 协调机制",
+    "summary_zh": "在紧急响应中由卫生、保护、教育等部门共同协调心理与社会支持服务，避免重复与缺口。",
+    "source_name": "OCHA",
+    "url": "https://www.unocha.org/",
+    "domain": "心理干预知识",
+    "demo": true,
+    "license": "摘编自 IASC MHPSS、WHO、UNICEF、IFRC 公开出版物，仅用于教学演示，原始版权归各机构所有。"
+  },
+  {
+    "id": "pfa-025",
+    "title_zh": "PFA 的边界与不越界原则",
+    "summary_zh": "心理急救不是心理治疗，志愿者应明确自身角色边界，不诊断、不分析、不深挖创伤细节，必要时转介专业人员。",
+    "source_name": "IASC MHPSS",
+    "url": "https://interagencystandingcommittee.org/iasc-reference-group-mental-health-and-psychosocial-support-emergency-settings",
+    "domain": "心理急救",
+    "demo": true,
+    "license": "摘编自 IASC MHPSS、WHO、UNICEF、IFRC 公开出版物，仅用于教学演示，原始版权归各机构所有。"
+  },
+  {
+    "id": "pfa-026",
+    "title_zh": "灾后睡眠问题与作息支持",
+    "summary_zh": "灾后短期失眠与噩梦常见，可通过固定作息、睡前放松、减少夜间信息刺激帮助恢复，持续两周易转介评估。",
+    "source_name": "WHO",
+    "url": "https://www.who.int/publications/i/item/9789241548205",
+    "domain": "创伤干预",
+    "demo": true,
+    "license": "摘编自 IASC MHPSS、WHO、UNICEF、IFRC 公开出版物，仅用于教学演示，原始版权归各机构所有。"
+  },
+  {
+    "id": "pfa-027",
+    "title_zh": "躯体化反应识别",
+    "summary_zh": "灾后头痛、胸闷、心悸等躯体不适常与应激相关，需先排除医疗问题，再提供情绪稳定化与呼吸放松。",
+    "source_name": "WHO",
+    "url": "https://www.who.int/publications/i/item/9789241548205",
+    "domain": "创伤干预",
+    "demo": true,
+    "license": "摘编自 IASC MHPSS、WHO、UNICEF、IFRC 公开出版物，仅用于教学演示，原始版权归各机构所有。"
+  },
+  {
+    "id": "pfa-028",
+    "title_zh": "失散儿童保护流程",
+    "summary_zh": "发现失散儿童应优先登记信息、安排固定照护者陪伴、避免频繁更换人员，并尽快接入寻亲与保护机制。",
+    "source_name": "UNICEF",
+    "url": "https://www.unicef.org/protection/child-protection-emergencies",
+    "domain": "儿童与家庭",
+    "demo": true,
+    "license": "摘编自 IASC MHPSS、WHO、UNICEF、IFRC 公开出版物，仅用于教学演示，原始版权归各机构所有。"
+  },
+  {
+    "id": "pfa-029",
+    "title_zh": "照护者支持与替代性负担",
+    "summary_zh": "照护者自身也处于应激状态，应为其提供休息时段、情绪支持与简明照护指导，避免把全部压力转移给儿童。",
+    "source_name": "UNICEF",
+    "url": "https://www.unicef.org/protection/child-protection-emergencies",
+    "domain": "儿童与家庭",
+    "demo": true,
+    "license": "摘编自 IASC MHPSS、WHO、UNICEF、IFRC 公开出版物，仅用于教学演示，原始版权归各机构所有。"
+  },
+  {
+    "id": "pfa-030",
+    "title_zh": "哀伤辅导的禁忌表达",
+    "summary_zh": "避免对失亲者说「别难过」「要坚强」，宜使用承认痛苦、陪伴在场、允许沉默的支持性表达。",
+    "source_name": "IFRC",
+    "url": "https://www.ifrc.org/document/psychological-first-aid-guide",
+    "domain": "哀伤辅导",
+    "demo": true,
+    "license": "摘编自 IASC MHPSS、WHO、UNICEF、IFRC 公开出版物，仅用于教学演示，原始版权归各机构所有。"
+  },
+  {
+    "id": "pfa-031",
+    "title_zh": "团体心理辅导的组织方式",
+    "summary_zh": "团体活动宜小组化、结构化、自愿参与，先建立安全感再做情绪表达，结束后提供个别跟进通道。",
+    "source_name": "IASC MHPSS",
+    "url": "https://interagencystandingcommittee.org/iasc-reference-group-mental-health-and-psychosocial-support-emergency-settings",
+    "domain": "社区重建",
+    "demo": true,
+    "license": "摘编自 IASC MHPSS、WHO、UNICEF、IFRC 公开出版物，仅用于教学演示，原始版权归各机构所有。"
+  },
+  {
+    "id": "pfa-032",
+    "title_zh": "社区心理重建的参与式方法",
+    "summary_zh": "动员社区骨干、宗教领袖与教师参与设计活动，使心理支持嵌入既有社区生活而非外来附加项目。",
+    "source_name": "IASC MHPSS",
+    "url": "https://interagencystandingcommittee.org/iasc-reference-group-mental-health-and-psychosocial-support-emergency-settings",
+    "domain": "社区重建",
+    "demo": true,
+    "license": "摘编自 IASC MHPSS、WHO、UNICEF、IFRC 公开出版物，仅用于教学演示，原始版权归各机构所有。"
+  },
+  {
+    "id": "pfa-033",
+    "title_zh": "救援人员的轮班与休息",
+    "summary_zh": "长时间高强度作业会降低判断力并加重替代性创伤，应实行轮班、保证睡眠与进食，并设置同伴支持机制。",
+    "source_name": "IFRC",
+    "url": "https://www.ifrc.org/document/psychological-first-aid-guide",
+    "domain": "救援人员关怀",
+    "demo": true,
+    "license": "摘编自 IASC MHPSS、WHO、UNICEF、IFRC 公开出版物，仅用于教学演示，原始版权归各机构所有。"
+  },
+  {
+    "id": "pfa-034",
+    "title_zh": "心理援助中的保密例外",
+    "summary_zh": "保密原则在当事人存在自伤、自杀或伤害他人风险时可以让位，需告知当事人并向团队与专业人员报告。",
+    "source_name": "WHO",
+    "url": "https://www.who.int/publications/i/item/9789241548205",
+    "domain": "评估与转介",
+    "demo": true,
+    "license": "摘编自 IASC MHPSS、WHO、UNICEF、IFRC 公开出版物，仅用于教学演示，原始版权归各机构所有。"
+  },
+  {
+    "id": "pfa-035",
+    "title_zh": "转介后的跟进机制",
+    "summary_zh": "转介不等于结束，应记录转介对象、渠道与时间，并在可及范围内确认对方是否获得服务。",
+    "source_name": "WHO",
+    "url": "https://www.who.int/publications/i/item/9789241548205",
+    "domain": "评估与转介",
+    "demo": true,
+    "license": "摘编自 IASC MHPSS、WHO、UNICEF、IFRC 公开出版物，仅用于教学演示，原始版权归各机构所有。"
+  },
+  {
+    "id": "pfa-036",
+    "title_zh": "多语种心理援助材料制作",
+    "summary_zh": "材料翻译需经母语者与心理专业人员双重审校，避免直译造成污名化或引发误解。",
+    "source_name": "IASC MHPSS",
+    "url": "https://interagencystandingcommittee.org/iasc-reference-group-mental-health-and-psychosocial-support-emergency-settings",
+    "domain": "文化敏感",
+    "demo": true,
+    "license": "摘编自 IASC MHPSS、WHO、UNICEF、IFRC 公开出版物，仅用于教学演示，原始版权归各机构所有。"
+  }
+]
