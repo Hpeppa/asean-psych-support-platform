@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>平台概览 · 东盟跨境灾害心理干预应急语言服务平台</title>
+<style>
+  :root{
+    --bg:#f2f5fa;--card:#ffffff;--text:#0f172a;--muted:#64748b;--line:#e5eaf2;
+    --primary:#2563eb;--primary-dark:#1d4ed8;--primary-soft:#eff5ff;--radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);color:var(--text);
+    font-family:"Inter","Segoe UI","Microsoft YaHei","PingFang SC","Noto Sans Thai",sans-serif;
+    font-size:14px;line-height:1.6;padding:20px 22px 28px;min-height:100vh;
+  }
+  .wrap{max-width:1280px;margin:0 auto;}
+  a{color:inherit;}
+
+  .hero{
+    position:relative;overflow:hidden;border-radius:18px;
+    background:linear-gradient(120deg,#0a2140 0%,#123a6e 42%,#1d4ed8 82%,#2563eb 100%);
+    color:#fff;padding:28px 32px;margin-bottom:16px;box-shadow:0 14px 34px rgba(20,55,110,.24);
+  }
+  .hero::before{
+    content:"";position:absolute;left:-90px;bottom:-120px;width:300px;height:300px;border-radius:50%;
+    background:radial-gradient(circle,rgba(6,182,212,.26),transparent 68%);
+  }
+  .hero::after{
+    content:"";position:absolute;right:-70px;top:-90px;width:320px;height:320px;
+    border-radius:50%;background:radial-gradient(circle,rgba(96,165,250,.32),transparent 68%);
+  }
+  .hero-art{position:absolute;right:26px;bottom:-14px;width:220px;opacity:.22;pointer-events:none;}
+  .hero-content{position:relative;z-index:2;max-width:760px;}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:7px;font-size:10.5px;font-weight:700;
+    letter-spacing:1.1px;text-transform:uppercase;color:#bfdbfe;background:rgba(255,255,255,.10);
+    border:1px solid rgba(191,219,254,.22);padding:4px 10px;border-radius:999px;margin-bottom:11px;
+  }
+  .eyebrow .pulse{width:5px;height:5px;border-radius:50%;background:#67e8f9;animation:pulseDot 2s ease-in-out infinite;}
+  @keyframes pulseDot{0%,100%{box-shadow:0 0 0 0 rgba(103,232,249,.55);}50%{box-shadow:0 0 0 5px rgba(103,232,249,0);}}
+  .hero h1{margin:0 0 9px;font-size:24px;font-weight:700;letter-spacing:.2px;line-height:1.4;position:relative;z-index:1;
+    background:linear-gradient(110deg,#fff 40%,#a5d8ff 50%,#fff 60%);background-size:220% 100%;
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+    animation:shine 6s linear infinite;
+  }
+  @keyframes shine{0%{background-position:120% 0;}100%{background-position:-120% 0;}}
+  .hero p{margin:0;font-size:13px;line-height:1.85;color:#cfe0f6;max-width:700px;}
+  .hero-actions{display:flex;align-items:center;gap:10px;margin-top:17px;flex-wrap:wrap;}
+  .btn{
+    height:37px;padding:0 15px;border-radius:9px;border:1px solid transparent;
+    font-family:inherit;font-size:12.5px;font-weight:600;cursor:pointer;
+    display:inline-flex;align-items:center;justify-content:center;gap:7px;
+    text-decoration:none;white-space:nowrap;transition:all .15s;
+  }
+  .btn-white{background:#fff;color:#1d4ed8;box-shadow:0 4px 12px rgba(2,20,50,.16);}
+  .btn-white:hover{background:#f0f6ff;}
+  .btn-ghost{background:rgba(255,255,255,.08);color:#e2eeff;border-color:rgba(191,219,254,.26);}
+  .btn-ghost:hover{background:rgba(255,255,255,.15);}
+  .hero-domains{display:flex;align-items:center;gap:7px;margin-top:16px;flex-wrap:wrap;font-size:10.5px;color:#9fc3ea;}
+  .hero-domains span{
+    padding:2px 8px;border-radius:6px;background:rgba(255,255,255,.07);
+    border:1px solid rgba(255,255,255,.10);color:#d6e6fa;letter-spacing:.2px;
+  }
+
+  .stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:16px;}
+  .stat{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:14px 15px;box-shadow:0 1px 3px rgba(15,23,42,.05);
+    display:flex;align-items:center;gap:11px;min-width:0;
+    transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;
+  }
+  .stat:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(15,23,42,.10);border-color:#d7e3f6;}
+  .stat-icon{width:38px;height:38px;border-radius:11px;flex:none;display:flex;align-items:center;justify-content:center;}
+  .stat-icon.blue{background:#e8f0fe;color:#1d4ed8;}
+  .stat-icon.violet{background:#f3e8ff;color:#7e22ce;}
+  .stat-icon.teal{background:#ccfbf1;color:#0f766e;}
+  .stat-icon.amber{background:#fffbeb;color:#b45309;}
+  .stat-icon.rose{background:#ffe4e6;color:#be123c;}
+  .stat-body{min-width:0;}
+  .stat-label{font-size:11.4px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .stat-value{font-size:21px;font-weight:700;line-height:1.35;letter-spacing:.2px;font-variant-numeric:tabular-nums;}
+  .stat-sub{font-size:10.2px;color:#94a3b8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+  .section-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:2px 2px 10px;}
+  .section-head h2{margin:0;font-size:15.5px;font-weight:700;display:flex;align-items:center;gap:8px;}
+  .section-head span{font-size:11.5px;color:#94a3b8;}
+  .demo-tag{
+    font-size:9.5px;font-weight:600;color:#b45309;background:#fffbeb;
+    border:1px solid #fde68a;border-radius:999px;padding:1px 8px;line-height:1.7;white-space:nowrap;
+  }
+
+  .modules{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:16px;}
+  .module{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px 17px 14px;box-shadow:0 1px 3px rgba(15,23,42,.05);
+    display:flex;flex-direction:column;gap:8px;cursor:pointer;position:relative;overflow:hidden;
+    transition:border-color .18s,box-shadow .18s,transform .18s;
+  }
+  .module::before{
+    content:"";position:absolute;left:0;top:0;right:0;height:3px;
+    background:linear-gradient(90deg,#2563eb,#06b6d4);
+    opacity:0;transform:scaleX(.4);transform-origin:left;transition:opacity .2s,transform .25s ease;
+  }
+  .module:hover{border-color:#c7d9f5;box-shadow:0 12px 28px rgba(15,23,42,.11);transform:translateY(-3px);}
+  .module:hover::before{opacity:1;transform:scaleX(1);}
+  .module-top{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+  .module-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex:none;}
+  .module-icon.blue{background:#e8f0fe;color:#1d4ed8;}
+  .module-icon.violet{background:#f3e8ff;color:#7e22ce;}
+  .module-icon.teal{background:#ccfbf1;color:#0f766e;}
+  .module-icon.amber{background:#fffbeb;color:#b45309;}
+  .module-icon.rose{background:#ffe4e6;color:#be123c;}
+  .module-icon.slate{background:#eef2f7;color:#475569;}
+  .module-index{font-size:10.5px;font-weight:700;color:#cbd5e1;letter-spacing:.5px;}
+  .module h3{margin:2px 0 0;font-size:14.5px;font-weight:700;line-height:1.45;}
+  .module p{margin:0;font-size:12.1px;color:#64748b;line-height:1.72;min-height:60px;}
+  .tags{display:flex;flex-wrap:wrap;gap:5px;}
+  .tag{font-size:10px;color:#64748b;background:#f5f8fc;border:1px solid #eef2f8;border-radius:5px;padding:1px 7px;white-space:nowrap;}
+  .module-foot{margin-top:auto;padding-top:9px;border-top:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+  .module-foot .hint{font-size:10.5px;color:#94a3b8;}
+  .enter{font-size:12px;font-weight:600;color:var(--primary);display:inline-flex;align-items:center;gap:4px;}
+  .module:hover .enter{color:var(--primary-dark);}
+
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 1px 3px rgba(15,23,42,.05);overflow:hidden;min-width:0;}
+  .panel-head{padding:13px 17px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  .panel-head h2{margin:0;font-size:14px;font-weight:700;}
+  .panel-head .meta{font-size:10.8px;color:#94a3b8;white-space:nowrap;}
+  .two-col{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:14px;margin-bottom:14px;}
+
+  .status-list{padding:6px 17px 12px;}
+  .status-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px dashed #eef2f8;}
+  .status-row:last-child{border-bottom:none;}
+  .status-key{font-size:12.2px;color:#64748b;display:flex;align-items:center;gap:7px;}
+  .status-key .dot{width:6px;height:6px;border-radius:50%;background:#cbd5e1;flex:none;}
+  .status-key .dot.green{background:#10b981;}
+  .status-key .dot.amber{background:#f59e0b;}
+  .status-key .dot.red{background:#f43f5e;}
+  .status-val{font-size:12px;font-weight:600;color:#334155;text-align:right;overflow:hidden;text-overflow:ellipsis;max-width:62%;}
+  .status-val.muted{color:#94a3b8;font-weight:500;}
+
+  .dist-list{padding:15px 17px 17px;display:flex;flex-direction:column;gap:13px;}
+  .dist-item{display:flex;flex-direction:column;gap:5px;}
+  .dist-top{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:11.8px;}
+  .dist-name{color:#475569;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .dist-num{color:#94a3b8;font-variant-numeric:tabular-nums;flex:none;}
+  .bar{height:6px;border-radius:3px;background:#eef2f8;overflow:hidden;}
+  .bar span{display:block;height:100%;border-radius:3px;}
+  .bar .b1{background:linear-gradient(90deg,#60a5fa,#2563eb);}
+  .bar .b2{background:linear-gradient(90deg,#c084fc,#9333ea);}
+  .bar .b3{background:linear-gradient(90deg,#5eead4,#0d9488);}
+  .bar .b4{background:linear-gradient(90deg,#fcd34d,#d97706);}
+
+  .news-list{padding:4px 17px 12px;}
+  .news-item{display:flex;align-items:flex-start;gap:13px;padding:11px 0;border-bottom:1px dashed #eef2f8;cursor:pointer;}
+  .news-item:last-child{border-bottom:none;}
+  .news-item:hover .news-title{color:var(--primary);}
+  .news-date{width:92px;flex:none;font-size:11px;color:#94a3b8;font-variant-numeric:tabular-nums;padding-top:1px;line-height:1.5;}
+  .news-main{min-width:0;flex:1;}
+  .news-title{font-size:12.5px;font-weight:600;color:#334155;line-height:1.6;word-break:break-word;transition:color .15s;}
+  .news-meta{display:flex;align-items:center;gap:7px;margin-top:4px;flex-wrap:wrap;}
+  .kw{font-size:9.8px;font-weight:600;border-radius:999px;padding:1px 7px;line-height:1.7;}
+  .kw.INSARAG{background:#e8f0fe;color:#1d4ed8;}
+  .kw.PFA{background:#f3e8ff;color:#7e22ce;}
+  .kw.CROSS{background:#ccfbf1;color:#0f766e;}
+  .kw.OTHER{background:#eef2f7;color:#475569;}
+  .news-src{font-size:10px;color:#cbd5e1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .empty{padding:26px 0;text-align:center;font-size:12px;color:#94a3b8;}
+
+  .footnote{margin-top:14px;font-size:11px;color:#94a3b8;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:0 4px;}
+
+  @media (max-width:1160px){
+    .stats{grid-template-columns:repeat(3,minmax(0,1fr));}
+    .modules{grid-template-columns:repeat(2,minmax(0,1fr));}
+    .module p{min-height:0;}
+  }
+  @media (max-width:900px){
+    .stats{grid-template-columns:repeat(2,minmax(0,1fr));}
+    .modules{grid-template-columns:1fr;}
+    .two-col{grid-template-columns:1fr;}
+    .hero-art{display:none;}
+  }
+  @media (max-width:600px){
+    body{padding:16px;}
+    .stats{grid-template-columns:1fr;}
+    .hero{padding:22px 20px;}
+    .hero h1{font-size:20px;}
+  }
+</style>
+</head>
+<body>
+<script src="assets/static-api.js"></script>
+<div class="wrap">
+
+  <section class="hero">
+    <svg class="hero-art" viewBox="0 0 240 200" fill="none" stroke="#bfdbfe" stroke-width="1.1">
+      <circle cx="138" cy="92" r="74"/>
+      <ellipse cx="138" cy="92" rx="74" ry="30"/>
+      <ellipse cx="138" cy="92" rx="30" ry="74"/>
+      <path d="M64 92h148M78 56c30 22 90 22 120 0M78 128c30-22 90-22 120 0"/>
+      <circle cx="83" cy="62" r="3.5" fill="#93c5fd" stroke="none"/>
+      <circle cx="186" cy="117" r="3.5" fill="#93c5fd" stroke="none"/>
+      <circle cx="138" cy="30" r="3.5" fill="#93c5fd" stroke="none"/>
+      <circle cx="112" cy="146" r="3.5" fill="#93c5fd" stroke="none"/>
+    </svg>
+    <div class="hero-content">
+      <div class="eyebrow"><span class="pulse"></span><span data-i18n="eyebrow"></span></div>
+      <h1 data-i18n="heroTitle"></h1>
+      <p data-i18n="heroDesc"></p>
+      <div class="hero-actions">
+        <button class="btn btn-white" data-go="foreign"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg><span data-i18n="btnForeign"></span></button>
+        <button class="btn btn-ghost" data-go="translate"><span data-i18n="btnTranslate"></span> →</button>
+        <button class="btn btn-ghost" data-go="rag"><span data-i18n="btnRag"></span> →</button>
+      </div>
+      <div class="hero-domains">
+        <span>OCHA</span><span>ReliefWeb</span><span>UN News</span>
+        <span>INSARAG</span><span>PFA</span>
+        <span data-i18n="heroLangs"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="stats">
+    <div class="stat">
+      <div class="stat-icon blue">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      </div>
+      <div class="stat-body">
+        <div class="stat-label" data-i18n="statTerms"></div>
+        <div class="stat-value" id="statTerms">—</div>
+        <div class="stat-sub" data-i18n="statTermsSub"></div>
+      </div>
+    </div>
+    <div class="stat">
+      <div class="stat-icon violet">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h7v13H4z"/><path d="M13 6h7v13h-7z"/><path d="M6.5 9.5h2M6.5 13h2M15.5 9.5h2M15.5 13h2"/></svg>
+      </div>
+      <div class="stat-body">
+        <div class="stat-label" data-i18n="statParallel"></div>
+        <div class="stat-value" id="statParallel">—</div>
+        <div class="stat-sub" data-i18n="statParallelSub"></div>
+      </div>
+    </div>
+    <div class="stat">
+      <div class="stat-icon teal">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+      </div>
+      <div class="stat-body">
+        <div class="stat-label" data-i18n="statForeign"></div>
+        <div class="stat-value" id="statForeign">—</div>
+        <div class="stat-sub" data-i18n="statForeignSub"></div>
+      </div>
+    </div>
+    <div class="stat">
+      <div class="stat-icon amber">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      </div>
+      <div class="stat-body">
+        <div class="stat-label" data-i18n="statChunks"></div>
+        <div class="stat-value" id="statChunks">—</div>
+        <div class="stat-sub" data-i18n="statChunksSub"></div>
+      </div>
+    </div>
+    <div class="stat">
+      <div class="stat-icon rose">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8M8 13h5"/></svg>
+      </div>
+      <div class="stat-body">
+        <div class="stat-label" data-i18n="statRag"></div>
+        <div class="stat-value" id="statRag">—</div>
+        <div class="stat-sub" data-i18n="statRagSub"></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-head">
+    <h2><span data-i18n="modulesTitle"></span><span class="demo-tag" data-i18n="demoTag"></span></h2>
+    <span data-i18n="modulesSub"></span>
+  </div>
+
+  <section class="modules" id="moduleGrid"></section>
+
+  <div class="two-col">
+    <section class="panel">
+      <div class="panel-head">
+        <h2 data-i18n="statusTitle"></h2>
+        <span class="meta" id="statusMeta"></span>
+      </div>
+      <div class="status-list">
+        <div class="status-row">
+          <span class="status-key"><span class="dot" id="dotEmbed"></span><span data-i18n="statusEmbed"></span></span>
+          <span class="status-val muted" id="statusEmbed">…</span>
+        </div>
+        <div class="status-row">
+          <span class="status-key"><span class="dot" id="dotLLM"></span><span data-i18n="statusLLM"></span></span>
+          <span class="status-val muted" id="statusLLM">…</span>
+        </div>
+        <div class="status-row">
+          <span class="status-key"><span class="dot" id="dotIndex"></span><span data-i18n="statusIndex"></span></span>
+          <span class="status-val muted" id="statusIndex">…</span>
+        </div>
+        <div class="status-row">
+          <span class="status-key"><span class="dot" id="dotParallel"></span><span data-i18n="statusParallelIndex"></span></span>
+          <span class="status-val muted" id="statusParallelIndex">…</span>
+        </div>
+        <div class="status-row">
+          <span class="status-key"><span class="dot" id="dotMode"></span><span data-i18n="statusMode"></span></span>
+          <span class="status-val muted" id="statusMode">…</span>
+        </div>
+        <div class="status-row">
+          <span class="status-key"><span class="dot green"></span><span data-i18n="statusCoverage"></span></span>
+          <span class="status-val" id="statusCoverage">—</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2 data-i18n="dataTitle"></h2>
+        <span class="meta" id="dataMeta"></span>
+      </div>
+      <div class="dist-list" id="distList"></div>
+    </section>
+  </div>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h2 data-i18n="recentTitle"></h2>
+      <span class="meta" data-i18n="recentNote"></span>
+    </div>
+    <div class="news-list" id="newsList"><div class="empty">…</div></div>
+  </section>
+
+  <div class="footnote">
+    <span data-i18n="footLeft"></span>
+    <span data-i18n="footRight"></span>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  if (new URLSearchParams(location.search).get("embed") === "1") {
+    document.body.classList.add("embed");
+  }
+
+  var LANG_KEY = "kb_lang";
+  var CODES = ["zh", "en", "th", "vi", "ms"];
+  var RAG_BASE = 18;
+
+  var I18N = {
+    zh: {
+      eyebrow: "TASK 12 · 应急语言服务平台",
+      heroTitle: "东盟跨境灾害心理干预应急语言服务平台",
+      heroDesc: "以灾后心理干预为主线，面向东盟跨境灾害场景整合 PFA 心理急救、MHPSS 心理与社会支持、创伤应激干预、哀伤辅导、儿童与家庭心理支持、救援人员心理关怀六类知识，配套外语资讯聚合、多语种翻译、术语库、平行语料库、新闻 CMS 与可追溯 RAG 问答，支持中、英、泰、越、马来五语协同。",
+      btnForeign: "浏览外语资讯",
+      btnTranslate: "进入多语种翻译",
+      btnRag: "RAG 智能问答",
+      heroLangs: "中 / 英 / 泰 / 越 / 马来",
+      demoTag: "演示模拟数据",
+      statTerms: "心理干预术语",
+      statTermsSub: "五语专业术语",
+      statParallel: "心理安抚语料",
+      statParallelSub: "双语对话句对",
+      statForeign: "心理援助资讯",
+      statForeignSub: "已中文化",
+      statChunks: "心理干预知识切片",
+      statChunksSub: "已完成向量化",
+      statRag: "RAG 问答次数",
+      statRagSub: "本地累计统计",
+      modulesTitle: "核心模块",
+      modulesSub: "六项能力统一入口，点击卡片直接进入",
+      m1Title: "外语信息聚合",
+      m1Desc: "聚合 OCHA、ReliefWeb、UN News 的东盟灾害与灾后心理援助报道，提供中文化标题、摘要、翻译时间与原始来源链接。",
+      m1Tag1: "五大权威来源",
+      m1Tag2: "来源筛选",
+      m1Hint: "功能一 · 70 条演示资讯",
+      m2Title: "多语种翻译",
+      m2Desc: "中文、英语、泰语、越南语、马来语双向互译，自动命中术语库并高亮原文译文，同时检索平行语料向量库辅助生成。",
+      m2Tag1: "双向互译",
+      m2Tag2: "术语高亮",
+      m2Hint: "功能二 · DeepSeek 翻译",
+      m3Title: "术语管理",
+      m3Desc: "五语专业术语库，覆盖搜救协调、心理援助、医疗安置等领域，支持关键词检索、语种筛选、领域筛选与详情查看。",
+      m3Tag1: "507 条术语",
+      m3Tag2: "五语对照",
+      m3Hint: "功能三 · 术语库",
+      m4Title: "平行语料库管理",
+      m4Desc: "灾害救援与心理安抚双语句对管理，支持原文译文检索与详情查看，后端完成向量化建库，为翻译提供上下文参考。",
+      m4Tag1: "508 句对",
+      m4Tag2: "向量检索",
+      m4Hint: "功能四 · 平行语料",
+      m5Title: "新闻 CMS 管理",
+      m5Desc: "维护灾害救援新闻语料，保留完整增删改查、关键词检索与 JSON 导入导出能力，数据保存在浏览器本地。",
+      m5Tag1: "完整 CRUD",
+      m5Tag2: "JSON 导入导出",
+      m5Hint: "原模块 · 业务保留",
+      m6Title: "RAG 智能问答",
+      m6Desc: "Bigmodel 向量化与余弦相似度检索，DeepSeek 流式生成回答并展示可点击来源；知识库范围外的问题明确拒答。",
+      m6Tag1: "175 条切片",
+      m6Tag2: "来源可追溯",
+      m6Hint: "功能五 · RAG",
+      enterModule: "进入模块",
+      statusTitle: "系统运行状态",
+      statusMetaChecking: "正在检测服务…",
+      statusMetaReady: "服务已连接 · {t}",
+      statusMetaOffline: "服务未连接",
+      statusEmbed: "向量模型",
+      statusLLM: "生成模型",
+      statusIndex: "知识库索引",
+      statusParallelIndex: "平行语料索引",
+      statusMode: "服务模式",
+      statusCoverage: "语料覆盖",
+      detecting: "检测中…",
+      pending: "待构建",
+      notConnected: "未连接",
+      demoMode: "演示模式",
+      onlineMode: "在线模式",
+      localEmbed: "本地哈希演示",
+      localLLM: "本地演示回答",
+      indexReady: "已构建 · {n} 维",
+      parallelReady: "已构建 · {n} 句 · {d} 维",
+      coverageValue: "{a} 新闻 · {b} 外文 · {c} 术语 · {d} 平行语料",
+      dataTitle: "演示数据规模",
+      dataMeta: "四项达标",
+      dataTerms: "心理干预术语",
+      dataParallel: "心理安抚语料",
+      dataForeign: "外文资讯",
+      dataNews: "新闻语料",
+      recentTitle: "最新外文资讯",
+      recentNote: "标题为中文翻译结果",
+      recentEmpty: "暂无外文资讯数据",
+      translatedAt: "翻译于 {t}",
+      footLeft: "看板数据由本地语料与服务状态实时计算；所有新增模块数据均为演示模拟数据，RAG 问答次数为本地累计值。",
+      footRight: "东盟跨境灾害 · 心理干预 · INSARAG · PFA"
+    },
+    en: {
+      eyebrow: "TASK 12 · EMERGENCY LANGUAGE SERVICE PLATFORM",
+      heroTitle: "ASEAN Cross-border Disaster Psychosocial Emergency Language Service Platform",
+      heroDesc: "Built for ASEAN cross-border disasters and post-disaster psychosocial support, this platform integrates foreign news aggregation, multilingual translation, a five-language glossary, a parallel corpus, news CMS and traceable RAG Q&A — working across Chinese, English, Thai, Vietnamese and Malay.",
+      btnForeign: "Browse foreign news",
+      btnTranslate: "Open translation",
+      btnRag: "RAG Q&A",
+      heroLangs: "ZH / EN / TH / VI / MS",
+      demoTag: "Simulated demo data",
+      statTerms: "Total terms",
+      statTermsSub: "Five-language glossary",
+      statParallel: "Parallel corpus",
+      statParallelSub: "Bilingual sentence pairs",
+      statForeign: "Foreign news",
+      statForeignSub: "Translated into Chinese",
+      statChunks: "Knowledge chunks",
+      statChunksSub: "Vectorized",
+      statRag: "RAG queries",
+      statRagSub: "Local cumulative counter",
+      modulesTitle: "Core modules",
+      modulesSub: "Six capabilities, one entry point — click a card to open",
+      m1Title: "Foreign News Aggregation",
+      m1Desc: "Aggregates OCHA, ReliefWeb and UN News coverage of ASEAN disasters and psychosocial aid, with Chinese titles, summaries, translation timestamps and original source links.",
+      m1Tag1: "Five authoritative sources",
+      m1Tag2: "Source filter",
+      m1Hint: "Feature 1 · 70 demo items",
+      m2Title: "Multilingual Translation",
+      m2Desc: "Bidirectional translation among Chinese, English, Thai, Vietnamese and Malay, with glossary hits highlighted in both texts and parallel-corpus retrieval to support generation.",
+      m2Tag1: "Bidirectional",
+      m2Tag2: "Glossary highlight",
+      m2Hint: "Feature 2 · DeepSeek translation",
+      m3Title: "Term Management",
+      m3Desc: "A five-language glossary covering search and rescue coordination, psychosocial support and medical logistics, with keyword, language and domain filters plus detail views.",
+      m3Tag1: "507 terms",
+      m3Tag2: "Five languages",
+      m3Hint: "Feature 3 · Glossary",
+      m4Title: "Parallel Corpus Management",
+      m4Desc: "Manages bilingual sentence pairs for disaster response and psychological reassurance, supporting source/target search and detail views; the backend vectorizes the corpus for translation context.",
+      m4Tag1: "508 pairs",
+      m4Tag2: "Vector search",
+      m4Hint: "Feature 4 · Parallel corpus",
+      m5Title: "News CMS",
+      m5Desc: "Maintains the disaster-rescue news corpus with full create, edit, delete, keyword search and JSON import/export, stored in the browser.",
+      m5Tag1: "Full CRUD",
+      m5Tag2: "JSON import/export",
+      m5Hint: "Original module · preserved",
+      m6Title: "RAG Q&A",
+      m6Desc: "Bigmodel embeddings and cosine similarity retrieval, DeepSeek streaming answers and clickable sources; out-of-scope questions are explicitly refused.",
+      m6Tag1: "175 chunks",
+      m6Tag2: "Traceable sources",
+      m6Hint: "Feature 5 · RAG",
+      enterModule: "Open module",
+      statusTitle: "System status",
+      statusMetaChecking: "Checking service…",
+      statusMetaReady: "Service connected · {t}",
+      statusMetaOffline: "Service offline",
+      statusEmbed: "Embedding model",
+      statusLLM: "Generation model",
+      statusIndex: "Knowledge index",
+      statusParallelIndex: "Parallel index",
+      statusMode: "Service mode",
+      statusCoverage: "Corpus coverage",
+      detecting: "Checking…",
+      pending: "Not built",
+      notConnected: "Offline",
+      demoMode: "Demo mode",
+      onlineMode: "Online mode",
+      localEmbed: "Local hash demo",
+      localLLM: "Local demo answer",
+      indexReady: "Built · {n} dims",
+      parallelReady: "Built · {n} pairs · {d} dims",
+      coverageValue: "{a} news · {b} foreign · {c} terms · {d} parallel",
+      dataTitle: "Demo data scale",
+      dataMeta: "All targets met",
+      dataTerms: "Glossary",
+      dataParallel: "Parallel corpus",
+      dataForeign: "Foreign news",
+      dataNews: "News corpus",
+      recentTitle: "Latest foreign news",
+      recentNote: "Titles shown in Chinese translation",
+      recentEmpty: "No foreign news data",
+      translatedAt: "Translated {t}",
+      footLeft: "Dashboard metrics are computed locally from the corpus and service status. All new-module data is simulated demo data; the RAG query count is a local cumulative counter.",
+      footRight: "ASEAN cross-border disasters · Psychosocial support · INSARAG · PFA"
+    },
+    th: {
+      eyebrow: "TASK 12 · แพลตฟอร์มบริการภาษาฉุกเฉิน",
+      heroTitle: "แพลตฟอร์มบริการภาษาฉุกเฉินด้านจิตใจจากภัยพิบัติข้ามพรมแดนอาเซียน",
+      heroDesc: "สำหรับสถานการณ์ภัยพิบัติข้ามพรมแดนในอาเซียนและการช่วยเหลือด้านจิตใจหลังภัยพิบัติ แพลตฟอร์มนี้รวมการรวบรวมข่าวต่างประเทศ การแปลหลายภาษา คลังศัพท์ห้าภาษา คลังประโยคคู่ขนาน ระบบ CMS ข่าว และการถามตอบ RAG ที่อ้างอิงแหล่งที่มา รองรับภาษาจีน อังกฤษ ไทย เวียดนาม และมลายู",
+      btnForeign: "ดูข่าวต่างประเทศ",
+      btnTranslate: "เปิดการแปลหลายภาษา",
+      btnRag: "ถามตอบ RAG",
+      heroLangs: "จีน / อังกฤษ / ไทย / เวียดนาม / มลายู",
+      demoTag: "ข้อมูลจำลองสาธิต",
+      statTerms: "จำนวนคำศัพท์",
+      statTermsSub: "คลังศัพท์ห้าภาษา",
+      statParallel: "คลังประโยคคู่ขนาน",
+      statParallelSub: "คู่ประโยคสองภาษา",
+      statForeign: "ข่าวต่างประเทศ",
+      statForeignSub: "แปลเป็นภาษาจีนแล้ว",
+      statChunks: "ชิ้นส่วนฐานความรู้",
+      statChunksSub: "แปลงเวกเตอร์แล้ว",
+      statRag: "จำนวนการถามตอบ RAG",
+      statRagSub: "สถิติสะสมในเครื่อง",
+      modulesTitle: "โมดูลหลัก",
+      modulesSub: "ความสามารถหกด้านในจุดเดียว คลิกการ์ดเพื่อเปิด",
+      m1Title: "รวมข่าวต่างประเทศ",
+      m1Desc: "รวบรวมข่าวภัยพิบัติอาเซียนและการช่วยเหลือด้านจิตใจจาก OCHA, ReliefWeb และ UN News พร้อมชื่อเรื่องและบทสรุปภาษาจีน เวลาแปล และลิงก์แหล่งข่าวต้นฉบับ",
+      m1Tag1: "ห้าแหล่งข่าวหลัก",
+      m1Tag2: "กรองตามแหล่งข่าว",
+      m1Hint: "ฟังก์ชัน 1 · ข่าวสาธิต 70 รายการ",
+      m2Title: "แปลหลายภาษา",
+      m2Desc: "แปลสองทิศทางระหว่างจีน อังกฤษ ไทย เวียดนาม และมลายู ตรวจจับคำศัพท์อัตโนมัติและไฮไลต์ทั้งต้นฉบับและคำแปล พร้อมค้นคลังประโยคคู่ขนานเพื่อช่วยสร้างคำแปล",
+      m2Tag1: "แปลสองทิศทาง",
+      m2Tag2: "ไฮไลต์คำศัพท์",
+      m2Hint: "ฟังก์ชัน 2 · แปลด้วย DeepSeek",
+      m3Title: "จัดการศัพท์",
+      m3Desc: "คลังศัพท์ห้าภาษาครอบคลุมการประสานงานค้นหาและกู้ภัย การช่วยเหลือด้านจิตใจ และการแพทย์ พร้อมค้นหา กรองภาษา กรองสาขา และดูรายละเอียด",
+      m3Tag1: "507 คำศัพท์",
+      m3Tag2: "ห้าภาษา",
+      m3Hint: "ฟังก์ชัน 3 · คลังศัพท์",
+      m4Title: "จัดการคลังประโยคคู่ขนาน",
+      m4Desc: "จัดการคู่ประโยคสองภาษาด้านภัยพิบัติและการปลอบใจทางจิตใจ รองรับค้นหาต้นฉบับและคำแปล ดูรายละเอียด และแบ็กเอนด์สร้างดัชนีเวกเตอร์เพื่อช่วยการแปล",
+      m4Tag1: "508 คู่ประโยค",
+      m4Tag2: "ค้นหาเวกเตอร์",
+      m4Hint: "ฟังก์ชัน 4 · คลังประโยคคู่ขนาน",
+      m5Title: "จัดการข่าว CMS",
+      m5Desc: "ดูแลคลังข่าวภัยพิบัติและการกู้ภัย รักษาความสามารถเพิ่ม แก้ไข ลบ ค้นหา และนำเข้า/ส่งออก JSON ครบถ้วน ข้อมูลเก็บในเบราว์เซอร์",
+      m5Tag1: "CRUD ครบถ้วน",
+      m5Tag2: "นำเข้า/ส่งออก JSON",
+      m5Hint: "โมดูลเดิม · คงไว้",
+      m6Title: "ถามตอบ RAG",
+      m6Desc: "แปลงเวกเตอร์ด้วย Bigmodel และค้นหาด้วยความคล้ายโคไซน์ ให้ DeepSeek สร้างคำตอบแบบสตรีมพร้อมแหล่งอ้างอิงที่คลิกได้ และปฏิเสธคำถามนอกขอบเขตฐานความรู้อย่างชัดเจน",
+      m6Tag1: "175 ชิ้นส่วน",
+      m6Tag2: "อ้างอิงแหล่งที่มา",
+      m6Hint: "ฟังก์ชัน 5 · RAG",
+      enterModule: "เปิดโมดูล",
+      statusTitle: "สถานะระบบ",
+      statusMetaChecking: "กำลังตรวจสอบบริการ…",
+      statusMetaReady: "เชื่อมต่อบริการแล้ว · {t}",
+      statusMetaOffline: "ไม่ได้เชื่อมต่อบริการ",
+      statusEmbed: "โมเดลเวกเตอร์",
+      statusLLM: "โมเดลสร้างคำตอบ",
+      statusIndex: "ดัชนีฐานความรู้",
+      statusParallelIndex: "ดัชนีคลังประโยคคู่ขนาน",
+      statusMode: "โหมดบริการ",
+      statusCoverage: "ขอบเขตคลังข้อมูล",
+      detecting: "กำลังตรวจสอบ…",
+      pending: "ยังไม่สร้าง",
+      notConnected: "ไม่ได้เชื่อมต่อ",
+      demoMode: "โหมดสาธิต",
+      onlineMode: "โหมดออนไลน์",
+      localEmbed: "สาธิตแฮชในเครื่อง",
+      localLLM: "คำตอบสาธิตในเครื่อง",
+      indexReady: "สร้างแล้ว · {n} มิติ",
+      parallelReady: "สร้างแล้ว · {n} คู่ · {d} มิติ",
+      coverageValue: "ข่าว {a} · ต่างประเทศ {b} · ศัพท์ {c} · ประโยคคู่ขนาน {d}",
+      dataTitle: "ขนาดข้อมูลสาธิต",
+      dataMeta: "ครบทั้งสี่รายการ",
+      dataTerms: "คลังศัพท์",
+      dataParallel: "ประโยคคู่ขนาน",
+      dataForeign: "ข่าวต่างประเทศ",
+      dataNews: "คลังข่าว",
+      recentTitle: "ข่าวต่างประเทศล่าสุด",
+      recentNote: "ชื่อเรื่องเป็นผลการแปลภาษาจีน",
+      recentEmpty: "ไม่มีข้อมูลข่าวต่างประเทศ",
+      translatedAt: "แปลเมื่อ {t}",
+      footLeft: "ข้อมูลแดชบอร์ดคำนวณจากคลังข้อมูลและสถานะบริการในเครื่อง ข้อมูลโมดูลใหม่ทั้งหมดเป็นข้อมูลจำลองสาธิต จำนวนการถามตอบ RAG เป็นค่าสะสมในเครื่อง",
+      footRight: "ภัยพิบัติข้ามพรมแดนอาเซียน · การช่วยเหลือด้านจิตใจ · INSARAG · PFA"
+    },
+    vi: {
+      eyebrow: "TASK 12 · NỀN TẢNG DỊCH VỤ NGÔN NGỮ KHẨN CẤP",
+      heroTitle: "Nền tảng dịch vụ ngôn ngữ khẩn cấp về tâm lý ứng phó thảm họa xuyên biên giới ASEAN",
+      heroDesc: "Dành cho thảm họa xuyên biên giới ASEAN và hỗ trợ tâm lý sau thảm họa, nền tảng tích hợp tổng hợp tin nước ngoài, dịch đa ngữ, kho thuật ngữ năm ngôn ngữ, ngữ liệu song song, CMS tin tức và hỏi đáp RAG có truy xuất nguồn — hỗ trợ tiếng Trung, Anh, Thái, Việt và Mã Lai.",
+      btnForeign: "Xem tin nước ngoài",
+      btnTranslate: "Mở dịch đa ngữ",
+      btnRag: "Hỏi đáp RAG",
+      heroLangs: "Trung / Anh / Thái / Việt / Mã Lai",
+      demoTag: "Dữ liệu mô phỏng",
+      statTerms: "Tổng số thuật ngữ",
+      statTermsSub: "Kho thuật ngữ năm ngôn ngữ",
+      statParallel: "Ngữ liệu song song",
+      statParallelSub: "Cặp câu song ngữ",
+      statForeign: "Tin nước ngoài",
+      statForeignSub: "Đã dịch sang tiếng Trung",
+      statChunks: "Phân đoạn tri thức",
+      statChunksSub: "Đã vector hóa",
+      statRag: "Số lượt hỏi đáp RAG",
+      statRagSub: "Thống kê tích lũy cục bộ",
+      modulesTitle: "Mô-đun cốt lõi",
+      modulesSub: "Sáu năng lực trong một điểm vào — nhấn thẻ để mở",
+      m1Title: "Tổng hợp tin nước ngoài",
+      m1Desc: "Tổng hợp tin về thảm họa ASEAN và hỗ trợ tâm lý từ OCHA, ReliefWeb và UN News, kèm tiêu đề, tóm tắt tiếng Trung, thời gian dịch và liên kết nguồn gốc.",
+      m1Tag1: "Năm nguồn uy tín",
+      m1Tag2: "Lọc theo nguồn",
+      m1Hint: "Chức năng 1 · 70 tin mô phỏng",
+      m2Title: "Dịch đa ngữ",
+      m2Desc: "Dịch hai chiều giữa Trung, Anh, Thái, Việt và Mã Lai, tự động khớp thuật ngữ và tô sáng cả nguyên văn lẫn bản dịch, đồng thời truy xuất ngữ liệu song song để hỗ trợ sinh bản dịch.",
+      m2Tag1: "Dịch hai chiều",
+      m2Tag2: "Tô sáng thuật ngữ",
+      m2Hint: "Chức năng 2 · Dịch bằng DeepSeek",
+      m3Title: "Quản lý thuật ngữ",
+      m3Desc: "Kho thuật ngữ năm ngôn ngữ bao gồm điều phối cứu hộ, hỗ trợ tâm lý và hậu cần y tế, hỗ trợ tìm kiếm, lọc ngôn ngữ, lọc lĩnh vực và xem chi tiết.",
+      m3Tag1: "507 thuật ngữ",
+      m3Tag2: "Năm ngôn ngữ",
+      m3Hint: "Chức năng 3 · Thuật ngữ",
+      m4Title: "Quản lý ngữ liệu song song",
+      m4Desc: "Quản lý cặp câu song ngữ về ứng phó thảm họa và trấn an tâm lý, hỗ trợ tìm kiếm nguyên văn/bản dịch, xem chi tiết; backend vector hóa để hỗ trợ dịch.",
+      m4Tag1: "508 cặp câu",
+      m4Tag2: "Truy xuất vector",
+      m4Hint: "Chức năng 4 · Ngữ liệu song song",
+      m5Title: "Quản lý tin CMS",
+      m5Desc: "Duy trì kho tin cứu hộ thảm họa với đầy đủ thêm, sửa, xóa, tìm kiếm và nhập/xuất JSON, dữ liệu lưu trong trình duyệt.",
+      m5Tag1: "CRUD đầy đủ",
+      m5Tag2: "Nhập/xuất JSON",
+      m5Hint: "Mô-đun gốc · Giữ nguyên",
+      m6Title: "Hỏi đáp RAG",
+      m6Desc: "Vector hóa bằng Bigmodel và truy xuất độ tương đồng cosin, DeepSeek sinh câu trả lời dạng luồng kèm nguồn có thể nhấn; câu hỏi ngoài phạm vi bị từ chối rõ ràng.",
+      m6Tag1: "175 phân đoạn",
+      m6Tag2: "Nguồn truy xuất được",
+      m6Hint: "Chức năng 5 · RAG",
+      enterModule: "Mở mô-đun",
+      statusTitle: "Trạng thái hệ thống",
+      statusMetaChecking: "Đang kiểm tra dịch vụ…",
+      statusMetaReady: "Đã kết nối · {t}",
+      statusMetaOffline: "Chưa kết nối dịch vụ",
+      statusEmbed: "Mô hình vector",
+      statusLLM: "Mô hình sinh câu trả lời",
+      statusIndex: "Chỉ mục tri thức",
+      statusParallelIndex: "Chỉ mục ngữ liệu song song",
+      statusMode: "Chế độ dịch vụ",
+      statusCoverage: "Phạm vi dữ liệu",
+      detecting: "Đang kiểm tra…",
+      pending: "Chưa xây dựng",
+      notConnected: "Chưa kết nối",
+      demoMode: "Chế độ mô phỏng",
+      onlineMode: "Chế độ trực tuyến",
+      localEmbed: "Mô phỏng hash cục bộ",
+      localLLM: "Trả lời mô phỏng cục bộ",
+      indexReady: "Đã xây dựng · {n} chiều",
+      parallelReady: "Đã xây dựng · {n} cặp · {d} chiều",
+      coverageValue: "{a} tin · {b} nước ngoài · {c} thuật ngữ · {d} song song",
+      dataTitle: "Quy mô dữ liệu mô phỏng",
+      dataMeta: "Đạt cả bốn chỉ tiêu",
+      dataTerms: "Kho thuật ngữ",
+      dataParallel: "Ngữ liệu song song",
+      dataForeign: "Tin nước ngoài",
+      dataNews: "Kho tin",
+      recentTitle: "Tin nước ngoài mới nhất",
+      recentNote: "Tiêu đề là bản dịch tiếng Trung",
+      recentEmpty: "Chưa có dữ liệu tin nước ngoài",
+      translatedAt: "Dịch lúc {t}",
+      footLeft: "Số liệu bảng điều khiển được tính cục bộ từ dữ liệu và trạng thái dịch vụ; dữ liệu mô-đun mới là dữ liệu mô phỏng, số lượt hỏi đáp RAG là bộ đếm tích lũy cục bộ.",
+      footRight: "Thảm họa xuyên biên giới ASEAN · Hỗ trợ tâm lý · INSARAG · PFA"
+    },
+    ms: {
+      eyebrow: "TASK 12 · PLATFORM PERKHIDMATAN BAHASA KECEMASAN",
+      heroTitle: "Platform Perkhidmatan Bahasa Kecemasan Psikososial Bencana Rentas Sempadan ASEAN",
+      heroDesc: "Bagi bencana rentas sempadan ASEAN dan sokongan psikososial selepas bencana, platform ini menggabungkan agregasi berita asing, terjemahan pelbagai bahasa, glosari lima bahasa, korpus selari, CMS berita dan soal jawab RAG yang boleh dijejaki — merentas bahasa Cina, Inggeris, Thai, Vietnam dan Melayu.",
+      btnForeign: "Lihat berita asing",
+      btnTranslate: "Buka terjemahan",
+      btnRag: "Soal jawab RAG",
+      heroLangs: "ZH / EN / TH / VI / MS",
+      demoTag: "Data demo simulasi",
+      statTerms: "Jumlah istilah",
+      statTermsSub: "Glosari lima bahasa",
+      statParallel: "Korpus selari",
+      statParallelSub: "Pasangan ayat dwibahasa",
+      statForeign: "Berita asing",
+      statForeignSub: "Diterjemah ke bahasa Cina",
+      statChunks: "Serpihan pengetahuan",
+      statChunksSub: "Telah divektor",
+      statRag: "Bilangan soal jawab RAG",
+      statRagSub: "Kiraan terkumpul setempat",
+      modulesTitle: "Modul teras",
+      modulesSub: "Enam keupayaan, satu pintu masuk — klik kad untuk membuka",
+      m1Title: "Agregasi Berita Asing",
+      m1Desc: "Mengumpul liputan bencana ASEAN dan bantuan psikososial daripada OCHA, ReliefWeb dan UN News, dengan tajuk dan ringkasan bahasa Cina, masa terjemahan serta pautan sumber asal.",
+      m1Tag1: "Lima sumber utama",
+      m1Tag2: "Tapis sumber",
+      m1Hint: "Ciri 1 · 70 berita demo",
+      m2Title: "Terjemahan Pelbagai Bahasa",
+      m2Desc: "Terjemahan dua hala antara Cina, Inggeris, Thai, Vietnam dan Melayu, padanan istilah dikesan automatik dan diserlahkan pada teks asal serta terjemahan, disokong carian korpus selari.",
+      m2Tag1: "Dua hala",
+      m2Tag2: "Serlah istilah",
+      m2Hint: "Ciri 2 · Terjemahan DeepSeek",
+      m3Title: "Pengurusan Istilah",
+      m3Desc: "Glosari lima bahasa merangkumi penyelarasan mencari dan menyelamat, sokongan psikososial dan logistik perubatan, dengan carian, tapisan bahasa, tapisan bidang dan paparan butiran.",
+      m3Tag1: "507 istilah",
+      m3Tag2: "Lima bahasa",
+      m3Hint: "Ciri 3 · Glosari",
+      m4Title: "Pengurusan Korpus Selari",
+      m4Desc: "Mengurus pasangan ayat dwibahasa untuk gerak balas bencana dan penenangan psikologi, menyokong carian teks asal/terjemahan dan butiran; backend membina indeks vektor untuk membantu terjemahan.",
+      m4Tag1: "508 pasangan",
+      m4Tag2: "Carian vektor",
+      m4Hint: "Ciri 4 · Korpus selari",
+      m5Title: "Pengurusan Berita CMS",
+      m5Desc: "Menyelenggara korpus berita bencana dengan tambah, sunting, padam, carian dan import/eksport JSON sepenuhnya, data disimpan dalam pelayar.",
+      m5Tag1: "CRUD penuh",
+      m5Tag2: "Import/eksport JSON",
+      m5Hint: "Modul asal · Dikekalkan",
+      m6Title: "Soal Jawab RAG",
+      m6Desc: "Vektor Bigmodel dan carian kesamaan kosinus, jawapan penstriman DeepSeek serta sumber boleh klik; soalan di luar skop ditolak secara jelas.",
+      m6Tag1: "175 serpihan",
+      m6Tag2: "Sumber boleh dijejaki",
+      m6Hint: "Ciri 5 · RAG",
+      enterModule: "Buka modul",
+      statusTitle: "Status sistem",
+      statusMetaChecking: "Menyemak perkhidmatan…",
+      statusMetaReady: "Perkhidmatan disambung · {t}",
+      statusMetaOffline: "Perkhidmatan tidak disambung",
+      statusEmbed: "Model vektor",
+      statusLLM: "Model penjanaan",
+      statusIndex: "Indeks pengetahuan",
+      statusParallelIndex: "Indeks korpus selari",
+      statusMode: "Mod perkhidmatan",
+      statusCoverage: "Liputan korpus",
+      detecting: "Menyemak…",
+      pending: "Belum dibina",
+      notConnected: "Tidak disambung",
+      demoMode: "Mod demo",
+      onlineMode: "Mod dalam talian",
+      localEmbed: "Demo hash setempat",
+      localLLM: "Jawapan demo setempat",
+      indexReady: "Dibina · {n} dimensi",
+      parallelReady: "Dibina · {n} pasangan · {d} dimensi",
+      coverageValue: "{a} berita · {b} asing · {c} istilah · {d} selari",
+      dataTitle: "Skala data demo",
+      dataMeta: "Semua sasaran dicapai",
+      dataTerms: "Glosari",
+      dataParallel: "Korpus selari",
+      dataForeign: "Berita asing",
+      dataNews: "Korpus berita",
+      recentTitle: "Berita asing terkini",
+      recentNote: "Tajuk ialah terjemahan bahasa Cina",
+      recentEmpty: "Tiada data berita asing",
+      translatedAt: "Diterjemah {t}",
+      footLeft: "Metrik papan pemuka dikira secara setempat daripada korpus dan status perkhidmatan; semua data modul baharu ialah data demo simulasi, kiraan RAG ialah pembilang terkumpul setempat.",
+      footRight: "Bencana rentas sempadan ASEAN · Sokongan psikososial · INSARAG · PFA"
+    }
+  };
+
+  var MODULES = [
+    { view: "foreign", color: "blue", key: "m1", icon: '<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>' },
+    { view: "translate", color: "violet", key: "m2", icon: '<path d="M4 5h7M7.5 3v2c0 4-1.5 6.5-4 8"/><path d="M5 9c1.6 2.6 3.4 4.2 5.5 5"/><path d="M13 21l4-10 4 10"/><path d="M14.5 17h5"/>' },
+    { view: "glossary", color: "teal", key: "m3", icon: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M8 7h8M8 11h5"/>' },
+    { view: "parallel", color: "amber", key: "m4", icon: '<path d="M4 6h7v13H4z"/><path d="M13 6h7v13h-7z"/><path d="M6.5 9.5h2M6.5 13h2M15.5 9.5h2M15.5 13h2"/>' },
+    { view: "cms", color: "slate", key: "m5", icon: '<path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h5"/>' },
+    { view: "rag", color: "rose", key: "m6", icon: '<path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/><line x1="9" y1="21" x2="15" y2="21"/><path d="M12 6v4"/>' }
+  ];
+
+  var lang = (function () {
+    try {
+      var v = localStorage.getItem(LANG_KEY);
+      return CODES.indexOf(v) >= 0 ? v : "zh";
+    } catch (e) { return "zh"; }
+  })();
+
+  var statusInfo = null;
+  var counts = { news: 0, foreign: 0, glossary: 0, parallel: 0, chunks: 0 };
+  var foreignItems = [];
+
+  function t(key) {
+    var dict = I18N[lang] || I18N.zh;
+    return dict[key] != null ? dict[key] : (I18N.zh[key] != null ? I18N.zh[key] : key);
+  }
+  function fmt(key, map) {
+    var text = t(key);
+    Object.keys(map || {}).forEach(function (k) {
+      text = text.replace(new RegExp("\\{" + k + "\\}", "g"), map[k]);
+    });
+    return text;
+  }
+  function escapeHtml(value) {
+    return String(value == null ? "" : value).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+  function hostOf(url) {
+    try { return new URL(url).hostname.replace(/^www\./, ""); }
+    catch (e) { return url || ""; }
+  }
+  function setText(id, value) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = value;
+  }
+  function setDot(id, color) {
+    var el = document.getElementById(id);
+    if (el) el.className = "dot " + color;
+  }
+
+  function renderModules() {
+    document.getElementById("moduleGrid").innerHTML = MODULES.map(function (m, i) {
+      return (
+        '<article class="module" data-go="' + m.view + '">' +
+          '<div class="module-top">' +
+            '<div class="module-icon ' + m.color + '">' +
+              '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + m.icon + "</svg>" +
+            "</div>" +
+            '<span class="module-index">0' + (i + 1) + "</span>" +
+          "</div>" +
+          "<h3>" + escapeHtml(t(m.key + "Title")) + "</h3>" +
+          "<p>" + escapeHtml(t(m.key + "Desc")) + "</p>" +
+          '<div class="tags"><span class="tag">' + escapeHtml(t(m.key + "Tag1")) + '</span><span class="tag">' + escapeHtml(t(m.key + "Tag2")) + "</span></div>" +
+          '<div class="module-foot"><span class="hint">' + escapeHtml(t(m.key + "Hint")) + "</span>" +
+          '<span class="enter">' + escapeHtml(t("enterModule")) + " →</span></div>" +
+        "</article>"
+      );
+    }).join("");
+  }
+
+  function renderStats() {
+    setText("statTerms", counts.glossary || "—");
+    setText("statParallel", counts.parallel || "—");
+    setText("statForeign", counts.foreign || "—");
+    setText("statChunks", (statusInfo && statusInfo.chunk_count) || counts.chunks || "—");
+  }
+
+  function renderStatus() {
+    var metaEl = document.getElementById("statusMeta");
+    if (!statusInfo) {
+      setText("statusEmbed", t("notConnected"));
+      setText("statusLLM", t("notConnected"));
+      setText("statusIndex", t("notConnected"));
+      setText("statusParallelIndex", t("notConnected"));
+      setText("statusMode", t("notConnected"));
+      setText("statusCoverage", "—");
+      ["statusEmbed", "statusLLM", "statusIndex", "statusParallelIndex", "statusMode"].forEach(function (id) {
+        document.getElementById(id).classList.add("muted");
+      });
+      setDot("dotEmbed", "red"); setDot("dotLLM", "red"); setDot("dotIndex", "red");
+      setDot("dotParallel", "red"); setDot("dotMode", "red");
+      if (metaEl) metaEl.textContent = t("statusMetaOffline");
+      return;
+    }
+    var info = statusInfo;
+    var embedOnline = info.embedding_mode === "bigmodel";
+    var llmOnline = info.llm_mode === "deepseek";
+    var online = embedOnline && llmOnline;
+
+    setText("statusEmbed", embedOnline ? info.embedding_model : t("localEmbed"));
+    setText("statusLLM", llmOnline ? info.llm_model : t("localLLM"));
+    setText("statusIndex", info.index_ready ? fmt("indexReady", { n: info.dim || 0 }) : t("pending"));
+    setText("statusParallelIndex", info.parallel_index_ready
+      ? fmt("parallelReady", { n: info.parallel_count || 0, d: info.parallel_dim || 0 })
+      : t("pending"));
+    setText("statusMode", online ? t("onlineMode") : t("demoMode"));
+    setText("statusCoverage", fmt("coverageValue", {
+      a: info.news_count || 0, b: info.foreign_count || 0,
+      c: info.glossary_count || 0, d: info.parallel_count || 0
+    }));
+    ["statusEmbed", "statusLLM", "statusIndex", "statusParallelIndex", "statusMode"].forEach(function (id) {
+      document.getElementById(id).classList.remove("muted");
+    });
+    setDot("dotEmbed", embedOnline ? "green" : "amber");
+    setDot("dotLLM", llmOnline ? "green" : "amber");
+    setDot("dotIndex", info.index_ready ? "green" : "amber");
+    setDot("dotParallel", info.parallel_index_ready ? "green" : "amber");
+    setDot("dotMode", online ? "green" : "amber");
+    if (metaEl) metaEl.textContent = fmt("statusMetaReady", { t: online ? t("onlineMode") : t("demoMode") });
+  }
+
+  function renderDataScale() {
+    var rows = [
+      { key: "dataTerms", value: counts.glossary, cls: "b1" },
+      { key: "dataParallel", value: counts.parallel, cls: "b2" },
+      { key: "dataForeign", value: counts.foreign, cls: "b3" },
+      { key: "dataNews", value: counts.news, cls: "b4" }
+    ];
+    var max = 1;
+    rows.forEach(function (r) { if (r.value > max) max = r.value; });
+    document.getElementById("dataMeta").textContent = t("dataMeta");
+    document.getElementById("distList").innerHTML = rows.map(function (r) {
+      var pct = r.value ? Math.max(6, Math.round((r.value / max) * 100)) : 0;
+      return (
+        '<div class="dist-item">' +
+          '<div class="dist-top"><span class="dist-name">' + escapeHtml(t(r.key)) + "</span>" +
+          '<span class="dist-num">' + (r.value || "—") + "</span></div>" +
+          '<div class="bar"><span class="' + r.cls + '" style="width:' + pct + '%"></span></div>' +
+        "</div>"
+      );
+    }).join("");
+  }
+
+  function summaryOf(item) {
+    if (lang === "zh") return item.summary_zh || item.summary_en || "";
+    return item.summary_en || item.summary_zh || "";
+  }
+
+  function renderRecent() {
+    var list = foreignItems.slice().sort(function (a, b) {
+      return String(b.translated_at || "").localeCompare(String(a.translated_at || ""));
+    }).slice(0, 5);
+    var box = document.getElementById("newsList");
+    if (!list.length) {
+      box.innerHTML = '<div class="empty">' + escapeHtml(t("recentEmpty")) + "</div>";
+      return;
+    }
+    box.innerHTML = list.map(function (item) {
+      return (
+        '<div class="news-item" data-url="' + escapeHtml(item.url || "") + '">' +
+          '<div class="news-date">' + escapeHtml(item.translated_at || item.publish_date || "—") + "</div>" +
+          '<div class="news-main">' +
+            '<div class="news-title">' + escapeHtml(item.title_zh || "") + "</div>" +
+            '<div class="news-meta">' +
+              '<span class="kw OTHER">' + escapeHtml(item.source_name || item.source_code || "") + "</span>" +
+              '<span class="news-src">' + escapeHtml(item.country || "") + " · " + escapeHtml(item.category || "") + " · " + escapeHtml(hostOf(item.url)) + "</span>" +
+            "</div>" +
+          "</div>" +
+        "</div>"
+      );
+    }).join("");
+    Array.prototype.forEach.call(box.querySelectorAll(".news-item"), function (el) {
+      el.addEventListener("click", function () {
+        var url = el.getAttribute("data-url");
+        if (url) window.open(url, "_blank", "noopener,noreferrer");
+      });
+    });
+  }
+
+  function applyLang(next) {
+    lang = CODES.indexOf(next) >= 0 ? next : "zh";
+    document.documentElement.lang = lang === "zh" ? "zh-CN" : lang;
+    document.title = t("heroTitle") + " · " + t("modulesTitle");
+
+    Array.prototype.forEach.call(document.querySelectorAll("[data-i18n]"), function (el) {
+      el.textContent = t(el.getAttribute("data-i18n"));
+    });
+    renderModules();
+    renderStatus();
+    renderRecent();
+    renderDataScale();
+  }
+
+  function go(view) {
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({ type: "navigate", view: view }, "*");
+    } else {
+      location.href = "index.html#/" + view;
+    }
+  }
+
+  function readRagCount() {
+    try {
+      var raw = localStorage.getItem("rag_qa_count");
+      var value = raw === null ? NaN : parseInt(raw, 10);
+      if (isNaN(value) || value < 0) {
+        value = RAG_BASE;
+        localStorage.setItem("rag_qa_count", String(value));
+      }
+      return value;
+    } catch (e) { return RAG_BASE; }
+  }
+
+  function loadData() {
+    function getJson(url, onOk) {
+      fetch(url, { cache: "no-store" })
+        .then(function (res) { if (!res.ok) throw new Error("HTTP " + res.status); return res.json(); })
+        .then(onOk)
+        .catch(function () {});
+    }
+    getJson("glossary.json", function (data) {
+      counts.glossary = Array.isArray(data) ? data.length : 0;
+      renderStats(); renderDataScale();
+    });
+    getJson("parallel.json", function (data) {
+      counts.parallel = Array.isArray(data) ? data.length : 0;
+      renderStats(); renderDataScale();
+    });
+    getJson("foreign_news.json", function (data) {
+      foreignItems = Array.isArray(data) ? data : [];
+      counts.foreign = foreignItems.length;
+      renderStats(); renderDataScale(); renderRecent();
+    });
+    getJson("insarag_news.json", function (data) {
+      counts.news = Array.isArray(data) ? data.length : 0;
+      renderDataScale();
+    });
+    fetch("/api/status", { cache: "no-store" })
+      .then(function (res) { if (!res.ok) throw new Error("HTTP " + res.status); return res.json(); })
+      .then(function (info) {
+        statusInfo = info;
+        counts.news = info.news_count || counts.news;
+        counts.foreign = info.foreign_count || counts.foreign;
+        counts.glossary = info.glossary_count || counts.glossary;
+        counts.parallel = info.parallel_count || counts.parallel;
+        counts.chunks = info.chunk_count || 0;
+        renderStats(); renderStatus(); renderDataScale();
+      })
+      .catch(function () {
+        statusInfo = null;
+        renderStatus();
+      });
+  }
+
+  document.addEventListener("click", function (e) {
+    var target = e.target.closest("[data-go]");
+    if (target) go(target.getAttribute("data-go"));
+  });
+
+  window.addEventListener("message", function (e) {
+    if (e.data && e.data.type === "setLang" && CODES.indexOf(e.data.lang) >= 0 && e.data.lang !== lang) {
+      applyLang(e.data.lang);
+    }
+  });
+  window.addEventListener("storage", function (e) {
+    if (e.key === LANG_KEY && e.newValue && CODES.indexOf(e.newValue) >= 0 && e.newValue !== lang) {
+      applyLang(e.newValue);
+    }
+    if (e.key === "rag_qa_count") setText("statRag", readRagCount());
+  });
+
+  setText("statRag", readRagCount());
+  applyLang(lang);
+  loadData();
+})();
+</script>
+</body>
+</html>
