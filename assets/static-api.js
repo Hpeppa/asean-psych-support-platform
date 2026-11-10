@@ -452,10 +452,17 @@
 
   /* ---------------- fetch 拦截 ---------------- */
   var rawFetch = window.fetch ? window.fetch.bind(window) : null;
+  var API_BASE = String(window.KB_API_BASE || "").replace(/\/+$/, "");
 
   window.fetch = function (input, init) {
     var url = typeof input === "string" ? input : (input && input.url) || "";
     var path = url.split("?")[0];
+
+    /* 已配置云端后端：直接转发到 Worker，由云端完成真实向量检索与大模型生成 */
+    if (API_BASE && (path === "/api/status" || path === "/api/chat" || path === "/api/translate" || path === "/api/rebuild")) {
+      return rawFetch(API_BASE + path, init);
+    }
+
     if (path !== "/api/status" && path !== "/api/chat" && path !== "/api/translate" && path !== "/api/rebuild") {
       return rawFetch ? rawFetch(input, init) : Promise.reject(new Error("fetch unavailable"));
     }
