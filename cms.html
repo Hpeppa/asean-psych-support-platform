@@ -1,0 +1,1551 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>东盟灾害救援新闻CMS后台管理系统</title>
+<style>
+  :root{
+    --bg:#f4f6fa;
+    --card:#ffffff;
+    --text:#0f172a;
+    --muted:#64748b;
+    --line:#e6eaf2;
+    --primary:#2563eb;
+    --primary-dark:#1d4ed8;
+    --primary-soft:#eff5ff;
+    --danger:#e11d48;
+    --danger-soft:#fff1f3;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:"Inter","Segoe UI","Microsoft YaHei","PingFang SC",sans-serif;
+    font-size:14px;
+    line-height:1.6;
+    padding:26px 30px 44px;
+    min-height:100vh;
+  }
+  .wrap{max-width:1280px;margin:0 auto;}
+  body.embed{padding:18px 20px 26px;background:var(--bg);}
+  body.embed .header,body.embed .footer{display:none !important;}
+
+  /* ---------- Header ---------- */
+  .header{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:18px 22px;
+    display:flex;
+    align-items:center;
+    gap:16px;
+    box-shadow:0 1px 2px rgba(15,23,42,.04);
+    margin-bottom:18px;
+  }
+  .brand-mark{
+    width:46px;height:46px;border-radius:12px;flex:none;
+    background:linear-gradient(135deg,#2563eb,#0ea5a4);
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;
+    box-shadow:0 4px 10px rgba(37,99,235,.25);
+  }
+  .brand-text{flex:1;min-width:0;}
+  h1{
+    margin:0;
+    font-size:20px;
+    font-weight:700;
+    letter-spacing:.2px;
+    line-height:1.35;
+  }
+  .brand-note{
+    margin-top:5px;
+    font-size:12.5px;
+    color:var(--muted);
+    display:flex;
+    align-items:flex-start;
+    gap:6px;
+  }
+  .brand-note svg{flex:none;margin-top:3px;color:#94a3b8;}
+  .storage-pill{
+    flex:none;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-size:12px;
+    color:#0f766e;
+    background:#ecfdf5;
+    border:1px solid #ccfbf1;
+    padding:5px 11px;
+    border-radius:999px;
+    white-space:nowrap;
+  }
+  .dot{width:6px;height:6px;border-radius:50%;background:#10b981;display:inline-block;}
+  .nav-btn{height:36px;text-decoration:none;font-size:13px;}
+
+  /* ---------- Stats ---------- */
+  .stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:14px;
+    margin-bottom:18px;
+  }
+  .stat{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:15px 18px;
+    box-shadow:0 1px 2px rgba(15,23,42,.04);
+  }
+  .stat-label{font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:6px;}
+  .stat-value{font-size:24px;font-weight:700;margin-top:5px;letter-spacing:.3px;}
+  .stat-value.small{font-size:16px;padding-top:4px;}
+  .stat-sub{font-size:11.5px;color:#94a3b8;margin-top:2px;}
+
+  /* ---------- Panel ---------- */
+  .panel{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:0 1px 2px rgba(15,23,42,.04);
+    overflow:hidden;
+  }
+  .toolbar{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+    padding:16px 18px;
+    border-bottom:1px solid var(--line);
+  }
+  .search-box{position:relative;flex:1 1 300px;min-width:220px;}
+  .search-box svg{
+    position:absolute;left:12px;top:50%;transform:translateY(-50%);
+    color:#94a3b8;pointer-events:none;
+  }
+  .search-box input{
+    width:100%;
+    height:38px;
+    padding:0 12px 0 38px;
+    border:1px solid var(--line);
+    border-radius:10px;
+    font-size:13.5px;
+    color:var(--text);
+    background:#fbfcfe;
+    outline:none;
+    transition:border-color .15s, box-shadow .15s, background .15s;
+    font-family:inherit;
+  }
+  .search-box input::placeholder{color:#a3aec2;}
+  .search-box input:focus{
+    border-color:#93b4fd;
+    background:#fff;
+    box-shadow:0 0 0 3px rgba(37,99,235,.12);
+  }
+  .select{
+    height:38px;
+    padding:0 34px 0 12px;
+    border:1px solid var(--line);
+    border-radius:10px;
+    font-size:13.5px;
+    color:#334155;
+    background:#fbfcfe url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") no-repeat right 10px center;
+    appearance:none;
+    outline:none;
+    cursor:pointer;
+    font-family:inherit;
+    min-width:150px;
+  }
+  .select:focus{border-color:#93b4fd;box-shadow:0 0 0 3px rgba(37,99,235,.12);}
+
+  .btn{
+    height:38px;
+    padding:0 15px;
+    border-radius:10px;
+    border:1px solid transparent;
+    font-size:13.5px;
+    font-weight:600;
+    font-family:inherit;
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:7px;
+    white-space:nowrap;
+    transition:background .15s, border-color .15s, color .15s, box-shadow .15s;
+  }
+  .btn-primary{background:var(--primary);color:#fff;box-shadow:0 2px 6px rgba(37,99,235,.22);}
+  .btn-primary:hover{background:var(--primary-dark);}
+  .btn-outline{background:#fff;border-color:var(--line);color:#334155;}
+  .btn-outline:hover{border-color:#c7d2e4;background:#f8fafc;}
+  .btn-ghost{background:transparent;border-color:transparent;color:var(--muted);}
+  .btn-ghost:hover{background:#f1f5f9;color:#334155;}
+  .toolbar .spacer{flex:1;}
+
+  /* ---------- Table ---------- */
+  .table-wrap{overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;table-layout:fixed;min-width:1020px;}
+  col.c-kw{width:132px;}
+  col.c-title{width:27%;}
+  col.c-sum{width:31%;}
+  col.c-date{width:112px;}
+  col.c-url{width:17%;}
+  col.c-act{width:104px;}
+  thead th{
+    background:#f8fafc;
+    color:#64748b;
+    font-size:12px;
+    font-weight:600;
+    text-align:left;
+    padding:11px 16px;
+    border-bottom:1px solid var(--line);
+    white-space:nowrap;
+  }
+  tbody td{
+    padding:14px 16px;
+    border-bottom:1px solid #eef2f8;
+    vertical-align:top;
+    font-size:13px;
+  }
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:hover{background:#fafcff;}
+  .cell-title{font-weight:600;color:#0f172a;line-height:1.55;word-break:break-word;}
+  .cell-summary{
+    color:#5b6b82;
+    font-size:12.5px;
+    line-height:1.6;
+    display:-webkit-box;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
+    word-break:break-word;
+  }
+  .cell-date{color:#475569;font-variant-numeric:tabular-nums;font-size:12.5px;white-space:nowrap;}
+  .cell-url a{
+    display:block;
+    color:var(--primary);
+    font-size:12.5px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    text-decoration:none;
+  }
+  .cell-url a:hover{text-decoration:underline;}
+  mark{background:#fff3bf;color:inherit;border-radius:3px;padding:0 1px;}
+
+  .badge{
+    display:inline-block;
+    padding:3px 9px;
+    border-radius:999px;
+    font-size:11.5px;
+    font-weight:600;
+    line-height:1.5;
+    white-space:nowrap;
+  }
+  .kw-blue{background:#e8f0fe;color:#1d4ed8;}
+  .kw-purple{background:#f3e8ff;color:#7e22ce;}
+  .kw-amber{background:#fef3c7;color:#b45309;}
+  .kw-teal{background:#ccfbf1;color:#0f766e;}
+  .kw-gray{background:#eef2f7;color:#475569;}
+
+  .row-actions{display:flex;gap:4px;}
+  .link-btn{
+    border:none;background:transparent;font-family:inherit;font-size:12.5px;font-weight:600;
+    padding:4px 6px;border-radius:6px;cursor:pointer;color:var(--primary);
+  }
+  .link-btn:hover{background:var(--primary-soft);}
+  .link-btn.danger{color:var(--danger);}
+  .link-btn.danger:hover{background:var(--danger-soft);}
+
+  .empty{
+    padding:56px 20px;
+    text-align:center;
+    color:var(--muted);
+  }
+  .empty svg{color:#cbd5e1;margin-bottom:10px;}
+  .empty p{margin:0 0 4px;font-size:14px;font-weight:600;color:#475569;}
+  .empty span{font-size:12.5px;color:#94a3b8;}
+
+  /* ---------- Pagination ---------- */
+  .pagination{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    padding:13px 18px;
+    border-top:1px solid var(--line);
+    font-size:12.5px;
+    color:var(--muted);
+    flex-wrap:wrap;
+  }
+  .pagination .pages{display:flex;align-items:center;gap:8px;}
+  .page-btn{
+    height:30px;min-width:30px;padding:0 11px;
+    border:1px solid var(--line);background:#fff;border-radius:8px;
+    font-size:12.5px;color:#334155;cursor:pointer;font-family:inherit;
+    transition:background .15s,border-color .15s;
+  }
+  .page-btn:hover:not(:disabled){background:#f8fafc;border-color:#c7d2e4;}
+  .page-btn:disabled{opacity:.45;cursor:not-allowed;}
+  .page-indicator{font-variant-numeric:tabular-nums;}
+
+  /* ---------- Footer ---------- */
+  .footer{
+    margin-top:16px;
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    flex-wrap:wrap;
+    font-size:11.5px;
+    color:#94a3b8;
+    padding:0 4px;
+  }
+
+  /* ---------- Modal ---------- */
+  .overlay{
+    position:fixed;inset:0;
+    background:rgba(15,23,42,.45);
+    backdrop-filter:blur(2px);
+    display:flex;align-items:center;justify-content:center;
+    padding:24px;
+    z-index:100;
+  }
+  .overlay.hidden{display:none;}
+  .modal{
+    background:#fff;
+    border-radius:16px;
+    width:640px;max-width:100%;
+    max-height:90vh;
+    overflow:auto;
+    box-shadow:0 20px 50px rgba(15,23,42,.25);
+    animation:pop .16s ease-out;
+  }
+  @keyframes pop{from{transform:translateY(8px);opacity:.6;}to{transform:none;opacity:1;}}
+  .modal-head{
+    padding:18px 24px 14px;
+    border-bottom:1px solid var(--line);
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  .modal-head h2{margin:0;font-size:16.5px;font-weight:700;}
+  .icon-btn{
+    border:none;background:transparent;cursor:pointer;color:#94a3b8;
+    width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+  }
+  .icon-btn:hover{background:#f1f5f9;color:#475569;}
+  .modal-body{padding:20px 24px 6px;}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 16px;}
+  .field{display:flex;flex-direction:column;gap:6px;}
+  .field.full{grid-column:1 / -1;}
+  .field label{font-size:12.5px;font-weight:600;color:#334155;}
+  .field label .req{color:var(--danger);margin-left:2px;}
+  .field input,.field textarea{
+    width:100%;
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:9px 12px;
+    font-size:13.5px;
+    font-family:inherit;
+    color:var(--text);
+    background:#fbfcfe;
+    outline:none;
+    transition:border-color .15s,box-shadow .15s,background .15s;
+  }
+  .field textarea{resize:vertical;min-height:96px;line-height:1.65;}
+  .field input:focus,.field textarea:focus{
+    border-color:#93b4fd;background:#fff;
+    box-shadow:0 0 0 3px rgba(37,99,235,.12);
+  }
+  .field .hint{font-size:11.5px;color:#94a3b8;}
+  .modal-foot{
+    padding:16px 24px 20px;
+    display:flex;justify-content:flex-end;gap:10px;
+  }
+
+  /* ---------- Confirm ---------- */
+  .confirm{
+    background:#fff;border-radius:16px;width:420px;max-width:100%;
+    padding:22px 24px 18px;
+    box-shadow:0 20px 50px rgba(15,23,42,.25);
+    animation:pop .16s ease-out;
+  }
+  .confirm h3{margin:0 0 8px;font-size:16px;}
+  .confirm p{margin:0 0 18px;font-size:13px;color:var(--muted);line-height:1.7;word-break:break-word;}
+  .confirm p strong{color:#334155;}
+  .confirm-actions{display:flex;justify-content:flex-end;gap:10px;}
+  .btn-danger{background:var(--danger);color:#fff;}
+  .btn-danger:hover{background:#be123c;}
+
+  /* ---------- Toast ---------- */
+  .toasts{position:fixed;top:20px;right:24px;z-index:200;display:flex;flex-direction:column;gap:10px;}
+  .toast{
+    background:#fff;border:1px solid var(--line);border-left:3px solid #10b981;
+    border-radius:10px;padding:11px 16px;font-size:13px;color:#334155;
+    box-shadow:0 8px 24px rgba(15,23,42,.14);
+    animation:slideIn .2s ease-out;
+    max-width:340px;
+  }
+  .toast.error{border-left-color:var(--danger);}
+  .toast.info{border-left-color:var(--primary);}
+  @keyframes slideIn{from{transform:translateX(16px);opacity:0;}to{transform:none;opacity:1;}}
+
+  .hidden{display:none !important;}
+
+  @media (max-width:900px){
+    body{padding:18px 16px 32px;}
+    .stats{grid-template-columns:repeat(2,1fr);}
+    .storage-pill{display:none;}
+    .form-grid{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- 头部 -->
+  <header class="header">
+    <div class="brand-mark">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 21s7-5.2 7-11a7 7 0 1 0-14 0c0 5.8 7 11 7 11z"/>
+        <circle cx="12" cy="10" r="2.6"/>
+      </svg>
+    </div>
+    <div class="brand-text">
+      <h1>东盟灾害救援新闻CMS后台管理系统</h1>
+      <div class="brand-note">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+        </svg>
+        <span>本 CMS 用于管理 World News API 采集的 INSARAG、PFA心理急救、跨境救援类新闻素材</span>
+      </div>
+    </div>
+    <a class="btn btn-outline nav-btn" href="rag.html">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8"/><path d="M8 13h5"/></svg>
+      RAG 智能问答
+    </a>
+    <span class="storage-pill"><span class="dot"></span>本地存储 · localStorage</span>
+  </header>
+
+  <!-- 统计 -->
+  <section class="stats">
+    <div class="stat">
+      <div class="stat-label">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        新闻总数
+      </div>
+      <div class="stat-value" id="statTotal">0</div>
+      <div class="stat-sub">条新闻素材</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+        关键词类型
+      </div>
+      <div class="stat-value" id="statKeywords">0</div>
+      <div class="stat-sub">INSARAG / PFA / 跨境救援</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        筛选结果
+      </div>
+      <div class="stat-value" id="statFiltered">0</div>
+      <div class="stat-sub" id="statFilteredSub">当前显示全部新闻</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        最近发布日期
+      </div>
+      <div class="stat-value small" id="statLatest">—</div>
+      <div class="stat-sub">按发布时间倒序排列</div>
+    </div>
+  </section>
+
+  <!-- 主面板 -->
+  <section class="panel">
+    <div class="toolbar">
+      <div class="search-box">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input id="searchInput" type="search" placeholder="输入标题关键词检索新闻，例如：地震、INSARAG、心理急救…" autocomplete="off">
+      </div>
+      <select id="keywordFilter" class="select" aria-label="按关键词筛选">
+        <option value="">全部关键词</option>
+      </select>
+      <div class="spacer"></div>
+      <button class="btn btn-primary" id="btnAdd">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        新增新闻
+      </button>
+      <button class="btn btn-outline" id="btnImport">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        导入 JSON
+      </button>
+      <button class="btn btn-outline" id="btnExport">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        导出 JSON
+      </button>
+      <input id="fileInput" type="file" accept=".json,application/json" class="hidden">
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <colgroup>
+          <col class="c-kw"><col class="c-title"><col class="c-sum"><col class="c-date"><col class="c-url"><col class="c-act">
+        </colgroup>
+        <thead>
+          <tr>
+            <th>关键词</th>
+            <th>标题</th>
+            <th>摘要</th>
+            <th>发布日期</th>
+            <th>链接</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+
+    <div class="pagination">
+      <span id="pageSummary">—</span>
+      <div class="pages">
+        <button class="page-btn" id="btnPrev">上一页</button>
+        <span class="page-indicator" id="pageIndicator">第 1 / 1 页</span>
+        <button class="page-btn" id="btnNext">下一页</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="footer">
+    <span>数据保存在本地浏览器 localStorage，无需后端服务器与数据库。</span>
+    <span>字段：keyword · title · summary · publish_date · url</span>
+  </div>
+</div>
+
+<!-- 表单弹窗 -->
+<div class="overlay hidden" id="formOverlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="formTitle">
+    <div class="modal-head">
+      <h2 id="formTitle">新增新闻</h2>
+      <button class="icon-btn" id="btnCloseForm" aria-label="关闭">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <form id="newsForm" novalidate>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="field">
+            <label for="fKeyword">关键词<span class="req">*</span></label>
+            <input id="fKeyword" list="keywordOptions" placeholder="例如：INSARAG" maxlength="30">
+            <span class="hint">用于分类检索，如 INSARAG、PFA心理急救、跨境救援</span>
+          </div>
+          <div class="field">
+            <label for="fDate">发布日期<span class="req">*</span></label>
+            <input id="fDate" type="date">
+          </div>
+          <div class="field full">
+            <label for="fTitle">标题<span class="req">*</span></label>
+            <input id="fTitle" placeholder="请输入新闻标题" maxlength="200">
+          </div>
+          <div class="field full">
+            <label for="fSummary">摘要<span class="req">*</span></label>
+            <textarea id="fSummary" placeholder="请输入新闻摘要内容" maxlength="800"></textarea>
+          </div>
+          <div class="field full">
+            <label for="fUrl">链接<span class="req">*</span></label>
+            <input id="fUrl" type="url" placeholder="https://example.com/news/..." maxlength="500">
+            <span class="hint">需以 http:// 或 https:// 开头</span>
+          </div>
+        </div>
+        <datalist id="keywordOptions"></datalist>
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="btn btn-outline" id="btnCancelForm">取消</button>
+        <button type="submit" class="btn btn-primary">保存</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- 删除确认 -->
+<div class="overlay hidden" id="confirmOverlay">
+  <div class="confirm" role="dialog" aria-modal="true">
+    <h3>删除新闻</h3>
+    <p>确定要删除 <strong id="confirmTitle"></strong> 吗？删除后不可恢复。</p>
+    <div class="confirm-actions">
+      <button class="btn btn-outline" id="btnCancelDelete">取消</button>
+      <button class="btn btn-danger" id="btnConfirmDelete">确认删除</button>
+    </div>
+  </div>
+</div>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  if (new URLSearchParams(location.search).get("embed") === "1") {
+    document.body.classList.add("embed");
+  }
+
+  var STORAGE_KEY = "asean_insarag_news_cms_v1";
+  var PAGE_SIZE = 8;
+
+  /* ---------------- 示例数据（字段与 insarag_news.json 一致） ---------------- */
+  var SEED = [
+    {
+      keyword: "INSARAG",
+      title: "东盟启动跨境地震救援联合演练 参照 INSARAG 标准检验重型搜救能力",
+      summary: "东盟灾害管理委员会在印尼万隆举行跨境地震救援联合演练，来自八个成员国的重型搜救队按照 INSARAG 指南完成搜索、破拆、医疗转运等科目，重点检验 72 小时黄金救援期内的跨国协调与队伍分级响应能力。",
+      publish_date: "2026-09-18",
+      url: "https://asean.org/asean-cross-border-earthquake-exercise-insarag-2026/"
+    },
+    {
+      keyword: "PFA心理急救",
+      title: "灾后心理急救（PFA）区域培训在雅加达开班 覆盖东盟八国救援骨干",
+      summary: "为期五天的心理急救区域培训在雅加达举行，课程围绕 PFA 五步法、儿童与丧亲者沟通、救援人员自我照护等内容展开，学员来自东盟八国应急管理与医疗救援机构。",
+      publish_date: "2026-09-05",
+      url: "https://www.ahacentre.org/news/pfa-regional-training-jakarta/"
+    },
+    {
+      keyword: "跨境救援",
+      title: "AHA Centre 协调跨境救援物资驰援缅甸地震灾区",
+      summary: "缅甸中部地震发生后，东盟灾害管理人道主义援助协调中心（AHA Centre）启动应急物流机制，协调成员国跨境运送帐篷、净水设备和医疗物资，并同步共享灾区评估信息。",
+      publish_date: "2026-08-27",
+      url: "https://reliefweb.int/report/myanmar/aha-centre-cross-border-relief-myanmar-earthquake"
+    },
+    {
+      keyword: "INSARAG",
+      title: "菲律宾地震救援：INSARAG 重型搜救队完成黄金 72 小时作业",
+      summary: "菲律宾棉兰老岛地震后，经 INSARAG 分级测评认证的重型搜救队在城市废墟中完成生命探测与被困人员营救，救援行动通过虚拟现场行动协调中心（VOSOCC）统一登记与任务分配。",
+      publish_date: "2026-08-12",
+      url: "https://reliefweb.int/report/philippines/insarag-heavy-team-philippines-earthquake"
+    },
+    {
+      keyword: "PFA心理急救",
+      title: "世卫组织更新灾后心理急救指南 强调社区层面支持",
+      summary: "世界卫生组织发布更新版灾后心理急救指南，建议在应急响应早期由非专业人员提供 PFA 支持，并将心理社会支持纳入跨境救援行动的卫生协调框架。",
+      publish_date: "2026-07-30",
+      url: "https://www.who.int/news/item/updated-pfa-guidance-disasters"
+    },
+    {
+      keyword: "跨境救援",
+      title: "中国救援队赴印尼洪灾地区开展跨境人道主义救援",
+      summary: "应印尼政府请求，中国救援队携带水域救援与医疗装备抵达苏门答腊洪灾地区，与当地搜救部门联合开展人员转移、临时安置点评估和卫生防疫工作。",
+      publish_date: "2026-07-16",
+      url: "https://www.chinadaily.com.cn/a/202607/16/china-rescue-team-indonesia-flood"
+    },
+    {
+      keyword: "INSARAG",
+      title: "越南启动 INSARAG 国际搜救队分级测评（IER）准备工作",
+      summary: "越南国家搜救机构宣布启动 INSARAG 国际搜救队分级测评准备，计划在 2027 年完成重型队认证，以提升参与东盟跨境地震救援行动时的快速部署与现场协调能力。",
+      publish_date: "2026-06-29",
+      url: "https://asean.org/vietnam-insarag-ier-preparation/"
+    },
+    {
+      keyword: "跨境救援",
+      title: "东盟应急物流走廊演练提升跨境物资投送效率",
+      summary: "东盟跨境应急物流走廊桌面与实兵演练在泰国举行，测试口岸快速通关、救援物资预置和跨境运输协调机制，为大规模灾害情境下的多国联合救援提供支撑。",
+      publish_date: "2026-06-11",
+      url: "https://www.ahacentre.org/news/asean-emergency-logistics-corridor-drill/"
+    },
+    {
+      keyword: "PFA心理急救",
+      title: "泰国风暴灾区开通心理援助热线 提供 24 小时 PFA 支持",
+      summary: "泰国防灾减灾厅与卫生部联合开通灾区心理援助热线，由受训志愿者提供 24 小时心理急救与转介服务，并与社区救援队建立联动机制，重点关注儿童、老人和一线救援人员。",
+      publish_date: "2026-05-24",
+      url: "https://www.thaipbs.or.th/news/pfa-hotline-storm-relief"
+    }
+  ];
+
+  var news = [];
+  var page = 1;
+  var editingId = null;
+  var pendingDeleteId = null;
+
+  var $ = function (id) { return document.getElementById(id); };
+
+  /* ---------------- 工具函数 ---------------- */
+  function uid() {
+    return "n_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  }
+
+  function escapeHtml(value) {
+    return String(value == null ? "" : value).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  function escapeRegExp(str) {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  }
+
+  function highlight(text, query) {
+    var safe = escapeHtml(text);
+    if (!query) return safe;
+    var eq = escapeHtml(query);
+    if (!eq) return safe;
+    return safe.replace(new RegExp("(" + escapeRegExp(eq) + ")", "gi"), "<mark>$1</mark>");
+  }
+
+  function normalizeDate(value) {
+    var s = String(value == null ? "" : value).trim();
+    if (!s) return "";
+    var m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (m) return m[1] + "-" + m[2] + "-" + m[3];
+    var d = new Date(s);
+    if (!isNaN(d.getTime())) return d.toISOString().slice(0, 10);
+    return s;
+  }
+
+  function normalizeItem(raw) {
+    if (!raw || typeof raw !== "object") return null;
+    var item = {
+      id: typeof raw.id === "string" && raw.id ? raw.id : uid(),
+      keyword: String(raw.keyword == null ? "" : raw.keyword).trim(),
+      title: String(raw.title == null ? "" : raw.title).trim(),
+      summary: String(raw.summary == null ? "" : raw.summary).trim(),
+      publish_date: normalizeDate(raw.publish_date),
+      url: String(raw.url == null ? "" : raw.url).trim()
+    };
+    if (!item.title || !item.url) return null;
+    return item;
+  }
+
+  function keywordClass(keyword) {
+    var k = String(keyword || "").toUpperCase();
+    if (k.indexOf("INSARAG") !== -1) return "kw-blue";
+    if (k.indexOf("PFA") !== -1 || k.indexOf("心理") !== -1) return "kw-purple";
+    if (k.indexOf("跨境") !== -1 || k.indexOf("救援") !== -1) return "kw-amber";
+    var palette = ["kw-teal", "kw-gray", "kw-blue", "kw-purple", "kw-amber"];
+    var sum = 0;
+    for (var i = 0; i < keyword.length; i++) sum += keyword.charCodeAt(i);
+    return palette[sum % palette.length];
+  }
+
+  function hostOf(url) {
+    try { return new URL(url).hostname.replace(/^www\./, ""); }
+    catch (e) { return url; }
+  }
+
+  /* ---------------- 数据存取 ---------------- */
+  function save() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(news));
+    } catch (e) {
+      toast("本地存储写入失败，请检查浏览器设置", "error");
+    }
+  }
+
+  function load() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (raw !== null) {
+        var parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          news = parsed.map(normalizeItem).filter(Boolean);
+          return;
+        }
+      }
+    } catch (e) {
+      /* 数据损坏时回退到示例数据 */
+    }
+    news = SEED.map(function (item, i) {
+      var copy = normalizeItem(item);
+      copy.id = "seed_" + i;
+      return copy;
+    });
+    save();
+  }
+
+  /* ---------------- Toast ---------------- */
+  function toast(message, type) {
+    var el = document.createElement("div");
+    el.className = "toast" + (type ? " " + type : "");
+    el.textContent = message;
+    $("toasts").appendChild(el);
+    setTimeout(function () {
+      el.style.opacity = "0";
+      el.style.transform = "translateX(12px)";
+      el.style.transition = "all .25s";
+      setTimeout(function () { el.remove(); }, 260);
+    }, 2800);
+  }
+
+  /* ---------------- 筛选 ---------------- */
+  function getFiltered() {
+    var q = $("searchInput").value.trim().toLowerCase();
+    var kw = $("keywordFilter").value;
+    var list = news.filter(function (item) {
+      var matchTitle = !q || item.title.toLowerCase().indexOf(q) !== -1;
+      var matchKeyword = !kw || item.keyword === kw;
+      return matchTitle && matchKeyword;
+    });
+    list.sort(function (a, b) {
+      return String(b.publish_date || "").localeCompare(String(a.publish_date || ""));
+    });
+    return list;
+  }
+
+  /* ---------------- 渲染 ---------------- */
+  function renderKeywordOptions() {
+    var select = $("keywordFilter");
+    var current = select.value;
+    var keywords = [];
+    news.forEach(function (item) {
+      if (item.keyword && keywords.indexOf(item.keyword) === -1) keywords.push(item.keyword);
+    });
+    keywords.sort(function (a, b) { return a.localeCompare(b, "zh-CN"); });
+
+    var html = '<option value="">全部关键词</option>';
+    keywords.forEach(function (k) {
+      html += '<option value="' + escapeHtml(k) + '">' + escapeHtml(k) + "</option>";
+    });
+    select.innerHTML = html;
+    select.value = keywords.indexOf(current) !== -1 ? current : "";
+
+    var datalist = $("keywordOptions");
+    var options = keywords.slice();
+    ["INSARAG", "PFA心理急救", "跨境救援"].forEach(function (k) {
+      if (options.indexOf(k) === -1) options.push(k);
+    });
+    datalist.innerHTML = options.map(function (k) {
+      return '<option value="' + escapeHtml(k) + '"></option>';
+    }).join("");
+  }
+
+  function renderTable() {
+    var list = getFiltered();
+    var totalPages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
+    if (page > totalPages) page = totalPages;
+    if (page < 1) page = 1;
+
+    var start = (page - 1) * PAGE_SIZE;
+    var rows = list.slice(start, start + PAGE_SIZE);
+    var query = $("searchInput").value.trim();
+    var tbody = $("tableBody");
+
+    if (!rows.length) {
+      tbody.innerHTML =
+        '<tr><td colspan="6"><div class="empty">' +
+        '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">' +
+        '<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>' +
+        "<p>" + (news.length ? "没有找到匹配的新闻" : "暂无新闻数据") + "</p>" +
+        "<span>" + (news.length ? "试试更换标题关键词或关键词筛选条件" : "点击右上角「新增新闻」或「导入 JSON」开始维护数据") + "</span>" +
+        "</div></td></tr>";
+    } else {
+      tbody.innerHTML = rows.map(function (item) {
+        return (
+          "<tr>" +
+            '<td><span class="badge ' + keywordClass(item.keyword) + '">' + escapeHtml(item.keyword || "未分类") + "</span></td>" +
+            '<td><div class="cell-title">' + highlight(item.title, query) + "</div></td>" +
+            '<td><div class="cell-summary" title="' + escapeHtml(item.summary) + '">' + escapeHtml(item.summary) + "</div></td>" +
+            '<td><div class="cell-date">' + escapeHtml(item.publish_date || "—") + "</div></td>" +
+            '<td><div class="cell-url"><a href="' + escapeHtml(item.url) + '" target="_blank" rel="noopener noreferrer" title="' + escapeHtml(item.url) + '">' +
+              escapeHtml(hostOf(item.url)) + "</a></div></td>" +
+            '<td><div class="row-actions">' +
+              '<button class="link-btn" data-action="edit" data-id="' + escapeHtml(item.id) + '">编辑</button>' +
+              '<button class="link-btn danger" data-action="delete" data-id="' + escapeHtml(item.id) + '">删除</button>' +
+            "</div></td>" +
+          "</tr>"
+        );
+      }).join("");
+    }
+
+    $("pageSummary").textContent = list.length
+      ? "共 " + list.length + " 条新闻，当前显示第 " + (start + 1) + " - " + (start + rows.length) + " 条"
+      : "共 " + list.length + " 条新闻";
+    $("pageIndicator").textContent = "第 " + page + " / " + totalPages + " 页";
+    $("btnPrev").disabled = page <= 1;
+    $("btnNext").disabled = page >= totalPages;
+
+    renderStats(list);
+  }
+
+  function renderStats(list) {
+    $("statTotal").textContent = news.length;
+    var keywords = {};
+    news.forEach(function (item) { if (item.keyword) keywords[item.keyword] = true; });
+    $("statKeywords").textContent = Object.keys(keywords).length;
+    $("statFiltered").textContent = list.length;
+
+    var filtering = $("searchInput").value.trim() || $("keywordFilter").value;
+    $("statFilteredSub").textContent = filtering ? "已应用检索条件" : "当前显示全部新闻";
+
+    var latest = "";
+    news.forEach(function (item) {
+      if (item.publish_date && item.publish_date > latest) latest = item.publish_date;
+    });
+    $("statLatest").textContent = latest || "—";
+  }
+
+  function renderAll() {
+    renderKeywordOptions();
+    renderTable();
+  }
+
+  /* ---------------- 表单 ---------------- */
+  function openForm(item) {
+    editingId = item ? item.id : null;
+    $("formTitle").textContent = item ? "编辑新闻" : "新增新闻";
+    $("fKeyword").value = item ? item.keyword : "";
+    $("fTitle").value = item ? item.title : "";
+    $("fSummary").value = item ? item.summary : "";
+    $("fDate").value = item ? item.publish_date : "";
+    $("fUrl").value = item ? item.url : "";
+    $("formOverlay").classList.remove("hidden");
+    setTimeout(function () { $("fTitle").focus(); }, 40);
+  }
+
+  function closeForm() {
+    $("formOverlay").classList.add("hidden");
+    editingId = null;
+  }
+
+  function submitForm(event) {
+    event.preventDefault();
+    var keyword = $("fKeyword").value.trim();
+    var title = $("fTitle").value.trim();
+    var summary = $("fSummary").value.trim();
+    var date = normalizeDate($("fDate").value);
+    var url = $("fUrl").value.trim();
+
+    if (!keyword) { toast("请填写关键词", "error"); $("fKeyword").focus(); return; }
+    if (!title) { toast("请填写新闻标题", "error"); $("fTitle").focus(); return; }
+    if (!summary) { toast("请填写新闻摘要", "error"); $("fSummary").focus(); return; }
+    if (!date) { toast("请选择发布日期", "error"); $("fDate").focus(); return; }
+    if (!/^https?:\/\/.+/i.test(url)) { toast("请输入以 http:// 或 https:// 开头的链接", "error"); $("fUrl").focus(); return; }
+
+    if (editingId) {
+      for (var i = 0; i < news.length; i++) {
+        if (news[i].id === editingId) {
+          news[i].keyword = keyword;
+          news[i].title = title;
+          news[i].summary = summary;
+          news[i].publish_date = date;
+          news[i].url = url;
+          break;
+        }
+      }
+      toast("新闻已更新");
+    } else {
+      news.push({
+        id: uid(),
+        keyword: keyword,
+        title: title,
+        summary: summary,
+        publish_date: date,
+        url: url
+      });
+      toast("新闻已新增");
+    }
+
+    save();
+    closeForm();
+    renderAll();
+  }
+
+  /* ---------------- 删除 ---------------- */
+  function askDelete(id) {
+    var target = news.filter(function (item) { return item.id === id; })[0];
+    if (!target) return;
+    pendingDeleteId = id;
+    $("confirmTitle").textContent = target.title;
+    $("confirmOverlay").classList.remove("hidden");
+  }
+
+  function closeDelete() {
+    $("confirmOverlay").classList.add("hidden");
+    pendingDeleteId = null;
+  }
+
+  function confirmDelete() {
+    if (!pendingDeleteId) return;
+    news = news.filter(function (item) { return item.id !== pendingDeleteId; });
+    save();
+    closeDelete();
+    renderAll();
+    toast("新闻已删除", "info");
+  }
+
+  /* ---------------- 导入 / 导出 ---------------- */
+  function handleImport(file) {
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function (e) {
+      var data;
+      try {
+        data = JSON.parse(e.target.result);
+      } catch (err) {
+        toast("导入失败：JSON 文件格式不正确", "error");
+        return;
+      }
+
+      var list = Array.isArray(data) ? data : (data && Array.isArray(data.data) ? data.data : null);
+      if (!list) {
+        toast("导入失败：JSON 顶层需为数组", "error");
+        return;
+      }
+
+      var existing = {};
+      news.forEach(function (item) {
+        existing[(item.url || "").toLowerCase() + "|" + (item.title || "").toLowerCase()] = true;
+      });
+
+      var added = 0;
+      var skipped = 0;
+      list.forEach(function (raw) {
+        var item = normalizeItem(raw);
+        if (!item) { skipped++; return; }
+        var key = item.url.toLowerCase() + "|" + item.title.toLowerCase();
+        if (existing[key]) { skipped++; return; }
+        existing[key] = true;
+        news.push(item);
+        added++;
+      });
+
+      if (added) {
+        save();
+        page = 1;
+        renderAll();
+      }
+      toast("导入完成：新增 " + added + " 条，跳过 " + skipped + " 条（重复或字段缺失）");
+    };
+    reader.onerror = function () {
+      toast("导入失败：无法读取文件", "error");
+    };
+    reader.readAsText(file, "utf-8");
+  }
+
+  function exportJson() {
+    if (!news.length) {
+      toast("当前没有数据可导出", "error");
+      return;
+    }
+    var data = news
+      .slice()
+      .sort(function (a, b) { return String(b.publish_date || "").localeCompare(String(a.publish_date || "")); })
+      .map(function (item) {
+        return {
+          keyword: item.keyword,
+          title: item.title,
+          summary: item.summary,
+          publish_date: item.publish_date,
+          url: item.url
+        };
+      });
+
+    var blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json;charset=utf-8" });
+    var now = new Date();
+    var stamp = now.getFullYear() + String(now.getMonth() + 1).padStart(2, "0") + String(now.getDate()).padStart(2, "0");
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "insarag_news_" + stamp + ".json";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+    toast("已导出 " + data.length + " 条新闻", "info");
+  }
+
+  /* ---------------- 事件绑定 ---------------- */
+  function bindEvents() {
+    $("searchInput").addEventListener("input", function () { page = 1; renderTable(); });
+    $("keywordFilter").addEventListener("change", function () { page = 1; renderTable(); });
+
+    $("btnAdd").addEventListener("click", function () { openForm(null); });
+    $("btnCloseForm").addEventListener("click", closeForm);
+    $("btnCancelForm").addEventListener("click", closeForm);
+    $("newsForm").addEventListener("submit", submitForm);
+
+    $("btnCancelDelete").addEventListener("click", closeDelete);
+    $("btnConfirmDelete").addEventListener("click", confirmDelete);
+
+    $("tableBody").addEventListener("click", function (e) {
+      var btn = e.target.closest("button[data-action]");
+      if (!btn) return;
+      var id = btn.getAttribute("data-id");
+      var action = btn.getAttribute("data-action");
+      if (action === "edit") {
+        var item = news.filter(function (n) { return n.id === id; })[0];
+        if (item) openForm(item);
+      } else if (action === "delete") {
+        askDelete(id);
+      }
+    });
+
+    $("btnImport").addEventListener("click", function () { $("fileInput").click(); });
+    $("fileInput").addEventListener("change", function (e) {
+      handleImport(e.target.files && e.target.files[0]);
+      e.target.value = "";
+    });
+    $("btnExport").addEventListener("click", exportJson);
+
+    $("btnPrev").addEventListener("click", function () {
+      if (page > 1) { page--; renderTable(); }
+    });
+    $("btnNext").addEventListener("click", function () {
+      var totalPages = Math.max(1, Math.ceil(getFiltered().length / PAGE_SIZE));
+      if (page < totalPages) { page++; renderTable(); }
+    });
+
+    $("formOverlay").addEventListener("click", function (e) {
+      if (e.target === $("formOverlay")) closeForm();
+    });
+    $("confirmOverlay").addEventListener("click", function (e) {
+      if (e.target === $("confirmOverlay")) closeDelete();
+    });
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key !== "Escape") return;
+      if (!$("formOverlay").classList.contains("hidden")) closeForm();
+      if (!$("confirmOverlay").classList.contains("hidden")) closeDelete();
+    });
+  }
+
+  /* ---------------- 初始化 ---------------- */
+  load();
+  bindEvents();
+  renderAll();
+})();
+</script>
+<script>
+/* 新闻 CMS 中英双语界面层：不改动原有业务逻辑，仅同步界面文案 */
+(function () {
+  "use strict";
+
+  var LANG_KEY = "kb_lang";
+  var CODES = ["zh", "en", "th", "vi", "ms"];
+  var LANG = (function () {
+    var saved = localStorage.getItem(LANG_KEY);
+    return CODES.indexOf(saved) >= 0 ? saved : "zh";
+  })();
+  var originals = new WeakMap();
+  var scheduled = false;
+
+  var EN = {
+    "东盟灾害救援新闻CMS后台管理系统": "ASEAN Disaster Rescue News CMS",
+    "本 CMS 用于管理 World News API 采集的 INSARAG、PFA心理急救、跨境救援类新闻素材": "This CMS manages INSARAG, PFA psychological first aid and cross-border rescue news collected by the World News API.",
+    "本地存储 · localStorage": "Local storage · localStorage",
+    "新闻总数": "Total news",
+    "条新闻素材": "news items",
+    "关键词类型": "Keyword types",
+    "INSARAG / PFA / 跨境救援": "INSARAG / PFA / Cross-border",
+    "筛选结果": "Filtered results",
+    "当前显示全部新闻": "Showing all news",
+    "已应用检索条件": "Search filters applied",
+    "最近发布日期": "Latest publish date",
+    "按发布时间倒序排列": "Sorted by publish date, newest first",
+    "全部关键词": "All keywords",
+    "新增新闻": "Add news",
+    "编辑新闻": "Edit news",
+    "导入 JSON": "Import JSON",
+    "导出 JSON": "Export JSON",
+    "关键词": "Keyword",
+    "标题": "Title",
+    "摘要": "Summary",
+    "发布日期": "Publish date",
+    "链接": "Link",
+    "操作": "Actions",
+    "上一页": "Previous",
+    "下一页": "Next",
+    "编辑": "Edit",
+    "删除": "Delete",
+    "取消": "Cancel",
+    "保存": "Save",
+    "删除新闻": "Delete news",
+    "确定要删除": "Are you sure you want to delete",
+    "吗？删除后不可恢复。": "? This action cannot be undone.",
+    "确认删除": "Confirm delete",
+    "用于分类检索，如 INSARAG、PFA心理急救、跨境救援": "Used for category filtering, e.g. INSARAG, PFA, cross-border relief",
+    "需以 http:// 或 https:// 开头": "Must start with http:// or https://",
+    "没有找到匹配的新闻": "No matching news",
+    "暂无新闻数据": "No news data yet",
+    "试试更换标题关键词或关键词筛选条件": "Try another title keyword or filter",
+    "点击右上角「新增新闻」或「导入 JSON」开始维护数据": "Click \"Add news\" or \"Import JSON\" to start maintaining data",
+    "数据保存在本地浏览器 localStorage，无需后端服务器与数据库。": "Data is stored in browser localStorage; no backend server or database is required.",
+    "字段：keyword · title · summary · publish_date · url": "Fields: keyword · title · summary · publish_date · url",
+    "本地存储写入失败，请检查浏览器设置": "Failed to write local storage. Please check browser settings.",
+    "请填写关键词": "Please enter a keyword",
+    "请填写新闻标题": "Please enter the news title",
+    "请填写新闻摘要": "Please enter the news summary",
+    "请选择发布日期": "Please select a publish date",
+    "请输入以 http:// 或 https:// 开头的链接": "Please enter a link starting with http:// or https://",
+    "新闻已新增": "News item added",
+    "新闻已更新": "News item updated",
+    "新闻已删除": "News item deleted",
+    "导入失败：JSON 文件格式不正确": "Import failed: invalid JSON file",
+    "导入失败：JSON 顶层需为数组": "Import failed: the JSON root must be an array",
+    "导入失败：无法读取文件": "Import failed: unable to read the file",
+    "当前没有数据可导出": "No data available to export",
+    "未分类": "Uncategorized"
+  };
+
+  var TH = {
+    "东盟灾害救援新闻CMS后台管理系统": "ระบบจัดการข่าว CMS ภัยพิบัติและการกู้ภัยอาเซียน",
+    "本 CMS 用于管理 World News API 采集的 INSARAG、PFA心理急救、跨境救援类新闻素材": "CMS นี้ใช้จัดการข่าว INSARAG, PFA การช่วยเหลือด้านจิตใจเบื้องต้น และการกู้ภัยข้ามพรมแดนที่รวบรวมโดย World News API",
+    "本地存储 · localStorage": "ที่เก็บข้อมูลในเครื่อง · localStorage",
+    "新闻总数": "จำนวนข่าวทั้งหมด",
+    "条新闻素材": "รายการข่าว",
+    "关键词类型": "ประเภทคำสำคัญ",
+    "INSARAG / PFA / 跨境救援": "INSARAG / PFA / กู้ภัยข้ามพรมแดน",
+    "筛选结果": "ผลการกรอง",
+    "当前显示全部新闻": "กำลังแสดงข่าวทั้งหมด",
+    "已应用检索条件": "ใช้เงื่อนไขค้นหาแล้ว",
+    "最近发布日期": "วันที่เผยแพร่ล่าสุด",
+    "按发布时间倒序排列": "เรียงตามวันที่เผยแพร่จากใหม่ไปเก่า",
+    "全部关键词": "คำสำคัญทั้งหมด",
+    "新增新闻": "เพิ่มข่าว",
+    "编辑新闻": "แก้ไขข่าว",
+    "导入 JSON": "นำเข้า JSON",
+    "导出 JSON": "ส่งออก JSON",
+    "关键词": "คำสำคัญ",
+    "标题": "หัวข้อ",
+    "摘要": "บทสรุป",
+    "发布日期": "วันที่เผยแพร่",
+    "链接": "ลิงก์",
+    "操作": "การดำเนินการ",
+    "上一页": "ก่อนหน้า",
+    "下一页": "ถัดไป",
+    "编辑": "แก้ไข",
+    "删除": "ลบ",
+    "取消": "ยกเลิก",
+    "保存": "บันทึก",
+    "删除新闻": "ลบข่าว",
+    "确定要删除": "ยืนยันการลบ",
+    "吗？删除后不可恢复。": " หรือไม่? ไม่สามารถกู้คืนได้",
+    "确认删除": "ยืนยันการลบ",
+    "用于分类检索，如 INSARAG、PFA心理急救、跨境救援": "ใช้สำหรับกรองหมวด เช่น INSARAG, PFA, กู้ภัยข้ามพรมแดน",
+    "需以 http:// 或 https:// 开头": "ต้องขึ้นต้นด้วย http:// หรือ https://",
+    "没有找到匹配的新闻": "ไม่พบข่าวที่ตรงเงื่อนไข",
+    "暂无新闻数据": "ยังไม่มีข้อมูลข่าว",
+    "试试更换标题关键词或关键词筛选条件": "ลองเปลี่ยนคำสำคัญในหัวข้อหรือเงื่อนไขการกรอง",
+    "点击右上角「新增新闻」或「导入 JSON」开始维护数据": "คลิก «เพิ่มข่าว» หรือ «นำเข้า JSON» ที่มุมขวาบนเพื่อเริ่มดูแลข้อมูล",
+    "数据保存在本地浏览器 localStorage，无需后端服务器与数据库。": "ข้อมูลถูกเก็บใน localStorage ของเบราว์เซอร์ ไม่ต้องใช้เซิร์ฟเวอร์หรือฐานข้อมูล",
+    "字段：keyword · title · summary · publish_date · url": "ฟิลด์: keyword · title · summary · publish_date · url",
+    "本地存储写入失败，请检查浏览器设置": "เขียนที่เก็บข้อมูลในเครื่องไม่สำเร็จ โปรดตรวจสอบการตั้งค่าเบราว์เซอร์",
+    "请填写关键词": "โปรดกรอกคำสำคัญ",
+    "请填写新闻标题": "โปรดกรอกหัวข้อข่าว",
+    "请填写新闻摘要": "โปรดกรอกบทสรุปข่าว",
+    "请选择发布日期": "โปรดเลือกวันที่เผยแพร่",
+    "请输入以 http:// 或 https:// 开头的链接": "โปรดกรอกลิงก์ที่ขึ้นต้นด้วย http:// หรือ https://",
+    "新闻已新增": "เพิ่มข่าวแล้ว",
+    "新闻已更新": "อัปเดตข่าวแล้ว",
+    "新闻已删除": "ลบข่าวแล้ว",
+    "导入失败：JSON 文件格式不正确": "นำเข้าไม่สำเร็จ: รูปแบบไฟล์ JSON ไม่ถูกต้อง",
+    "导入失败：JSON 顶层需为数组": "นำเข้าไม่สำเร็จ: ระดับบนสุดของ JSON ต้องเป็นอาร์เรย์",
+    "导入失败：无法读取文件": "นำเข้าไม่สำเร็จ: อ่านไฟล์ไม่ได้",
+    "当前没有数据可导出": "ไม่มีข้อมูลสำหรับส่งออก",
+    "未分类": "ไม่จัดหมวด"
+  };
+
+  var VI = {
+    "东盟灾害救援新闻CMS后台管理系统": "Hệ thống CMS tin tức cứu hộ thảm họa ASEAN",
+    "本 CMS 用于管理 World News API 采集的 INSARAG、PFA心理急救、跨境救援类新闻素材": "CMS này quản lý tin tức INSARAG, PFA và cứu hộ xuyên biên giới do World News API thu thập.",
+    "本地存储 · localStorage": "Lưu trữ cục bộ · localStorage",
+    "新闻总数": "Tổng số tin",
+    "条新闻素材": "tin tức",
+    "关键词类型": "Loại từ khóa",
+    "INSARAG / PFA / 跨境救援": "INSARAG / PFA / Cứu hộ xuyên biên giới",
+    "筛选结果": "Kết quả lọc",
+    "当前显示全部新闻": "Đang hiển thị tất cả tin",
+    "已应用检索条件": "Đã áp dụng điều kiện tìm kiếm",
+    "最近发布日期": "Ngày đăng mới nhất",
+    "按发布时间倒序排列": "Sắp xếp theo ngày đăng mới nhất",
+    "全部关键词": "Tất cả từ khóa",
+    "新增新闻": "Thêm tin",
+    "编辑新闻": "Sửa tin",
+    "导入 JSON": "Nhập JSON",
+    "导出 JSON": "Xuất JSON",
+    "关键词": "Từ khóa",
+    "标题": "Tiêu đề",
+    "摘要": "Tóm tắt",
+    "发布日期": "Ngày đăng",
+    "链接": "Liên kết",
+    "操作": "Thao tác",
+    "上一页": "Trước",
+    "下一页": "Sau",
+    "编辑": "Sửa",
+    "删除": "Xóa",
+    "取消": "Hủy",
+    "保存": "Lưu",
+    "删除新闻": "Xóa tin",
+    "确定要删除": "Bạn có chắc muốn xóa",
+    "吗？删除后不可恢复。": "? Không thể khôi phục sau khi xóa.",
+    "确认删除": "Xác nhận xóa",
+    "用于分类检索，如 INSARAG、PFA心理急救、跨境救援": "Dùng để lọc theo nhóm, ví dụ INSARAG, PFA, cứu hộ xuyên biên giới",
+    "需以 http:// 或 https:// 开头": "Phải bắt đầu bằng http:// hoặc https://",
+    "没有找到匹配的新闻": "Không tìm thấy tin phù hợp",
+    "暂无新闻数据": "Chưa có dữ liệu tin",
+    "试试更换标题关键词或关键词筛选条件": "Hãy thử từ khóa tiêu đề hoặc điều kiện lọc khác",
+    "点击右上角「新增新闻」或「导入 JSON」开始维护数据": "Nhấn «Thêm tin» hoặc «Nhập JSON» ở góc trên bên phải để bắt đầu quản lý dữ liệu",
+    "数据保存在本地浏览器 localStorage，无需后端服务器与数据库。": "Dữ liệu được lưu trong localStorage của trình duyệt, không cần máy chủ hay cơ sở dữ liệu.",
+    "字段：keyword · title · summary · publish_date · url": "Trường: keyword · title · summary · publish_date · url",
+    "本地存储写入失败，请检查浏览器设置": "Ghi lưu trữ cục bộ thất bại, vui lòng kiểm tra cài đặt trình duyệt",
+    "请填写关键词": "Vui lòng nhập từ khóa",
+    "请填写新闻标题": "Vui lòng nhập tiêu đề tin",
+    "请填写新闻摘要": "Vui lòng nhập tóm tắt tin",
+    "请选择发布日期": "Vui lòng chọn ngày đăng",
+    "请输入以 http:// 或 https:// 开头的链接": "Vui lòng nhập liên kết bắt đầu bằng http:// hoặc https://",
+    "新闻已新增": "Đã thêm tin",
+    "新闻已更新": "Đã cập nhật tin",
+    "新闻已删除": "Đã xóa tin",
+    "导入失败：JSON 文件格式不正确": "Nhập thất bại: định dạng tệp JSON không hợp lệ",
+    "导入失败：JSON 顶层需为数组": "Nhập thất bại: cấp cao nhất của JSON phải là mảng",
+    "导入失败：无法读取文件": "Nhập thất bại: không đọc được tệp",
+    "当前没有数据可导出": "Không có dữ liệu để xuất",
+    "未分类": "Chưa phân loại"
+  };
+
+  var MS = {
+    "东盟灾害救援新闻CMS后台管理系统": "Sistem CMS Berita Bencana dan Penyelamat ASEAN",
+    "本 CMS 用于管理 World News API 采集的 INSARAG、PFA心理急救、跨境救援类新闻素材": "CMS ini mengurus berita INSARAG, PFA dan penyelamatan rentas sempadan yang dikumpul oleh World News API.",
+    "本地存储 · localStorage": "Storan setempat · localStorage",
+    "新闻总数": "Jumlah berita",
+    "条新闻素材": "berita",
+    "关键词类型": "Jenis kata kunci",
+    "INSARAG / PFA / 跨境救援": "INSARAG / PFA / Penyelamatan rentas sempadan",
+    "筛选结果": "Hasil tapisan",
+    "当前显示全部新闻": "Memaparkan semua berita",
+    "已应用检索条件": "Tapisian carian digunakan",
+    "最近发布日期": "Tarikh terbit terkini",
+    "按发布时间倒序排列": "Disusun mengikut tarikh terbit terbaharu",
+    "全部关键词": "Semua kata kunci",
+    "新增新闻": "Tambah berita",
+    "编辑新闻": "Sunting berita",
+    "导入 JSON": "Import JSON",
+    "导出 JSON": "Eksport JSON",
+    "关键词": "Kata kunci",
+    "标题": "Tajuk",
+    "摘要": "Ringkasan",
+    "发布日期": "Tarikh terbit",
+    "链接": "Pautan",
+    "操作": "Tindakan",
+    "上一页": "Sebelum",
+    "下一页": "Seterusnya",
+    "编辑": "Sunting",
+    "删除": "Padam",
+    "取消": "Batal",
+    "保存": "Simpan",
+    "删除新闻": "Padam berita",
+    "确定要删除": "Pasti mahu padam",
+    "吗？删除后不可恢复。": "? Tidak boleh dipulihkan selepas dipadam.",
+    "确认删除": "Sahkan padam",
+    "用于分类检索，如 INSARAG、PFA心理急救、跨境救援": "Digunakan untuk tapisan kategori, cth. INSARAG, PFA, penyelamatan rentas sempadan",
+    "需以 http:// 或 https:// 开头": "Mestilah bermula dengan http:// atau https://",
+    "没有找到匹配的新闻": "Tiada berita sepadan ditemui",
+    "暂无新闻数据": "Belum ada data berita",
+    "试试更换标题关键词或关键词筛选条件": "Cuba kata kunci tajuk atau tapisan lain",
+    "点击右上角「新增新闻」或「导入 JSON」开始维护数据": "Klik «Tambah berita» atau «Import JSON» di penjuru kanan atas untuk mula mengurus data",
+    "数据保存在本地浏览器 localStorage，无需后端服务器与数据库。": "Data disimpan dalam localStorage pelayar, tanpa pelayan atau pangkalan data.",
+    "字段：keyword · title · summary · publish_date · url": "Medan: keyword · title · summary · publish_date · url",
+    "本地存储写入失败，请检查浏览器设置": "Gagal menulis storan setempat, sila semak tetapan pelayar",
+    "请填写关键词": "Sila masukkan kata kunci",
+    "请填写新闻标题": "Sila masukkan tajuk berita",
+    "请填写新闻摘要": "Sila masukkan ringkasan berita",
+    "请选择发布日期": "Sila pilih tarikh terbit",
+    "请输入以 http:// 或 https:// 开头的链接": "Sila masukkan pautan yang bermula dengan http:// atau https://",
+    "新闻已新增": "Berita ditambah",
+    "新闻已更新": "Berita dikemas kini",
+    "新闻已删除": "Berita dipadam",
+    "导入失败：JSON 文件格式不正确": "Import gagal: format fail JSON tidak sah",
+    "导入失败：JSON 顶层需为数组": "Import gagal: aras atas JSON mesti tatasusunan",
+    "导入失败：无法读取文件": "Import gagal: fail tidak dapat dibaca",
+    "当前没有数据可导出": "Tiada data untuk dieksport",
+    "未分类": "Tanpa kategori"
+  };
+
+  var DICTS = { en: EN, th: TH, vi: VI, ms: MS };
+  var TITLES = {
+    zh: "东盟灾害救援新闻CMS后台管理系统",
+    en: "ASEAN Disaster Rescue News CMS",
+    th: "ระบบจัดการข่าว CMS ภัยพิบัติและการกู้ภัยอาเซียน",
+    vi: "Hệ thống CMS tin tức cứu hộ thảm họa ASEAN",
+    ms: "Sistem CMS Berita Bencana dan Penyelamat ASEAN"
+  };
+
+  var PLACEHOLDERS = {
+    zh: {
+      searchInput: "输入标题关键词检索新闻，例如：地震、INSARAG、心理急救…",
+      fKeyword: "例如：INSARAG",
+      fTitle: "请输入新闻标题",
+      fSummary: "请输入新闻摘要内容",
+      fUrl: "https://example.com/news/..."
+    },
+    en: {
+      searchInput: "Search news by title keyword, e.g. earthquake, INSARAG, psychological first aid…",
+      fKeyword: "e.g. INSARAG",
+      fTitle: "Enter the news title",
+      fSummary: "Enter the news summary",
+      fUrl: "https://example.com/news/..."
+    },
+    th: {
+      searchInput: "ค้นหาข่าวด้วยคำสำคัญในหัวข้อ เช่น แผ่นดินไหว, INSARAG, PFA…",
+      fKeyword: "เช่น INSARAG",
+      fTitle: "กรอกหัวข้อข่าว",
+      fSummary: "กรอกบทสรุปข่าว",
+      fUrl: "https://example.com/news/..."
+    },
+    vi: {
+      searchInput: "Tìm tin theo từ khóa tiêu đề, ví dụ: động đất, INSARAG, PFA…",
+      fKeyword: "ví dụ: INSARAG",
+      fTitle: "Nhập tiêu đề tin",
+      fSummary: "Nhập tóm tắt tin",
+      fUrl: "https://example.com/news/..."
+    },
+    ms: {
+      searchInput: "Cari berita mengikut kata kunci tajuk, cth. gempa bumi, INSARAG, PFA…",
+      fKeyword: "cth. INSARAG",
+      fTitle: "Masukkan tajuk berita",
+      fSummary: "Masukkan ringkasan berita",
+      fUrl: "https://example.com/news/..."
+    }
+  };
+
+  var PATTERNS = {
+    en: {
+      range: function (m) { return m[1] + " news in total, showing " + m[2] + "–" + m[3]; },
+      total: function (m) { return m[1] + " news items"; },
+      page: function (m) { return "Page " + m[1] + " / " + m[2]; },
+      exported: function (m) { return "Exported " + m[1] + " news items"; },
+      imported: function (m) { return "Import complete: " + m[1] + " added, " + m[2] + " skipped (duplicate or missing fields)"; }
+    },
+    th: {
+      range: function (m) { return "ทั้งหมด " + m[1] + " ข่าว กำลังแสดงรายการที่ " + m[2] + "–" + m[3]; },
+      total: function (m) { return m[1] + " ข่าว"; },
+      page: function (m) { return "หน้า " + m[1] + " / " + m[2]; },
+      exported: function (m) { return "ส่งออกแล้ว " + m[1] + " ข่าว"; },
+      imported: function (m) { return "นำเข้าเสร็จสิ้น: เพิ่ม " + m[1] + " รายการ, ข้าม " + m[2] + " รายการ (ซ้ำหรือฟิลด์ไม่ครบ)"; }
+    },
+    vi: {
+      range: function (m) { return "Tổng " + m[1] + " tin, đang hiển thị " + m[2] + "–" + m[3]; },
+      total: function (m) { return m[1] + " tin"; },
+      page: function (m) { return "Trang " + m[1] + " / " + m[2]; },
+      exported: function (m) { return "Đã xuất " + m[1] + " tin"; },
+      imported: function (m) { return "Nhập hoàn tất: thêm " + m[1] + ", bỏ qua " + m[2] + " (trùng hoặc thiếu trường)"; }
+    },
+    ms: {
+      range: function (m) { return "Jumlah " + m[1] + " berita, memaparkan " + m[2] + "–" + m[3]; },
+      total: function (m) { return m[1] + " berita"; },
+      page: function (m) { return "Halaman " + m[1] + " / " + m[2]; },
+      exported: function (m) { return "Dieksport " + m[1] + " berita"; },
+      imported: function (m) { return "Import selesai: " + m[1] + " ditambah, " + m[2] + " dilangkau (pendua atau medan tidak lengkap)"; }
+    }
+  };
+
+  function translatePattern(text) {
+    var m;
+    var rules = PATTERNS[LANG];
+    if (!rules) return null;
+    m = text.match(/^共 (\d+) 条新闻，当前显示第 (\d+) - (\d+) 条$/);
+    if (m) return rules.range(m);
+    m = text.match(/^共 (\d+) 条新闻$/);
+    if (m) return rules.total(m);
+    m = text.match(/^第 (\d+) \/ (\d+) 页$/);
+    if (m) return rules.page(m);
+    m = text.match(/^已导出 (\d+) 条新闻$/);
+    if (m) return rules.exported(m);
+    m = text.match(/^导入完成：新增 (\d+) 条，跳过 (\d+) 条（重复或字段缺失）$/);
+    if (m) return rules.imported(m);
+    return null;
+  }
+
+  function translateText(raw) {
+    var lead = raw.match(/^\s*/)[0];
+    var tail = raw.match(/\s*$/)[0];
+    var core = raw.trim();
+    if (!core) return raw;
+    var table = DICTS[LANG] || {};
+    var translated = table[core] || translatePattern(core);
+    if (!translated || translated === core) return raw;
+    return lead + translated + tail;
+  }
+
+  function isSkipped(node) {
+    var el = node.parentElement;
+    if (!el) return true;
+    if (el.closest("script,style,#fileInput,#confirmTitle")) return true;
+    if (el.closest("#tableBody .cell-title,#tableBody .cell-summary,#tableBody .cell-url,#tableBody .cell-date")) return true;
+    return false;
+  }
+
+  function localize() {
+    if (LANG === "zh") return;
+    var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+    var node;
+    var updates = [];
+    while ((node = walker.nextNode())) {
+      if (isSkipped(node)) continue;
+      if (originals.has(node)) {
+        var original = originals.get(node);
+        var translated = translateText(original);
+        if (translated !== node.nodeValue) updates.push([node, translated]);
+      } else {
+        originals.set(node, node.nodeValue);
+        var value = translateText(node.nodeValue);
+        if (value !== node.nodeValue) updates.push([node, value]);
+      }
+    }
+    for (var i = 0; i < updates.length; i++) updates[i][0].nodeValue = updates[i][1];
+    applyPlaceholders();
+  }
+
+  function restore() {
+    var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+    var node;
+    var updates = [];
+    while ((node = walker.nextNode())) {
+      if (originals.has(node)) {
+        var original = originals.get(node);
+        if (original !== node.nodeValue) updates.push([node, original]);
+      }
+    }
+    for (var i = 0; i < updates.length; i++) updates[i][0].nodeValue = updates[i][1];
+    applyPlaceholders();
+  }
+
+  function applyPlaceholders() {
+    var map = PLACEHOLDERS[LANG];
+    Object.keys(map).forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.setAttribute("placeholder", map[id]);
+    });
+  }
+
+  function setLang(next) {
+    LANG = CODES.indexOf(next) >= 0 ? next : "zh";
+    document.documentElement.lang = LANG === "zh" ? "zh-CN" : LANG;
+    document.title = TITLES[LANG] || TITLES.zh;
+    if (LANG === "zh") restore();
+    else localize();
+    applyPlaceholders();
+  }
+
+  var observer = new MutationObserver(function () {
+    if (LANG === "zh" || scheduled) return;
+    scheduled = true;
+    window.requestAnimationFrame(function () {
+      scheduled = false;
+      localize();
+    });
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
+
+  window.addEventListener("message", function (e) {
+    if (e.data && e.data.type === "setLang" &&
+        CODES.indexOf(e.data.lang) >= 0 && e.data.lang !== LANG) {
+      setLang(e.data.lang);
+    }
+  });
+  window.addEventListener("storage", function (e) {
+    if (e.key === LANG_KEY && e.newValue && e.newValue !== LANG) setLang(e.newValue);
+  });
+
+  setLang(LANG);
+})();
+</script>
+</body>
+</html>
