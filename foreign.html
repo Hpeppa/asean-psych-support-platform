@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>外语信息聚合 · 东盟灾害心理干预应急语言服务平台</title>
+<link rel="stylesheet" href="assets/kb.css">
+<style>
+  /* ---------- 来源分布条 ---------- */
+  .dist-panel .panel-body{padding:14px 18px 16px;}
+  .dist-body{display:flex;flex-direction:column;gap:9px;}
+  .dist-row{display:flex;align-items:center;gap:10px;font-size:12px;}
+  .dist-name{width:86px;flex:none;font-weight:600;color:#334155;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .dist-track{flex:1;height:10px;border-radius:999px;background:#eef2f8;overflow:hidden;}
+  .dist-fill{height:100%;border-radius:999px;transition:width .45s ease;}
+  .dist-value{width:104px;flex:none;text-align:right;color:#64748b;font-variant-numeric:tabular-nums;white-space:nowrap;}
+
+  /* ---------- 筛选行 ---------- */
+  .filter-bar{padding:11px 18px 13px;border-bottom:1px solid var(--line);background:#fbfcfe;display:flex;flex-direction:column;gap:8px;}
+  .filter-line{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .filter-label{font-size:11px;font-weight:600;color:#94a3b8;letter-spacing:.4px;flex:none;}
+  .chips{display:flex;gap:6px;flex-wrap:wrap;}
+
+  /* ---------- 列表内原文折叠 ---------- */
+  .row-orig{margin-top:8px;}
+  .row-orig details{border:1px solid var(--line);border-radius:10px;background:#fbfcfe;padding:0 10px;transition:border-color .15s,background .15s;}
+  .row-orig details:hover{border-color:#c7d7f0;}
+  .row-orig summary{cursor:pointer;list-style:none;font-size:11.5px;font-weight:600;color:var(--primary);padding:6px 0;display:flex;align-items:center;gap:6px;}
+  .row-orig summary::-webkit-details-marker{display:none;}
+  .row-orig summary::before{content:"";width:0;height:0;border-left:5px solid currentColor;border-top:4px solid transparent;border-bottom:4px solid transparent;transition:transform .15s;flex:none;}
+  .row-orig details[open] summary::before{transform:rotate(90deg);}
+  .row-orig summary .lang-pill{font-size:10px;font-weight:600;color:#64748b;background:#eef2f8;border-radius:5px;padding:1px 5px;margin-left:auto;}
+  .orig-body{padding:0 0 10px;border-top:1px dashed #e5eaf2;margin-top:2px;padding-top:8px;}
+  .orig-title{font-size:12.5px;font-weight:600;color:#334155;line-height:1.6;word-break:break-word;}
+  .orig-summary{font-size:12px;color:#64748b;line-height:1.7;margin-top:4px;word-break:break-word;}
+
+  /* ---------- 弹窗双栏对照 ---------- */
+  .detail-compare{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .compare-col{background:#f8fafc;border:1px solid #eef2f8;border-radius:12px;padding:12px 13px;min-width:0;}
+  .compare-col.zh{background:var(--primary-soft);border-color:#dbe8ff;}
+  .compare-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;}
+  .compare-col h4{margin:0;font-size:11px;color:#94a3b8;font-weight:600;letter-spacing:.4px;text-transform:uppercase;}
+  .compare-col.zh h4{color:var(--primary);}
+  .compare-title{margin:0 0 6px;font-size:13px;font-weight:600;color:#0f172a;line-height:1.6;word-break:break-word;}
+  .compare-body{margin:0;font-size:12.5px;color:#334155;line-height:1.8;word-break:break-word;}
+
+  @media (max-width:640px){
+    .detail-compare{grid-template-columns:1fr;}
+    .dist-name{width:68px;}
+    .dist-value{width:80px;font-size:11px;}
+    .filter-bar{padding:10px 12px 12px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="page-head">
+    <div>
+      <h1 data-i18n="title">外语信息聚合</h1>
+      <p data-i18n="desc">聚合 OCHA、ReliefWeb、UN News、WHO、IFRC 五个权威来源、五种原文语言的心理援助外文资讯，提供外文原文与中文译文对照，并保留原始链接。</p>
+    </div>
+    <span class="demo-tag" data-i18n="demoTag">演示模拟数据</span>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-label" data-i18n="statTotal">中文资讯总数</div>
+      <div class="stat-value" id="statTotal">—</div>
+      <div class="stat-sub" data-i18n="statTotalSub">已中文化的外文报道</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label" data-i18n="statSources">权威来源</div>
+      <div class="stat-value" id="statSources">—</div>
+      <div class="stat-sub" data-i18n="statSourcesSub">OCHA · ReliefWeb · UN News</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label" data-i18n="statCountries">覆盖国家</div>
+      <div class="stat-value" id="statCountries">—</div>
+      <div class="stat-sub" data-i18n="statCountriesSub">东盟受灾国家</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label" data-i18n="statLatest">最近翻译时间</div>
+      <div class="stat-value" style="font-size:14px;padding-top:5px;" id="statLatest">—</div>
+      <div class="stat-sub" data-i18n="statLatestSub">按翻译时间倒序展示</div>
+    </div>
+  </div>
+
+  <div class="panel dist-panel">
+    <div class="panel-head">
+      <h2 data-i18n="distTitle">来源分布</h2>
+      <span class="sub" id="distSub"></span>
+    </div>
+    <div class="panel-body dist-body" id="distBar"></div>
+  </div>
+
+  <div class="panel">
+    <div class="toolbar">
+      <div class="search-box">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="searchInput" data-i18n-placeholder="searchPlaceholder" placeholder="搜索中文标题、摘要或国家…">
+      </div>
+      <span class="count-text" id="countText">—</span>
+    </div>
+    <div class="filter-bar">
+      <div class="filter-line">
+        <span class="filter-label" data-i18n="sourceFilterLabel">来源</span>
+        <div class="chips" id="sourceChips"></div>
+      </div>
+      <div class="filter-line">
+        <span class="filter-label" data-i18n="langFilterLabel">原文语种</span>
+        <div class="chips" id="langChips"></div>
+      </div>
+    </div>
+    <div class="list" id="newsList"></div>
+  </div>
+</div>
+
+<div class="modal-mask" id="modalMask">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <h3 id="modalTitle">资讯详情</h3>
+        <p id="modalSub"></p>
+      </div>
+      <button class="modal-close" id="modalClose" aria-label="close">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-foot">
+      <a class="btn btn-outline" id="modalLink" target="_blank" rel="noopener noreferrer" data-i18n="openOriginal">查看原始来源</a>
+      <button class="btn btn-primary" id="modalOk" data-i18n="close">关闭</button>
+    </div>
+  </div>
+</div>
+
+<script src="assets/kb.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  var T = {
+    zh: {
+      docTitle: "外语信息聚合 · 东盟灾害心理干预应急语言服务平台",
+      title: "外语信息聚合",
+      desc: "聚合 OCHA、ReliefWeb、UN News、WHO、IFRC 五个权威来源、五种原文语言的心理援助外文资讯，聚焦 PFA 心理急救、MHPSS、创伤应激、儿童与家庭支持、哀伤辅导与救援人员关怀，提供外文原文与中文译文对照，并保留原始链接。",
+      demoTag: "演示模拟数据",
+      statTotal: "心理援助资讯",
+      statTotalSub: "已中文化的外文报道",
+      statSources: "权威来源",
+      statSourcesSub: "OCHA · ReliefWeb · UN News · WHO · IFRC",
+      statCountries: "覆盖国家",
+      statCountriesSub: "东盟受灾国家",
+      statLatest: "最近翻译时间",
+      statLatestSub: "按翻译时间倒序展示",
+      filterAll: "全部来源",
+      sourceFilterLabel: "来源",
+      langFilterLabel: "原文语种",
+      filterLangAll: "全部语种",
+      langEn: "英语",
+      langId: "印尼语",
+      langTh: "泰语",
+      langVi: "越南语",
+      langMs: "马来语",
+      searchPlaceholder: "搜索中文/外文标题、摘要或国家…",
+      count: "共 {n} 条资讯",
+      translatedAt: "翻译时间",
+      originLink: "原始来源 ↗",
+      sourceLabel: "来源",
+      countryLabel: "国家",
+      categoryLabel: "灾害类型",
+      originalTitle: "外文原标题",
+      originalSummary: "原文摘要",
+      originalLang: "原文语种",
+      originalText: "外文原文",
+      chineseTranslation: "中文译文",
+      compareTitle: "外文原文 / 中文摘要对照",
+      showOriginalTpl: "查看外文原文 · {lang}",
+      summaryLabel: "中文摘要",
+      originalUrl: "原始来源链接",
+      openOriginal: "查看原始来源",
+      close: "关闭",
+      noResult: "没有匹配的资讯，请调整筛选条件",
+      loading: "正在加载资讯…",
+      error: "资讯加载失败，请确认已启动本地服务（python rag_server.py）",
+      detailTitle: "资讯详情",
+      distTitle: "来源分布",
+      distSubTpl: "{s} 个来源 · {n} 条资讯 · {l} 种原文语言",
+      distValue: "{n} 条 · {p}%"
+    },
+    en: {
+      docTitle: "Foreign News Aggregation · ASEAN Emergency Language Platform",
+      title: "Foreign News Aggregation",
+      desc: "Aggregates psychosocial-support news from five authoritative sources — OCHA, ReliefWeb, UN News, WHO and IFRC — in English, Indonesian, Thai, Vietnamese and Malay, focused on psychological first aid, MHPSS, trauma stress, child and family support, grief counselling and responder care, with side-by-side original text and Chinese translations plus original source links.",
+      demoTag: "Demo data",
+      statTotal: "Psychosocial news items",
+      statTotalSub: "Foreign reports localized into Chinese",
+      statSources: "Authoritative sources",
+      statSourcesSub: "OCHA · ReliefWeb · UN News · WHO · IFRC",
+      statCountries: "Countries covered",
+      statCountriesSub: "Disaster-affected ASEAN countries",
+      statLatest: "Latest translation",
+      statLatestSub: "Sorted by translation time",
+      filterAll: "All sources",
+      sourceFilterLabel: "Source",
+      langFilterLabel: "Original language",
+      filterLangAll: "All languages",
+      langEn: "English",
+      langId: "Indonesian",
+      langTh: "Thai",
+      langVi: "Vietnamese",
+      langMs: "Malay",
+      searchPlaceholder: "Search Chinese/original title, summary or country…",
+      count: "{n} news items",
+      translatedAt: "Translated at",
+      originLink: "Original source ↗",
+      sourceLabel: "Source",
+      countryLabel: "Country",
+      categoryLabel: "Hazard type",
+      originalTitle: "Original title",
+      originalSummary: "Original summary",
+      originalLang: "Original language",
+      originalText: "Original text",
+      chineseTranslation: "Chinese translation",
+      compareTitle: "Original text vs. Chinese summary",
+      showOriginalTpl: "View original text · {lang}",
+      summaryLabel: "Chinese summary",
+      originalUrl: "Original source URL",
+      openOriginal: "View original source",
+      close: "Close",
+      noResult: "No matching news, please adjust the filters",
+      loading: "Loading news…",
+      error: "Failed to load news. Make sure the local server is running (python rag_server.py).",
+      detailTitle: "News detail",
+      distTitle: "Source distribution",
+      distSubTpl: "{s} sources · {n} news items · {l} original languages",
+      distValue: "{n} · {p}%"
+    },
+    th: {
+      docTitle: "การรวบรวมข่าวต่างประเทศ · แพลตฟอร์มภาษาเพื่อการช่วยเหลือภัยพิบัติอาเซียน",
+      title: "การรวบรวมข่าวต่างประเทศ",
+      desc: "รวบรวมข่าวการช่วยเหลือทางจิตใจจาก 5 แหล่งข่าวที่น่าเชื่อถือ ได้แก่ OCHA, ReliefWeb, UN News, WHO และ IFRC ใน 5 ภาษาต้นฉบับ (อังกฤษ อินโดนีเซีย ไทย เวียดนาม มลายู) เน้นการปฐมพยาบาลทางจิตใจ MHPSS ความเครียดจาก trauma การสนับสนุนเด็กและครอบครัว การให้คำปรึกษาเรื่องการสูญเสีย และการดูแลผู้ปฏิบัติงาน พร้อมข้อความต้นฉบับเทียบบทแปลภาษาจีนและลิงก์ต้นฉบับ",
+      demoTag: "ข้อมูลสาธิต",
+      statTotal: "ข่าวการช่วยเหลือด้านจิตใจ",
+      statTotalSub: "ข่าวต่างประเทศที่แปลเป็นภาษาจีน",
+      statSources: "แหล่งข่าวที่น่าเชื่อถือ",
+      statSourcesSub: "OCHA · ReliefWeb · UN News · WHO · IFRC",
+      statCountries: "ประเทศที่ครอบคลุม",
+      statCountriesSub: "ประเทศอาเซียนที่ประสบภัย",
+      statLatest: "เวลาแปลล่าสุด",
+      statLatestSub: "เรียงตามเวลาแปลจากใหม่ไปเก่า",
+      filterAll: "ทุกแหล่งข่าว",
+      sourceFilterLabel: "แหล่งข่าว",
+      langFilterLabel: "ภาษาต้นฉบับ",
+      filterLangAll: "ทุกภาษา",
+      langEn: "อังกฤษ",
+      langId: "อินโดนีเซีย",
+      langTh: "ไทย",
+      langVi: "เวียดนาม",
+      langMs: "มลายู",
+      searchPlaceholder: "ค้นหาชื่อเรื่อง บทสรุป หรือประเทศ…",
+      count: "ข่าวทั้งหมด {n} รายการ",
+      translatedAt: "เวลาแปล",
+      originLink: "ต้นฉบับ ↗",
+      sourceLabel: "แหล่งข่าว",
+      countryLabel: "ประเทศ",
+      categoryLabel: "ประเภทภัยพิบัติ",
+      originalTitle: "ชื่อเรื่องต้นฉบับ",
+      originalSummary: "บทสรุปต้นฉบับ",
+      originalLang: "ภาษาต้นฉบับ",
+      originalText: "ข้อความต้นฉบับ",
+      chineseTranslation: "บทแปลภาษาจีน",
+      compareTitle: "ต้นฉบับเทียบบทสรุปภาษาจีน",
+      showOriginalTpl: "ดูข้อความต้นฉบับ · {lang}",
+      summaryLabel: "บทสรุปภาษาจีน",
+      originalUrl: "ลิงก์ต้นฉบับ",
+      openOriginal: "ดูแหล่งข่าวต้นฉบับ",
+      close: "ปิด",
+      noResult: "ไม่พบข่าวที่ตรงกัน โปรดปรับตัวกรอง",
+      loading: "กำลังโหลดข่าว…",
+      error: "โหลดข่าวไม่สำเร็จ โปรดตรวจสอบว่าเซิร์ฟเวอร์ทำงานอยู่ (python rag_server.py)",
+      detailTitle: "รายละเอียดข่าว",
+      distTitle: "การกระจายตามแหล่งข่าว",
+      distSubTpl: "{s} แหล่งข่าว · {n} ข่าว · {l} ภาษาต้นฉบับ",
+      distValue: "{n} รายการ · {p}%"
+    },
+    vi: {
+      docTitle: "Tổng hợp tin nước ngoài · Nền tảng ngôn ngữ ứng phó thảm họa ASEAN",
+      title: "Tổng hợp tin nước ngoài",
+      desc: "Tổng hợp tin hỗ trợ tâm lý từ 5 nguồn chính thống — OCHA, ReliefWeb, UN News, WHO và IFRC — bằng 5 ngôn ngữ gốc (Anh, Indonesia, Thái, Việt, Mã Lai), tập trung vào sơ cứu tâm lý, MHPSS, sang chấn căng thẳng, hỗ trợ trẻ em và gia đình, tư vấn đau buồn và chăm sóc nhân viên cứu hộ, kèm đối chiếu nguyên văn và bản dịch tiếng Trung cùng liên kết gốc.",
+      demoTag: "Dữ liệu mô phỏng",
+      statTotal: "Tin hỗ trợ tâm lý",
+      statTotalSub: "Tin nước ngoài đã Việt hóa thành tiếng Trung",
+      statSources: "Nguồn tin chính thống",
+      statSourcesSub: "OCHA · ReliefWeb · UN News · WHO · IFRC",
+      statCountries: "Quốc gia được đề cập",
+      statCountriesSub: "Các nước ASEAN bị ảnh hưởng",
+      statLatest: "Thời gian dịch gần nhất",
+      statLatestSub: "Sắp xếp theo thời gian dịch",
+      filterAll: "Tất cả nguồn",
+      sourceFilterLabel: "Nguồn",
+      langFilterLabel: "Ngôn ngữ gốc",
+      filterLangAll: "Tất cả ngôn ngữ",
+      langEn: "Tiếng Anh",
+      langId: "Tiếng Indonesia",
+      langTh: "Tiếng Thái",
+      langVi: "Tiếng Việt",
+      langMs: "Tiếng Mã Lai",
+      searchPlaceholder: "Tìm tiêu đề, tóm tắt hoặc quốc gia…",
+      count: "Tổng {n} tin",
+      translatedAt: "Thời gian dịch",
+      originLink: "Nguồn gốc ↗",
+      sourceLabel: "Nguồn",
+      countryLabel: "Quốc gia",
+      categoryLabel: "Loại thiên tai",
+      originalTitle: "Tiêu đề gốc",
+      originalSummary: "Tóm tắt gốc",
+      originalLang: "Ngôn ngữ gốc",
+      originalText: "Nguyên văn",
+      chineseTranslation: "Bản dịch tiếng Trung",
+      compareTitle: "Đối chiếu nguyên văn và tóm tắt tiếng Trung",
+      showOriginalTpl: "Xem nguyên văn · {lang}",
+      summaryLabel: "Tóm tắt tiếng Trung",
+      originalUrl: "Liên kết nguồn gốc",
+      openOriginal: "Xem nguồn gốc",
+      close: "Đóng",
+      noResult: "Không có tin phù hợp, vui lòng điều chỉnh bộ lọc",
+      loading: "Đang tải tin…",
+      error: "Không tải được tin. Hãy kiểm tra máy chủ cục bộ (python rag_server.py).",
+      detailTitle: "Chi tiết tin",
+      distTitle: "Phân bố nguồn tin",
+      distSubTpl: "{s} nguồn · {n} tin · {l} ngôn ngữ gốc",
+      distValue: "{n} tin · {p}%"
+    },
+    ms: {
+      docTitle: "Agregasi Berita Asing · Platform Bahasa Kecemasan ASEAN",
+      title: "Agregasi Berita Asing",
+      desc: "Mengagregasi berita sokongan psikososial daripada lima sumber berwibawa — OCHA, ReliefWeb, UN News, WHO dan IFRC — dalam lima bahasa asal (Inggeris, Indonesia, Thai, Vietnam, Melayu), memfokuskan bantuan psikologi pertama, MHPSS, tekanan trauma, sokongan kanak-kanak dan keluarga, kaunseling kedukaan serta penjagaan petugas, dengan paparan selari teks asal dan terjemahan Cina serta pautan sumber asal.",
+      demoTag: "Data demo",
+      statTotal: "Berita sokongan psikososial",
+      statTotalSub: "Laporan asing yang diterjemah ke bahasa Cina",
+      statSources: "Sumber berwibawa",
+      statSourcesSub: "OCHA · ReliefWeb · UN News · WHO · IFRC",
+      statCountries: "Negara diliputi",
+      statCountriesSub: "Negara ASEAN yang terjejas",
+      statLatest: "Terjemahan terkini",
+      statLatestSub: "Disusun mengikut masa terjemahan",
+      filterAll: "Semua sumber",
+      sourceFilterLabel: "Sumber",
+      langFilterLabel: "Bahasa asal",
+      filterLangAll: "Semua bahasa",
+      langEn: "Bahasa Inggeris",
+      langId: "Bahasa Indonesia",
+      langTh: "Bahasa Thai",
+      langVi: "Bahasa Vietnam",
+      langMs: "Bahasa Melayu",
+      searchPlaceholder: "Cari tajuk, ringkasan atau negara…",
+      count: "{n} berita",
+      translatedAt: "Masa terjemahan",
+      originLink: "Sumber asal ↗",
+      sourceLabel: "Sumber",
+      countryLabel: "Negara",
+      categoryLabel: "Jenis bencana",
+      originalTitle: "Tajuk asal",
+      originalSummary: "Ringkasan asal",
+      originalLang: "Bahasa asal",
+      originalText: "Teks asal",
+      chineseTranslation: "Terjemahan Cina",
+      compareTitle: "Perbandingan teks asal dan ringkasan Cina",
+      showOriginalTpl: "Lihat teks asal · {lang}",
+      summaryLabel: "Ringkasan bahasa Cina",
+      originalUrl: "Pautan sumber asal",
+      openOriginal: "Lihat sumber asal",
+      close: "Tutup",
+      noResult: "Tiada berita sepadan, sila ubah penapis",
+      loading: "Memuatkan berita…",
+      error: "Gagal memuatkan berita. Pastikan pelayan setempat berjalan (python rag_server.py).",
+      detailTitle: "Butiran berita",
+      distTitle: "Taburan sumber",
+      distSubTpl: "{s} sumber · {n} berita · {l} bahasa asal",
+      distValue: "{n} · {p}%"
+    }
+  };
+
+  var lang = KB.readLang();
+  var t = KB.makeT(T, lang);
+  var data = [];
+  var sourceFilter = "all";
+  var langFilter = "all";
+  var keyword = "";
+  var activeItem = null;
+  var SOURCES = ["OCHA", "ReliefWeb", "UN News", "WHO", "IFRC"];
+  var LANGS = ["en", "id", "th", "vi", "ms"];
+
+  function langName(code) {
+    var map = { en: "langEn", id: "langId", th: "langTh", vi: "langVi", ms: "langMs" };
+    return t(map[code] || code);
+  }
+
+  function renderChips() {
+    var counts = { all: data.length };
+    data.forEach(function (item) {
+      counts[item.source_code] = (counts[item.source_code] || 0) + 1;
+    });
+    var list = [{ code: "all", label: t("filterAll") }].concat(
+      SOURCES.map(function (code) { return { code: code, label: code }; })
+    );
+    document.getElementById("sourceChips").innerHTML = list.map(function (item) {
+      var n = counts[item.code] || 0;
+      return '<button class="chip' + (sourceFilter === item.code ? " active" : "") +
+        '" data-source="' + item.code + '">' + KB.escapeHtml(item.label) + " · " + n + "</button>";
+    }).join("");
+
+    var langCounts = { all: data.length };
+    data.forEach(function (item) {
+      langCounts[item.original_lang] = (langCounts[item.original_lang] || 0) + 1;
+    });
+    var langList = [{ code: "all", label: t("filterLangAll") }].concat(
+      LANGS.map(function (code) { return { code: code, label: langName(code) }; })
+    );
+    document.getElementById("langChips").innerHTML = langList.map(function (item) {
+      var n = langCounts[item.code] || 0;
+      return '<button class="chip' + (langFilter === item.code ? " active" : "") +
+        '" data-lang="' + item.code + '">' + KB.escapeHtml(item.label) + " · " + n + "</button>";
+    }).join("");
+  }
+
+  function renderDist() {
+    var sources = {};
+    data.forEach(function (item) {
+      sources[item.source_code] = (sources[item.source_code] || 0) + 1;
+    });
+    var langs = {};
+    data.forEach(function (item) {
+      langs[item.original_lang] = true;
+    });
+    var total = data.length;
+    document.getElementById("distSub").textContent = KB.fillTpl(t("distSubTpl"), {
+      s: Object.keys(sources).length,
+      n: total,
+      l: Object.keys(langs).length
+    });
+    document.getElementById("distBar").innerHTML = SOURCES.map(function (code, i) {
+      var n = sources[code] || 0;
+      var pct = total ? Math.round(n / total * 100) : 0;
+      var shades = ["#1e3a8a,#2563eb", "#1d4ed8,#3b82f6", "#2563eb,#60a5fa", "#3b82f6,#7dd3fc", "#60a5fa,#a5b4fc"];
+      return '<div class="dist-row">' +
+        '<span class="dist-name">' + KB.escapeHtml(code) + "</span>" +
+        '<span class="dist-track"><span class="dist-fill" style="display:block;background:linear-gradient(90deg,' + shades[i % shades.length] + ');width:' + pct + '%;"></span></span>' +
+        '<span class="dist-value">' + KB.escapeHtml(KB.fillTpl(t("distValue"), { n: n, p: pct })) + "</span>" +
+        "</div>";
+    }).join("");
+  }
+
+  function filtered() {
+    var word = keyword.trim().toLowerCase();
+    return data.filter(function (item) {
+      if (sourceFilter !== "all" && item.source_code !== sourceFilter) return false;
+      if (langFilter !== "all" && item.original_lang !== langFilter) return false;
+      if (!word) return true;
+      return (item.title_zh + " " + item.summary_zh + " " + item.country + " " + item.category +
+        " " + (item.original_title || "") + " " + (item.original_summary || ""))
+        .toLowerCase().indexOf(word) >= 0;
+    });
+  }
+
+  function renderList() {
+    var list = document.getElementById("newsList");
+    var rows = filtered();
+    document.getElementById("countText").textContent = KB.fillTpl(t("count"), { n: rows.length });
+    if (!rows.length) {
+      list.innerHTML = '<div class="empty">' +
+        '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>' +
+        "<div>" + KB.escapeHtml(t("noResult")) + "</div></div>";
+      return;
+    }
+    list.innerHTML = rows.map(function (item, index) {
+      return '<div class="row" data-index="' + index + '" role="button" tabindex="0">' +
+        '<div class="row-main">' +
+          '<div class="row-title">' + KB.highlight(item.title_zh, keyword) + "</div>" +
+          '<div class="row-summary">' + KB.highlight(item.summary_zh, keyword) + "</div>" +
+          '<div class="row-orig"><details>' +
+            "<summary>" + KB.escapeHtml(KB.fillTpl(t("showOriginalTpl"), { lang: langName(item.original_lang) })) +
+              '<span class="lang-pill">' + KB.escapeHtml(item.original_lang.toUpperCase()) + "</span></summary>" +
+            '<div class="orig-body">' +
+              '<div class="orig-title">' + KB.escapeHtml(item.original_title) + "</div>" +
+              '<div class="orig-summary">' + KB.escapeHtml(item.original_summary) + "</div>" +
+            "</div>" +
+          "</details></div>" +
+          '<div class="row-meta">' +
+            '<span class="tag blue">' + KB.escapeHtml(item.source_code) + "</span>" +
+            '<span class="tag gray">' + KB.escapeHtml(item.category) + "</span>" +
+            "<span>" + KB.escapeHtml(item.country) + "</span>" +
+            "<span>" + KB.escapeHtml(t("translatedAt")) + " · " + KB.escapeHtml(item.translated_at) + "</span>" +
+            '<a href="' + KB.escapeHtml(item.url) + '" target="_blank" rel="noopener noreferrer" style="color:#2563eb;font-weight:600;text-decoration:none;">' +
+              KB.escapeHtml(t("originLink")) + "</a>" +
+          "</div>" +
+        "</div>" +
+      "</div>";
+    }).join("");
+    Array.prototype.forEach.call(list.querySelectorAll(".row"), function (row) {
+      row.addEventListener("click", function (e) {
+        if (e.target.closest("a")) return;
+        if (e.target.closest("details")) return;
+        openDetail(rows[parseInt(row.getAttribute("data-index"), 10)]);
+      });
+    });
+  }
+
+  function openDetail(item) {
+    if (!item) return;
+    activeItem = item;
+    document.getElementById("modalTitle").textContent = item.title_zh;
+    document.getElementById("modalSub").textContent = item.source_name + " · " + item.translated_at;
+    document.getElementById("modalBody").innerHTML =
+      '<div class="detail-grid">' +
+        '<div class="detail-cell"><b>' + KB.escapeHtml(t("sourceLabel")) + "</b><span>" + KB.escapeHtml(item.source_name) + "</span></div>" +
+        '<div class="detail-cell"><b>' + KB.escapeHtml(t("countryLabel")) + "</b><span>" + KB.escapeHtml(item.country) + "</span></div>" +
+        '<div class="detail-cell"><b>' + KB.escapeHtml(t("categoryLabel")) + "</b><span>" + KB.escapeHtml(item.category) + "</span></div>" +
+        '<div class="detail-cell"><b>' + KB.escapeHtml(t("translatedAt")) + "</b><span>" + KB.escapeHtml(item.translated_at) + "</span></div>" +
+      "</div>" +
+      '<div class="detail-block">' +
+        "<h4>" + KB.escapeHtml(t("compareTitle")) + "</h4>" +
+        '<div class="detail-compare">' +
+          '<div class="compare-col">' +
+            '<div class="compare-head"><h4>' + KB.escapeHtml(t("originalText")) +
+              '</h4><span class="tag blue">' + KB.escapeHtml(langName(item.original_lang)) + " · " + KB.escapeHtml(item.original_lang.toUpperCase()) + "</span></div>" +
+            '<p class="compare-title">' + KB.escapeHtml(item.original_title) + "</p>" +
+            '<p class="compare-body">' + KB.escapeHtml(item.original_summary) + "</p>" +
+          "</div>" +
+          '<div class="compare-col zh">' +
+            '<div class="compare-head"><h4>' + KB.escapeHtml(t("chineseTranslation")) + "</h4></div>" +
+            '<p class="compare-title">' + KB.escapeHtml(item.title_zh) + "</p>" +
+            '<p class="compare-body">' + KB.escapeHtml(item.summary_zh) + "</p>" +
+          "</div>" +
+        "</div>" +
+      "</div>" +
+      '<div class="detail-block"><h4>' + KB.escapeHtml(t("originalUrl")) + '</h4><p><a href="' + KB.escapeHtml(item.url) + '" target="_blank" rel="noopener noreferrer">' + KB.escapeHtml(item.url) + "</a></p></div>";
+    document.getElementById("modalLink").href = item.url;
+    document.getElementById("modalMask").classList.add("show");
+  }
+
+  function closeDetail() {
+    document.getElementById("modalMask").classList.remove("show");
+    activeItem = null;
+  }
+
+  function updateStats() {
+    document.getElementById("statTotal").textContent = data.length;
+    document.getElementById("statSources").textContent = SOURCES.length;
+    var countries = {};
+    data.forEach(function (item) { countries[item.country] = true; });
+    document.getElementById("statCountries").textContent = Object.keys(countries).length;
+    var latest = data.reduce(function (acc, item) {
+      return item.translated_at > acc ? item.translated_at : acc;
+    }, "");
+    document.getElementById("statLatest").textContent = latest || "—";
+  }
+
+  function applyLang(next) {
+    lang = next;
+    t = KB.makeT(T, lang);
+    document.documentElement.lang = lang === "zh" ? "zh-CN" : lang;
+    document.title = t("docTitle");
+    KB.applyStatic(t);
+    renderChips();
+    renderDist();
+    renderList();
+    if (activeItem) {
+      var keep = activeItem;
+      openDetail(keep);
+    }
+  }
+
+  function load() {
+    document.getElementById("newsList").innerHTML = '<div class="empty">' + KB.escapeHtml(t("loading")) + "</div>";
+    KB.fetchJson("foreign_news.json")
+      .then(function (res) {
+        data = Array.isArray(res) ? res : [];
+        data.sort(function (a, b) { return String(b.translated_at).localeCompare(String(a.translated_at)); });
+        updateStats();
+        renderChips();
+        renderDist();
+        renderList();
+      })
+      .catch(function () {
+        document.getElementById("newsList").innerHTML = '<div class="empty">' + KB.escapeHtml(t("error")) + "</div>";
+      });
+  }
+
+  document.getElementById("sourceChips").addEventListener("click", function (e) {
+    var chip = e.target.closest("[data-source]");
+    if (!chip) return;
+    sourceFilter = chip.getAttribute("data-source");
+    renderChips();
+    renderList();
+  });
+
+  document.getElementById("langChips").addEventListener("click", function (e) {
+    var chip = e.target.closest("[data-lang]");
+    if (!chip) return;
+    langFilter = chip.getAttribute("data-lang");
+    renderChips();
+    renderList();
+  });
+
+  var searchTimer = null;
+  document.getElementById("searchInput").addEventListener("input", function (e) {
+    clearTimeout(searchTimer);
+    var value = e.target.value;
+    searchTimer = setTimeout(function () {
+      keyword = value;
+      renderList();
+    }, 160);
+  });
+
+  document.getElementById("modalClose").addEventListener("click", closeDetail);
+  document.getElementById("modalOk").addEventListener("click", closeDetail);
+  document.getElementById("modalMask").addEventListener("click", function (e) {
+    if (e.target === e.currentTarget) closeDetail();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") closeDetail();
+  });
+
+  KB.bindLanguage(applyLang, { onVisible: true });
+  load();
+})();
+</script>
+</body>
+</html>
