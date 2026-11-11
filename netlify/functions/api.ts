@@ -239,6 +239,27 @@ function sseHeaders(): Record<string, string> {
   };
 }
 
+/* 领域词表：问题中不含任何领域词时直接拒答，避免通用相似度造成的越界作答 */
+const DOMAIN_TERMS = [
+  "心理", "急救", "pfa", "mhpss", "创伤", "应激", "哀伤", "丧亲", "失亲", "悲痛",
+  "灾", "救援", "搜救", "抢险", "安置", "疏散", "撤离", "避难", "余震", "洪", "台风", "地震",
+  "儿童", "孩子", "青少年", "老人", "家庭", "家属", "孕妇", "残障", "伤者", "遇难",
+  "情绪", "焦虑", "抑郁", "恐惧", "失眠", "惊恐", "自责", "羞耻", "倦怠", "替代性创伤",
+  "安抚", "干预", "疏导", "陪伴", "倾听", "共情", "沟通", "转介", "评估", "量表",
+  "社工", "志愿者", "援助员", "一线人员", "医护", "救援人员", "社区",
+  "语言", "翻译", "术语", "语料", "译", "口译", "笔译", "多语", "双语",
+  "东盟", "泰国", "越南", "马来", "印尼", "菲律宾", "缅甸", "柬埔寨", "老挝", "新加坡",
+  "英文", "英语", "泰语", "越语", "马来语", "印尼语", "缅甸语", "高棉语", "老挝语",
+  "psycholog", "trauma", "disaster", "relief", "first aid", "grief", "counsel",
+  "mental", "rescue", "shelter", "evacuat", "assessment", "community", "aid worker",
+  "translate", "translation", "terminolog", "corpus", "interpret",
+];
+
+function isOnTopic(text: string): boolean {
+  const s = String(text || "").toLowerCase();
+  return DOMAIN_TERMS.some((t) => s.includes(t));
+}
+
 async function handleChat(body: any): Promise<Response> {
   const question = String(body.question || "").trim();
   if (!question) return json({ ok: false, error: "问题不能为空" }, 400);
@@ -248,7 +269,7 @@ async function handleChat(body: any): Promise<Response> {
   const query = await embedQuery(question);
   const hits = rank(items, query, null, TOP_K);
   const best = hits.length ? hits[0].score : 0;
-  const refused = best < minScore;
+  const refused = !isOnTopic(question) || best < minScore;
 
   const status = {
     chunk_count: items.length,
